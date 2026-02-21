@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAMEET Accounting Software</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --accent-hover: #2980b9;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --menu-bg: #2c3e50;
+            --menu-hover: #34495e;
+            --submenu-bg: #34495e;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            --transition: all 0.3s ease;
+            --gradient-primary: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%);
+            --gradient-accent: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            --gradient-card: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Welcome Popup */
+        .welcome-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            text-align: center;
+            animation: fadeInScale 0.5s;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .welcome-popup h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .welcome-popup p {
+            margin-bottom: 2rem;
+            color: #555;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+
+        .welcome-popup .btn {
+            background: var(--gradient-accent);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.3);
+            font-size: 1rem;
+        }
+
+        .welcome-popup .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .welcome-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 999;
+            backdrop-filter: blur(5px);
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        /* User Info */
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+            color: white;
+            padding: 0 15px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            margin-right: 10px;
+            height: 36px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-info i {
+            margin-right: 8px;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            cursor: pointer;
+            margin-left: 15px;
+            display: flex;
+            align-items: center;
+            padding: 8px 14px;
+            border-radius: 6px;
+            transition: var(--transition);
+            backdrop-filter: blur(5px);
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Header Styles */
+        .software-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .software-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent-color);
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            background: var(--gradient-primary);
+            color: white;
+            display: flex;
+            height: 50px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .nav-item {
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            transition: var(--transition);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background-color: var(--menu-hover);
+        }
+
+        .nav-item i {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .submenu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: var(--submenu-bg);
+            min-width: 240px;
+            z-index: 100;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border-radius: 0 0 8px 8px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .submenu-item {
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .submenu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding-left: 25px;
+        }
+
+        .submenu-item i {
+            width: 20px;
+            font-size: 14px;
+            margin-right: 12px;
+        }
+
+        /* Show submenu on hover */
+        .nav-item:hover .submenu {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: url('https://www.transparenttextures.com/patterns/cubes.png'), linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .welcome-message {
+            text-align: center;
+            margin-bottom: 50px;
+            max-width: 900px;
+            background: var(--gradient-card);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-message::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--gradient-accent);
+        }
+
+        .welcome-message h1 {
+            color: var(--dark-color);
+            margin-bottom: 20px;
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-message p {
+            color: #666;
+            font-size: 1.2rem;
+            line-height: 1.7;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 30px;
+            width: 100%;
+            max-width: 1100px;
+            margin-bottom: 40px;
+        }
+
+        .quick-action {
+            background: var(--gradient-card);
+            color: var(--dark-color);
+            padding: 30px 20px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .quick-action::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--gradient-accent);
+        }
+
+        .quick-action:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .quick-action i {
+            font-size: 42px;
+            margin-bottom: 20px;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .quick-action span {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        /* Button Grid */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 1100px;
+            margin-top: 30px;
+        }
+
+        .shortcut {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-card);
+            padding: 25px 15px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--dark-color);
+            transition: var(--transition);
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shortcut::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-accent);
+        }
+
+        .shortcut:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+            color: var(--accent-color);
+        }
+
+        .shortcut img {
+            width: 52px;
+            height: 52px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+        }
+
+        .shortcut span {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .status-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent-color);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .status-item i {
+            margin-right: 8px;
+            font-size: 14px;
+        }
+
+        /* Active state for menu items */
+        .active-menu {
+            background-color: var(--menu-hover);
+            font-weight: bold;
+        }
+
+        .nested-submenu {
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            margin-left: 10px;
+            padding-left: 10px;
+        }
+
+        /* Details styling */
+        .submenu-details {
+            position: relative;
+        }
+
+        .submenu-details summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .submenu-details summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .submenu-details summary::after {
+            content: '\f107';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            margin-left: auto;
+            transition: var(--transition);
+        }
+
+        .submenu-details[open] summary::after {
+            transform: rotate(180deg);
+        }
+
+        .submenu-details summary:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Footer */
+        .software-footer {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 12px 20px;
+            font-size: 14px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .software-footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent-color);
+        }
+
+        /* Stats Cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1100px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--gradient-card);
+            padding: 25px 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-accent);
+        }
+
+        .stat-card i {
+            font-size: 32px;
+            margin-bottom: 15px;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-card .label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .quick-actions, .button-grid, .stats-container {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            }
+        }
+
+        @media (max-width: 992px) {
+            .nav-bar {
+                flex-wrap: wrap;
+                height: auto;
+            }
+            
+            .nav-item {
+                flex: 1 0 33%;
+            }
+            
+            .quick-actions, .button-grid, .stats-container {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+            
+            .welcome-message {
+                padding: 30px;
+            }
+            
+            .main-content {
+                padding: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-item {
+                flex: 1 0 50%;
+            }
+            
+            .quick-actions, .button-grid, .stats-container {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .welcome-message h1 {
+                font-size: 2.2rem;
+            }
+            
+            .welcome-message p {
+                font-size: 1rem;
+            }
+            
+            .status-bar {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .nav-item {
+                flex: 1 0 100%;
+            }
+            
+            .quick-actions, .button-grid, .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .welcome-message {
+                padding: 20px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .welcome-message h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Software Header -->
+    <div class="software-header">
+        KAMEET - The Complete Business Accounting Software
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <!-- Documents Menu -->
+
+        
+        <div class="nav-item">
+            <i class="fas fa-folder-open"></i>
+            <span>Documents</span>
+            
+
+            <div class="submenu">
+
+                <!-- Dashboard -->
+                <div class="submenu-item"
+                    onclick="window.location.href='{% url "dashboard" %}'">
+                    <i class="fas fa-th-large"></i>
+                    <span>Document Dashboard</span>
+                </div>
+
+                <div class="submenu-item"
+                    onclick="window.location.href='{% url "category_list" %}'">
+                    <i class="fas fa-th-large"></i>
+                    <span>Categories</span>
+                </div>
+
+                <div class="submenu-item"
+                    onclick="window.location.href='{% url "subdoc_list" %}'">
+                    <i class="fas fa-th-large"></i>
+                    <span>Sub Categories</span>
+                </div>
+
+                <div class="submenu-item"
+                    onclick="window.location.href='{% url "client_category_names" %}'">
+                    <i class="fas fa-th-large"></i>
+                    <span>Categories Name List</span>
+                </div>
+
+                <!-- Upload -->
+                <div class="submenu-item"
+                    onclick="window.location.href='{% url "dashboard" %}?open=upload'">
+                    <i class="fas fa-upload"></i>
+                    <span>Upload Document</span>
+                </div>
+
+                <!-- Pending Documents -->
+                <details class="submenu-details">
+                    <summary>
+                        <i class="fas fa-clock"></i>
+                        <span>Pending Documents</span>
+                    </summary>
+
+                    <div class="nested-submenu">
+                        <div class="submenu-item"
+                            onclick="window.location.href='{% url "annual_pending_report" %}'">
+                            <i class="fas fa-calendar"></i>
+                            <span>Annual Pending</span>
+                        </div>
+
+                        <div class="submenu-item"
+                            onclick="window.location.href='{% url "event_pending_report" %}'">
+                            <i class="fas fa-bolt"></i>
+                            <span>Event Pending</span>
+                        </div>
+                    </div>
+                </details>
+
+                <!--Password List -->
+                <div class="submenu-item"
+                    onclick="window.location.href='{% url "dashboard" %}?view=password'">
+                   <i class="fas fa-key"></i>
+                    <span>Password List</span>
+                </div>
+
+            
+            </div>
+        </div>
+
+        <!-- Company Menu -->
+        {% comment %} <div class="nav-item">
+            <i class="fas fa-building"></i>
+            <span>Company</span>
+            <div class="submenu">
+                <div class="submenu-item" onclick="selectMenu('Open Company')">
+                    <i class="fas fa-folder-open"></i>
+                    <span>Open Company</span>
+                </div>
+                <div class="submenu-item" onclick="selectMenu('Create Company')">
+                    <i class="fas fa-plus"></i>
+                    <span>Create Company</span>
+                </div>
+                <div class="submenu-item" onclick="selectMenu('Close Company')">
+                    <i class="fas fa-times"></i>
+                    <span>Close Company</span>
+                </div>
+            </div>
+        </div> {% endcomment %}
+
+        <!-- Master Menu -->
+        <div class="nav-item">
+            <i class="fas fa-database"></i>
+            <span>Master</span>
+            <div class="submenu">
+                <!-- Group Menu -->
+                <details class="submenu-details">
+                    <summary>
+                        <i class="fas fa-user"></i>
+                        <span>Group</span>
+                    </summary>
+                    <div class="nested-submenu">
+                        <div class="submenu-item" onclick="location.href='{% url "group_form" %}?mode=add'">
+                            <i class="fas fa-plus"></i>
+                            <span>Add</span>
+                        </div>
+                        <div class="submenu-item" onclick="location.href='{% url "group_form" %}?mode=modify'">
+                            <i class="fas fa-edit"></i>
+                            <span>Modify</span>
+                        </div>
+                        <div class="submenu-item" onclick="location.href='{% url "group_list" %}'">
+                            <i class="fas fa-list"></i>
+                            <span>List</span>
+                        </div>
+                    </div>
+                </details>
+
+                <details class="submenu-details">
+                    <summary>
+                        <i class="fas fa-user"></i>
+                        <span>User</span>
+                    </summary>
+                    <div class="nested-submenu">
+                        <div class="submenu-item" onclick="location.href='{% url "user_form" %}?mode=add'">
+                            <i class="fas fa-plus"></i>
+                            <span>Add</span>
+                        </div>
+                        <div class="submenu-item" onclick="location.href='{% url "user_form" %}?mode=modify'">
+                            <i class="fas fa-edit"></i>
+                            <span>Modify</span>
+                        </div>
+                        <div class="submenu-item" onclick="location.href='{% url "user_list" %}'">
+                            <i class="fas fa-list"></i>
+                            <span>List</span>
+                        </div>
+                    </div>
+                </details>
+                
+                <!-- Client Menu -->
+                <details class="submenu-details">
+                    <summary>
+                        <i class="fas fa-user"></i>
+                        <span>Client</span>
+                    </summary>
+                    <div class="nested-submenu">
+                        <div class="submenu-item" onclick="location.href='{% url "client_form" %}?mode=add'">
+                            <i class="fas fa-plus"></i>
+                            <span>Add</span>
+                        </div>
+                        <div class="submenu-item" onclick="location.href='{% url "client_form" %}?mode=modify'">
+                            <i class="fas fa-edit"></i>
+                            <span>Modify</span>
+                        </div>
+                        <div class="submenu-item" onclick="location.href='{% url "client_list" %}'">
+                            <i class="fas fa-list"></i>
+                            <span>List</span>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- Account Menu -->
+                <details class="submenu-details">
+                    <summary>
+                        <i class="fas fa-id-card"></i>
+                        <span>Account</span>
+                    </summary>
+                    <div class="nested-submenu">
+                        <div class="submenu-item" onclick="location.href='{% url "account_form" %}?mode=add'">
+                            <i class="fas fa-plus"></i>
+                            <span>Add</span>
+                        </div>
+                        {% comment %} <div class="submenu-item" onclick="location.href='{% url "account_form" %}?mode=modify'">
+                            <i class="fas fa-edit"></i>
+                            <span>Modify</span>
+                        </div> {% endcomment %}
+                        <div class="submenu-item" onclick="location.href='{% url "account_list" %}'">
+                            <i class="fas fa-list"></i>
+                            <span>List</span>
+                        </div>
+                    </div>
+                </details>
+                
+                <!-- Suspend Menu -->
+                <details class="submenu-details">
+                    <summary>
+                        <i class="fas fa-user"></i>
+                        <span>Suspend</span>
+                    </summary>
+                    <div class="nested-submenu">
+                        <div class="submenu-item" onclick="location.href='{% url "suspend_form" %}?mode=add'">
+                            <i class="fas fa-plus"></i>
+                            <span>Add</span>
+                        </div>
+                        <div class="submenu-item" onclick="location.href='{% url "suspend_form" %}?mode=modify'">
+                            <i class="fas fa-edit"></i>
+                            <span>Modify</span>
+                        </div>
+                        <div class="submenu-item" onclick="location.href='{% url "suspend_list" %}'">
+                            <i class="fas fa-list"></i>
+                            <span>List</span>
+                        </div>
+                    </div>
+                </details>
+                
+                <!-- ITR Menu -->
+                <details class="submenu-details">
+                    <summary>
+                        <i class="fas fa-user"></i>
+                        <span>ITR</span>
+                    </summary>
+                    <div class="nested-submenu">
+                        <div class="submenu-item" onclick="location.href='{% url "it_return_form" %}?mode=add'">
+                            <i class="fas fa-plus"></i>
+                            <span>Add</span>
+                        </div>
+                        <div class="submenu-item" onclick="location.href='{% url "it_return_list" %}'">
+                            <i class="fas fa-list"></i>
+                            <span>List</span>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <!-- Administration Menu -->
+        <div class="nav-item">
+            <i class="fas fa-user-cog"></i>
+            <span>Administration</span>
+            <div class="submenu">
+                <div class="submenu-item" onclick="selectMenu('User Management')">
+                    <i class="fas fa-users"></i>
+                    <span>User Management</span>
+                </div>
+                <div class="submenu-item" onclick="selectMenu('Roles & Permissions')">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Roles & Permissions</span>
+                </div>
+                <div class="submenu-item" onclick="selectMenu('System Settings')">
+                    <i class="fas fa-cog"></i>
+                    <span>System Settings</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions Menu -->
+        <div class="nav-item">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Transactions</span>
+            <div class="submenu">
+                <!-- Data Entry Menu -->
+                <details class="submenu-details">
+                    <summary>
+                        <i class="fas fa-user"></i>
+                        <span>Data Entry</span>
+                    </summary>
+                    <div class="nested-submenu">
+                        <div class="submenu-item" onclick="location.href='{% url "data_entry" %}?mode=add'">
+                            <i class="fas fa-plus"></i>
+                            <span>Add</span>
+                        </div>
+                        <div class="submenu-item" onclick="location.href='{% url "data_entry_list" %}'">
+                            <i class="fas fa-list"></i>
+                            <span>List</span>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <!-- Reports Menu -->
+        <div class="nav-item">
+            <i class="fas fa-chart-bar"></i>
+            <span>Reports</span>
+            <div class="submenu">
+                <div class="submenu-item" onclick="window.location.href='{% url 'reports' %}'">
+                    <i class="fas fa-university"></i>
+                    <span>Bank Report</span>
+                </div>
+                <div class="submenu-item" onclick="window.location.href='{% url 'it_return_report' %}'">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Income Tax Report</span>
+                </div>
+                {% comment %} <div class="submenu-item" onclick="window.location.href='{% url 'upload_ais_pdf' %}'">
+                    <i class="fas fa-file-pdf"></i>
+                    <span>Income Tax To PDF</span>
+                </div> {% endcomment %}
+                <div class="submenu-item" onclick="window.location.href='{% url 'bank_pdf_upload' %}'">
+                    <i class="fas fa-file-pdf"></i>
+                    <span>Bank PDF Upload</span>
+                </div>
+                <div class="submenu-item" onclick="window.location.href='{% url 'bank_account_mapping' %}'">
+                    <i class="fas fa-file-pdf"></i>
+                    <span>Bank Mapping</span>
+                </div>
+                <div class="submenu-item" onclick="window.location.href='{% url 'mail_log_list' %}'">
+                    <i class="fas fa-envelope"></i>
+                    <span>Mail List</span>
+                </div>
+                <div class="submenu-item" onclick="window.location.href='{% url 'unmapped_busy_accounts_report' %}'">
+                    <i class="fas fa-unlink"></i>
+                    <span>Unmapped Bank Account</span>
+                </div>
+                <div class="submenu-item" onclick="window.location.href='{% url 'pending_bank_mapping' %}'">
+                    <i class="fa-clipboard-list"></i>
+                    <span>Unmapped Busy Account</span>
+                </div>
+                <div class="submenu-item" onclick="window.location.href='{% url 'hardcopy_received_report' %}'">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Hard Copy Recived Report</span>
+                </div>
+                {% comment %} <div class="submenu-item" onclick="window.location.href='{% url 'mail_log_report' %}'">
+                    <i class="fas fa-envelope"></i>
+                    <span>Mail Report</span>
+                </div>{% endcomment %}
+            </div> 
+        </div>
+
+        <!-- Display Menu -->
+        <div class="nav-item">
+            <i class="fas fa-desktop"></i>
+            <span>Display</span>
+            <div class="submenu">
+                <div class="submenu-item" onclick="selectMenu('Reports')">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </div>
+                <div class="submenu-item" onclick="selectMenu('Dashboards')">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboards</span>
+                </div>
+                <div class="submenu-item" onclick="selectMenu('Custom Views')">
+                    <i class="fas fa-eye"></i>
+                    <span>Custom Views</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Management Menu -->
+        <div class="nav-item">
+            <i class="fas fa-database"></i>
+            <span>Data Management</span>
+            <div class="submenu">
+                <div class="submenu-item" onclick="selectMenu('Backup Data')">
+                    <i class="fas fa-save"></i>
+                    <span>Backup Data</span>
+                </div>
+                <div class="submenu-item" onclick="selectMenu('Restore Data')">
+                    <i class="fas fa-undo"></i>
+                    <span>Restore Data</span>
+                </div>
+                <div class="submenu-item" onclick="selectMenu('Reduce Data')">
+                    <i class="fas fa-compress"></i>
+                    <span>Reduce Data</span>
+                </div>
+                <div class="submenu-item" onclick="selectMenu('Split Financial Year')">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Split Financial Year</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tools Menu -->
+        <div class="nav-item">
+            <i class="fas fa-tools"></i>
+            <span>Tools</span>
+            <div class="submenu">
+                <div class="submenu-item" onclick="selectMenu('Raindex Databases')">
+                    <i class="fas fa-server"></i>
+                    <span>Raindex Databases</span>
+                </div>
+                <div class="submenu-item" onclick="selectMenu('Convert Data')">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Convert Data to Old Structure</span>
+                </div>
+                <div class="submenu-item" onclick="selectMenu('Set Data Directory')">
+                    <i class="fas fa-folder"></i>
+                    <span>Set Data Directory</span>
+                </div>
+                <div class="submenu-item" onclick="selectMenu('Select KAMEET Model')">
+                    <i class="fas fa-cog"></i>
+                    <span>Select KAMEET Model</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Menu -->
+        <div class="nav-item">
+            <i class="fas fa-question-circle"></i>
+            <span>Help</span>
+            <div class="submenu">
+                <div class="submenu-item" onclick="selectMenu('Training Videos')">
+                    <i class="fas fa-video"></i>
+                    <span>Training Videos</span>
+                </div>
+                <div class="submenu-item" onclick="selectMenu('Documentation')">
+                    <i class="fas fa-book"></i>
+                    <span>Documentation</span>
+                </div>
+                <div class="submenu-item" onclick="selectMenu('Check Updates')">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Check KAMEET Updates</span>
+                </div>
+                <div class="submenu-item" onclick="selectMenu('Download Agent')">
+                    <i class="fas fa-download"></i>
+                    <span>Download KameetAgent</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Info -->
+        <div class="user-info">
+            <i class="fas fa-user"></i>
+            <span>John Doe</span>
+            <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        {% if show_welcome %}
+        <div class="welcome-overlay"></div>
+            <div class="welcome-popup">
+                <h3>Welcome, John Doe!</h3>
+                <p>You have successfully logged in to KAMEET Soft</p>
+                <button class="btn" onclick="closeWelcomePopup()">Continue</button>
+            </div>
+        {% endif %}
+        
+        <div class="welcome-message">
+            <h1>Welcome to KAMEET Software</h1>
+            <p>Your complete business accounting solution for streamlined financial management and reporting.</p>
+        </div>
+
+        {% comment %} <div class="stats-container">
+            <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <div class="number">142</div>
+                <div class="label">Total Clients</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <div class="number">24</div>
+                <div class="label">Pending Invoices</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-chart-line"></i>
+                <div class="number">₹2.4L</div>
+                <div class="label">Monthly Revenue</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-tasks"></i>
+                <div class="number">78%</div>
+                <div class="label">Tasks Completed</div>
+            </div>
+        </div> {% endcomment %}
+
+        <div class="quick-actions">
+            <div class="quick-action" onclick="location.href='{% url "client_form" %}?mode=add'">
+                <i class="fas fa-user-plus"></i>
+                <span>Add Client</span>
+            </div>
+            <div class="quick-action" onclick="location.href='{% url "account_form" %}?mode=add'">
+                <i class="fas fa-id-card"></i>
+                <span>Create Account</span>
+            </div>
+            <div class="quick-action" onclick="location.href='{% url "data_entry" %}?mode=add'">
+                <i class="fas fa-keyboard"></i>
+                <span>Data Entry</span>
+            </div>
+            <div class="quick-action" onclick="window.location.href='{% url 'reports' %}'">
+                <i class="fas fa-chart-bar"></i>
+                <span>View Reports</span>
+            </div>
+            <div class="quick-action" onclick="window.location.href='{% url 'it_return_report' %}'">
+                <i class="fas fa-file-invoice"></i>
+                <span>Tax Reports</span>
+            </div>
+            <div class="quick-action" onclick="window.location.href='{% url 'mail_log_list' %}'">
+                <i class="fas fa-envelope"></i>
+                <span>Email Logs</span>
+            </div>
+             <a class="shortcut" href="{% url 'bank_pdf_upload' %}">
+                <i class="fas fa-file-upload" style="font-size: 48px; color: var(--accent-color);"></i>
+                <span>Upload Bank PDF</span>
+            </a>
+
+            <a class="shortcut" href="{% url 'bank_account_mapping' %}">
+                <i class="fas fa-map-marker-alt" style="font-size: 48px; color: var(--accent-color);"></i>
+                <span>Bank Mapping</span>
+            </a>
+        </div>
+
+        <div class="button-grid">
+            <!-- Yahoo Mail -->
+            <a class="shortcut" href="https://in.mail.yahoo.com/d/folders/1" target="_blank">
+                <img src="https://img.icons8.com/color/48/yahoo.png" alt="Yahoo">
+                <span>Yahoo Mail</span>
+            </a>
+
+            <a class="shortcut" href="{% url 'download_launcher' %}">
+                <img src="https://img.icons8.com/ios-filled/50/000000/windows8.png" alt="Launcher">
+                <span>Download Launcher</span>
+            </a>
+            
+            <a class="shortcut" href="{% url 'mail_log_list' %}">
+                <i class="fas fa-envelope" style="font-size: 48px; color: var(--accent-color);"></i>
+                <span>Mail Logs</span>
+            </a>
+            
+           
+            
+            <a class="shortcut" href="{% url 'upload_ais_pdf' %}">
+                <i class="fas fa-file-pdf" style="font-size: 48px; color: var(--accent-color);"></i>
+                <span>ITR to PDF</span>
+            </a>
+            
+        
+        </div>
+
+        <!-- Dynamic content will be loaded here -->
+        <div id="dynamic-content" style="width: 100%; max-width: 900px; margin-top: 30px"></div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="status-item">
+            <i class="fas fa-calendar"></i>
+            <span id="current-day"></span>, <span id="current-date"></span>
+        </div>
+        <div class="status-item">
+            <i class="fas fa-clock"></i>
+            <span id="current-time"></span>
+        </div>
+        <div class="status-item">
+            <i class="fas fa-user"></i>
+            <span>User: John Doe</span>
+        </div>
+        <div class="status-item">
+            <i class="fas fa-database"></i>
+            <span>Company: Demo Company</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="software-footer">
+        KAMEET - The Complete Business Accounting Software : (c) Kameet Infobach Pvt.
+        Ltd., Delhi : www.kameet.in : 24x7 Support : +91-8282828282
+    </div>
+
+    <script>
+        function closeWelcomePopup() {
+            document.querySelector('.welcome-popup').style.display = 'none';
+            document.querySelector('.welcome-overlay').style.display = 'none';
+            
+            // Set a cookie or localStorage to prevent showing again
+            localStorage.setItem('welcomeShown', 'true');
+        }
+        
+        // Check if we should show the welcome popup
+        document.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem('welcomeShown') === 'true') {
+                if (document.querySelector('.welcome-popup')) {
+                    document.querySelector('.welcome-popup').style.display = 'none';
+                    document.querySelector('.welcome-overlay').style.display = 'none';
+                }
+            }
+            
+            // Initialize date and time
+            updateDateTime();
+            setInterval(updateDateTime, 60000);
+        });
+
+        // Initialize date and time
+        function updateDateTime() {
+            const now = new Date();
+            const days = [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+            ];
+
+            document.getElementById("current-day").textContent = days[now.getDay()];
+
+            const day = String(now.getDate()).padStart(2, "0");
+            const month = String(now.getMonth() + 1).padStart(2, "0");
+            const year = now.getFullYear();
+            document.getElementById(
+                "current-date"
+            ).textContent = `${day}/${month}/${year}`;
+
+            const hours = String(now.getHours()).padStart(2, "0");
+            const minutes = String(now.getMinutes()).padStart(2, "0");
+            document.getElementById(
+                "current-time"
+            ).textContent = `${hours}:${minutes}`;
+        }
+
+        // Menu selection function
+        function selectMenu(menuName) {
+            console.log(`Selected: ${menuName}`);
+            // Add your menu selection logic here
+        }
+    </script>
+</body>
+</html>

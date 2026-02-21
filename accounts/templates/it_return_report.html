@@ -1,0 +1,1160 @@
+{% load static %}
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>IT Return Report</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    :root{
+      --primary:#3a7bd5; --secondary:#00d2ff;
+      --header-bg:#f6f7fb; --border:#e5e7eb; --hover:#f3f4f6;
+      --radius:8px;
+    }
+    html,body{
+      height:100%
+    }
+
+    body{
+      font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+      background:#f8fafc; color:#334155; font-size:14px;
+    }
+    .container-fluid{max-width:1500px; padding:12px;}
+    .gradient-accent{height:2px; width:100%; margin:6px 0 10px;
+      background:linear-gradient(135deg,var(--primary),var(--secondary)); border-radius:2px}
+    .report-header{display:flex;justify-content:space-between;align-items:center;
+      margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid var(--border)}
+    .report-header h5{margin:0; font-weight:600; color:#0f172a; font-size:1.15rem}
+    .filters{
+      background:#fff; border:1px solid var(--border); border-radius:var(--radius);
+      padding:10px; margin-bottom:10px; box-shadow:0 1px 2px rgba(0,0,0,.03)
+    }
+    .filters .form-label{margin-bottom:2px; font-size:.8rem; color:#64748b}
+    .filters .form-select,.filters .form-control{
+      height:32px; padding:0 .5rem; border:1px solid var(--border); border-radius:6px; font-size:.9rem
+    }
+    .filters .form-select:focus,.filters .form-control:focus{
+      border-color:var(--primary); box-shadow:0 0 0 .15rem rgba(58,123,213,.12)
+    }
+    .search-container .input-group-text{background:#fff;border-right:none;padding:.25rem .5rem}
+    .search-container .form-control{border-left:none}
+    .table-container{background:#fff; border:1px solid var(--border); border-radius:var(--radius);
+      box-shadow:0 1px 2px rgba(0,0,0,.03)}
+    .table-fixed-container{height:calc(100vh - 210px); width:100%; overflow:auto}
+    .fixed-table{min-width:1100px; margin-bottom:0}
+    .fixed-table thead th{
+      position:sticky; top:0; z-index:2; background:var(--header-bg);
+      font-weight:600; color:#475569; text-transform:uppercase; letter-spacing:.25px;
+      border-bottom:2px solid var(--border); padding:8px 10px; font-size:.78rem
+    }
+    .fixed-table tbody td{
+      padding:6px 10px; font-size:.85rem; border-top:1px solid var(--border); vertical-align:middle
+    }
+    .fixed-table tbody tr:hover{background:var(--hover)}
+    .compact th,.compact td{padding:6px 10px; font-size:.84rem}
+    .btn-action{--bs-btn-padding-y:.15rem; --bs-btn-padding-x:.35rem; --bs-btn-font-size:.8rem}
+    .th-with-filter{display:flex; align-items:center; gap:6px}
+    .th-filter-btn{border:none; background:transparent; padding:0 .15rem; line-height:1; border-radius:4px; cursor:pointer; color:#94a3b8}
+    .th-filter-btn:hover{background:#e9ecef; color:var(--primary)}
+    .filter-chip{display:inline-flex; align-items:center; gap:4px; background:#edf2ff; color:#3a7bd5;
+      border-radius:999px; padding:0 6px; font-size:.68rem; margin-left:4px}
+    tr.detail-row td { background:#f7f9fc; padding:.5rem .75rem; }
+    tr.group-row.cursor { cursor:pointer; }
+    .badge-status{padding:2px 8px; border-radius:999px; font-size:.72rem; font-weight:700}
+.badge-active{background:#e6f4ea; color:#137333}
+.badge-hold{background:#fdecea; color:#b00020}
+/* Filter menu (popover) */
+.filter-menu{
+  position:absolute;
+  right:0;                   /* tuck against the header's right edge */
+  top:calc(100% + 6px);      /* just below the header */
+  min-width:230px;
+  max-height:300px;
+  overflow:auto;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:8px;
+  box-shadow:0 8px 24px rgba(0,0,0,.12);
+  padding:8px;
+  z-index:20;
+}
+
+.filter-menu .fm-head{display:flex; align-items:center; gap:6px; margin-bottom:6px}
+.filter-menu .fm-search{width:100%; font-size:.82rem; padding:5px 8px}
+.filter-menu .fm-list{max-height:190px; overflow:auto; border:1px solid #f1f3f5; border-radius:6px; padding:6px}
+.filter-menu .fm-actions{display:flex; justify-content:space-between; gap:6px; margin-top:8px}
+.filter-menu .btn{padding:.15rem .45rem; font-size:.78rem}
+.form-check .form-check-input{margin-top:.25rem}
+/* Keep file input compact and consistent */
+.input-group-sm .form-control[type="file"]{padding:.25rem .5rem;}
+.input-group-sm .input-group-text{padding:.25rem .5rem;}
+/* Make the built-in file button match the control height (Chromium/WebKit) */
+.form-control[type="file"]::-webkit-file-upload-button{
+  padding:.25rem .5rem; margin:-.25rem -.5rem; height:100%;
+  border:0; background:transparent; color:inherit;
+}
+
+
+.badge-zero    { background:#e2e8f0; color:#475569; }   /* grey for 0 */
+.badge-nonzero { background:#ffe08a; color:#7a5a00; }   /* yellow-ish for >0 */
+
+
+.filters .col-form-label{ margin-bottom:0; font-size:15px; }
+.filters .form-select, .filters .form-control{ height:32px; }
+
+
+/* Make file input match .input-group-sm height */
+.input-group-sm input[type="file"].form-control {
+  padding-top: .25rem;
+  padding-bottom: .25rem;
+  height: calc(1.8125rem + 2px); /* matches BS5 .input-group-sm controls */
+}
+
+
+  </style>
+</head>
+<body>
+
+<div class="container-fluid">
+  <div class="gradient-accent"></div>
+
+  <div class="report-header">
+    <h5><i class="bi bi-file-earmark-text-fill me-2" style="color:var(--primary)"></i>IT Return Reports</h5>
+     <!-- Right side buttons in one flex row -->
+    <div class="d-flex align-items-center gap-2">
+      <button type="button" id="openPendingTax" class="btn btn-sm btn-outline-warning">
+        <i class="bi bi-cash-coin"></i> Pending Tax (Pre-Filing)
+      </button>
+      <button type="button" id="openGroupReassign" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-people-fill"></i> Group → user
+      </button>
+
+      <button type="button" id="openBulkReassign" class="btn btn-sm btn-outline-primary">
+        <i class="bi bi-people"></i> Re-assign
+      </button>
+
+      <button type="button" class="btn btn-sm btn-outline-danger" title="Close"
+        onclick="window.location.href='{% url 'home' %}'">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>  
+  </div>
+
+  {% comment %} <div class="filters">
+    <div class="row g-1 align-items-center">
+      <div class="col-md-1">
+        <label class="form-label mb-1 text-primary fw-bold" style="font-size:17px;">Report Type:</label>
+      </div>
+      <div class="col-md-1">
+        <select id="rtype" class="form-select">
+          <option value="audit" {% if default_rtype == 'audit' %}selected{% endif %}>Audit List</option>
+          <option value="group" {% if default_rtype == 'group' %}selected{% endif %}>Group-wise</option>
+        </select>
+      </div>
+
+      <div class="col-md-1">
+        <label class="form-label mb-1 text-primary fw-bold" style="font-size:17px;">Fiscal Year:</label>
+      </div>
+      <div class="col-md-1">
+        <select id="fy" class="form-select">
+          {% for fy in fiscal_years %}
+            <option value="{{ fy }}" {% if fy == selected_fy %}selected{% endif %}>{{ fy }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+        <!-- Upload (aligned with other fields) -->
+        <div class="col-md-4">
+          <!-- invisible label to keep grid alignment -->
+          <label class="form-label mb-1 text-primary fw-bold" style="font-size:17px; visibility:hidden;">Upload</label>
+
+          <form id="uploadForm" method="post" enctype="multipart/form-data" action="{% url 'it_upload_status' %}">
+            {% csrf_token %}
+            <input type="hidden" name="fy" id="upload_fy">
+
+            <div class="input-group input-group-sm file-upload">
+              <label class="input-group-text" for="fileUpload" title="Choose file">
+                <i class="bi bi-paperclip"></i>
+              </label>
+              <input type="file" class="form-control" id="fileUpload" name="file"
+                    accept=".xlsx,.xls,.csv,.txt">
+              <button type="submit" class="btn btn-outline-primary">
+                <i class="bi bi-upload"></i> Upload
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <script>
+        (function(){
+          const fySel = document.getElementById('fy');
+          const fyHidden = document.getElementById('upload_fy');
+          const form = document.getElementById('uploadForm');
+          const fileInput = document.getElementById('fileUpload');
+
+          function syncFY(){ if (fyHidden && fySel) fyHidden.value = fySel.value || ''; }
+          syncFY();
+          fySel?.addEventListener('change', syncFY);
+
+          form.addEventListener('submit', function(e){
+            if (!fileInput.files || !fileInput.files.length) {
+              e.preventDefault();
+              fileInput.focus();
+            }
+          });
+        })();
+        </script>
+
+
+      <div class="col-md-5 ms-auto search-container">
+        <div class="input-group input-group-sm">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input id="search" type="text" class="form-control" placeholder="Search across all columns...">
+          <button id="clearSearch" class="btn btn-outline-secondary" type="button" title="Clear">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div> {% endcomment %}
+ <div class="filters">
+    <div class="row g-2 align-items-center flex-wrap">
+      <!-- Report Type -->
+      <div class="col-auto">
+        <label class="col-form-label fw-bold text-primary">Report Type:</label>
+      </div>
+      <div class="col-auto" style="min-width:160px;">
+        <select id="rtype" class="form-select form-select-sm w-100">
+          <option value="audit" {% if default_rtype == 'audit' %}selected{% endif %}>Audit List</option>
+          <option value="group" {% if default_rtype == 'group' %}selected{% endif %}>Group-wise</option>
+        </select>
+      </div>
+
+      <!-- Fiscal Year -->
+      <div class="col-auto">
+        <label class="col-form-label fw-bold text-primary">Fiscal Year:</label>
+      </div>
+      <div class="col-auto" style="min-width:130px;">
+        <select id="fy" class="form-select form-select-sm w-100">
+          {% for fy in fiscal_years %}
+            <option value="{{ fy }}" {% if fy == selected_fy %}selected{% endif %}>{{ fy }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Upload -->
+      <div class="col-auto flex-grow-1" style="min-width:320px;">
+        <form id="uploadForm" method="post" enctype="multipart/form-data" action="{% url 'it_upload_status' %}" class="d-flex">
+          {% csrf_token %}
+          <input type="hidden" name="fy" id="upload_fy">
+          <div class="input-group input-group-sm w-100">
+            <label class="input-group-text" for="fileUpload" title="Choose file">
+              <i class="bi bi-paperclip"></i>
+            </label>
+            <input type="file" class="form-control" id="fileUpload" name="file" accept=".xlsx,.xls,.csv,.txt">
+            <button type="submit" class="btn btn-outline-primary">
+              <i class="bi bi-upload"></i> Upload
+            </button>
+          </div>
+        </form>
+      </div>
+        <script>
+        (function(){
+          const fySel = document.getElementById('fy');
+          const fyHidden = document.getElementById('upload_fy');
+          const form = document.getElementById('uploadForm');
+          const fileInput = document.getElementById('fileUpload');
+
+          function syncFY(){ if (fyHidden && fySel) fyHidden.value = fySel.value || ''; }
+          syncFY();
+          fySel?.addEventListener('change', syncFY);
+
+          form.addEventListener('submit', function(e){
+            if (!fileInput.files || !fileInput.files.length) {
+              e.preventDefault();
+              fileInput.focus();
+            }
+          });
+        })();
+        </script>
+
+      <!-- Search (push to right) -->
+      <div class="col-auto ms-lg-auto" style="min-width:360px; flex:1 1 360px;">
+        <div class="input-group input-group-sm">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input id="search" type="text" class="form-control" placeholder="Search across all columns...">
+          <button id="clearSearch" class="btn btn-outline-secondary" type="button" title="Clear">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div> 
+
+
+  <div class="table-container">
+    <div class="table-fixed-container">
+      <table id="reportTable" class="table table-hover compact fixed-table">
+        <thead><tr><th>Loading report data...</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk Re-assign Modal -->
+<div class="modal fade" id="bulkReassignModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <form id="bulkReassignForm" method="post" action="{% url 'it_bulk_reassign' %}">
+        {% csrf_token %}
+        <div class="modal-header py-2">
+          <h6 class="modal-title">Bulk Re-assign</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="mb-2 small text-muted">
+            Move all cases from one user to another. By default uses the FY currently selected in the filter.
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label mb-1">From (current)</label>
+            <select class="form-select form-select-sm" id="br_from" name="from_user" required></select>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label mb-1">To (new)</label>
+            <select class="form-select form-select-sm" id="br_to" name="to_user" required></select>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label mb-1">Fiscal Year</label>
+            <!-- This is prefilled from the page's FY -->
+            <input type="text" class="form-control form-control-sm" id="br_fy" name="fy" readonly>
+          </div>
+
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="br_only_active" name="only_active" value="1" checked>
+            <label class="form-check-label small" for="br_only_active">
+              Only “Active” returns
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-footer py-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-sm btn-primary">
+            <i class="bi bi-arrow-left-right me-1"></i> Re-assign
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% comment %} group allocation {% endcomment %}
+<!-- Group Re-assign Modal -->
+<div class="modal fade" id="groupReassignModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <form id="groupReassignForm" method="post" action="{% url 'it_group_reassign' %}">
+        {% csrf_token %}
+        <div class="modal-header py-2">
+          <h6 class="modal-title">Group → User</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="mb-2 small text-muted">
+            Re-assign all cases in the selected group to a user for the current fiscal year.
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label mb-1">Group</label>
+            <select id="gru_group" class="form-select form-select-sm" name="group_id" required></select>
+
+
+            {% comment %} <select class="form-select form-select-sm" id="gr_group" name="group_id" required></select> {% endcomment %}
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label mb-1">Allot to (user)</label>
+            <select class="form-select form-select-sm" id="gr_to" name="to_user" required></select>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label mb-1">Fiscal Year</label>
+            <input type="text" class="form-control form-control-sm" id="gr_fy" name="fy" readonly>
+          </div>
+
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="gr_only_active" name="only_active" value="1" checked>
+            <label class="form-check-label small" for="gr_only_active">
+              Only “Active” returns
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-footer py-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-sm btn-primary">
+            <i class="bi bi-arrow-left-right me-1"></i> Re-assign
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+{% if messages %}
+  {% for message in messages %}
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto">Notification</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">{{ message }}</div>
+    </div>
+  </div>
+  {% endfor %}
+{% endif %}
+
+<script>
+  const qs = (s,p=document)=>p.querySelector(s);
+
+  function currentParams(){
+    return { rtype: qs("#rtype").value, fy: qs("#fy").value, q: qs("#search").value.trim() };
+  }
+  function buildURL(){
+    const p=currentParams();
+    const u=new URL("{% url 'it_return_report' %}", window.location.origin);
+    u.searchParams.set("rtype", p.rtype);
+    u.searchParams.set("fy", p.fy);
+    if(p.q) u.searchParams.set("q", p.q);
+    u.searchParams.set("format","json");
+    return u.toString();
+  }
+
+  let DATA_COLUMNS=[], DATA_FIELDS=[], RAW_ROWS=[], FILTERS={}, OPEN_MENU=null;
+  let SORT = null;
+
+  function getValue(row, field){
+    const v=row[field];
+    if(v==null) return "";
+    if(typeof v==="string" && field.endsWith("_html")){
+      const t=document.createElement("div"); t.innerHTML=v;
+      return (t.textContent||"").trim();
+    }
+    return (""+v).trim();
+  }
+  function applyFilters(rows){
+    const active=Object.keys(FILTERS).filter(f=>FILTERS[f]&&FILTERS[f].size);
+    if(!active.length) return rows.slice();
+    return rows.filter(r=>active.every(f=>FILTERS[f].has(getValue(r,f))));
+  }
+  function setSort(field, dir){ SORT = dir ? { field, dir } : null; }
+  function toggleSort(field){
+    if(!SORT || SORT.field!==field) SORT={field,dir:"asc"};
+    else if(SORT.dir==="asc") SORT.dir="desc";
+    else SORT=null;
+    updateTable();
+  }
+  function applySort(rows){
+    if(!SORT) return rows.slice();
+    const {field,dir}=SORT, mult=dir==="asc"?1:-1, copy=rows.slice();
+    copy.sort((a,b)=>{
+      const va=getValue(a,field), vb=getValue(b,field);
+      const aBlank=va==="", bBlank=vb===""; 
+      if(aBlank && !bBlank) return  1*mult;
+      if(!aBlank && bBlank) return -1*mult;
+      return va.localeCompare(vb,undefined,{sensitivity:"base",numeric:true})*mult;
+    });
+    return copy;
+  }
+
+  function renderBody(rows){
+    const tbody = qs("#reportTable tbody");
+    tbody.innerHTML = "";
+
+    if (!rows.length){
+      const tr=document.createElement("tr"), td=document.createElement("td");
+      td.colSpan = Math.max(DATA_COLUMNS.length,1);
+      td.className = "text-center text-muted py-4";
+      td.textContent = "No records found matching your criteria.";
+      tr.appendChild(td); tbody.appendChild(tr); return;
+    }
+
+    const isGroup = (qs("#rtype")?.value || "").toLowerCase() === "group";
+
+    rows.forEach(r => {
+      const tr = document.createElement("tr");
+      if (isGroup && "group_id" in r) { tr.dataset.groupId = r.group_id; tr.classList.add("group-row"); }
+
+      DATA_FIELDS.forEach(f => {
+        const td = document.createElement("td");
+        if (f.endsWith("_html")) td.innerHTML = r[f] || "";
+        else td.textContent = r[f] ?? "";
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  function closeMenu(){ if(OPEN_MENU&&OPEN_MENU.parentNode) OPEN_MENU.parentNode.removeChild(OPEN_MENU); OPEN_MENU=null; }
+  document.addEventListener("click",e=>{ if(OPEN_MENU && !OPEN_MENU.contains(e.target) && !e.target.closest(".th-filter-btn")) closeMenu(); });
+
+  function renderHead(filteredRows){
+    const thead = qs("#reportTable thead");
+    thead.innerHTML = "";
+    const trh = document.createElement("tr");
+
+    DATA_COLUMNS.forEach((label, idx) => {
+      const field = DATA_FIELDS[idx];
+      const th = document.createElement("th");
+      th.style.position = "relative";
+
+      const wrap = document.createElement("div");
+      wrap.className = "th-with-filter";
+
+      const title = document.createElement("span");
+      title.textContent = label;
+      title.style.cursor = "pointer";
+      title.title = "Click to sort A→Z / Z→A";
+      title.addEventListener("click", () => toggleSort(field));
+
+      if (FILTERS[field] && FILTERS[field].size) {
+        const chip = document.createElement("span");
+        chip.className = "filter-chip";
+        chip.textContent = FILTERS[field].size;
+        title.appendChild(chip);
+      }
+
+      if (SORT && SORT.field === field) {
+        const i = document.createElement("i");
+        i.className = SORT.dir === "asc" ? "bi bi-sort-alpha-down ms-1" : "bi bi-sort-alpha-up ms-1";
+        title.appendChild(i);
+      }
+
+      const btn = document.createElement("button");
+      btn.className = "th-filter-btn";
+      btn.type = "button";
+      btn.title = "Filter";
+      btn.innerHTML = '<i class="bi bi-filter"></i>';
+      btn.addEventListener("click", (ev) => openFilterMenu(ev.currentTarget, idx, filteredRows));
+
+      wrap.appendChild(title);
+      wrap.appendChild(btn);
+      th.appendChild(wrap);
+      trh.appendChild(th);
+    });
+
+    thead.appendChild(trh);
+  }
+
+  function openFilterMenu(btn, colIndex, rowsInView){
+    closeMenu();
+    const field = DATA_FIELDS[colIndex];
+
+    let baseRows;
+    if (FILTERS[field] && FILTERS[field].size) {
+      const saved = FILTERS[field];
+      FILTERS[field] = new Set();
+      baseRows = applyFilters(RAW_ROWS);
+      FILTERS[field] = saved;
+    } else {
+      baseRows = rowsInView;
+    }
+
+    const counts = new Map();
+    baseRows.forEach(r => {
+      const v = getValue(r, field) || "(Blank)";
+      counts.set(v, (counts.get(v) || 0) + 1);
+    });
+    const allValues = Array.from(counts.keys()).sort((a,b)=>a.localeCompare(b));
+
+    const menu = document.createElement("div");
+    menu.className = "filter-menu";
+    menu.innerHTML = `
+      <div class="d-flex gap-2 mb-2">
+        <button type="button" class="btn btn-sm btn-outline-secondary fm-sort-asc"  title="Sort A → Z">
+          <i class="bi bi-sort-alpha-down"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary fm-sort-desc" title="Sort Z → A">
+          <i class="bi bi-sort-alpha-up"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary ms-auto fm-sort-clear" title="Clear sort">
+          Clear
+        </button>
+      </div>
+
+      <div class="fm-head">
+        <input type="text" class="form-control form-control-sm fm-search" placeholder="Search options">
+      </div>
+      <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" id="__selall">
+        <label class="form-check-label" for="__selall">Select all</label>
+      </div>
+      <div class="fm-list"></div>
+      <div class="fm-actions">
+        <button class="btn btn-sm btn-secondary fm-clear">Clear</button>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-secondary fm-cancel">Cancel</button>
+          <button class="btn btn-sm btn-primary fm-apply">OK</button>
+        </div>
+      </div>
+    `;
+
+    const list   = menu.querySelector(".fm-list");
+    const selAll = menu.querySelector("#__selall");
+    const search = menu.querySelector(".fm-search");
+
+    function renderOptions(q=""){
+      list.innerHTML = "";
+      const active = FILTERS[field] && FILTERS[field].size ? new Set(FILTERS[field]) : null;
+      allValues.forEach(v=>{
+        if(q && !v.toLowerCase().includes(q.toLowerCase())) return;
+        const id = "opt_" + Math.random().toString(36).slice(2,8);
+        const checked = active ? active.has(v) : true;
+        const row = document.createElement("div");
+        row.className = "form-check";
+        row.innerHTML = `
+          <input class="form-check-input fm-opt" type="checkbox" id="${id}" ${checked?'checked':''} data-v="${v}">
+          <label class="form-check-label" for="${id}">${v} <span class="text-muted">(${counts.get(v)})</span></label>`;
+        list.appendChild(row);
+      });
+      const visible = list.querySelectorAll(".fm-opt");
+      selAll.checked = visible.length && Array.from(visible).every(c=>c.checked);
+      selAll.indeterminate = visible.length && !selAll.checked && Array.from(visible).some(c=>c.checked);
+    }
+    renderOptions();
+
+    selAll.addEventListener("change", ()=>{ list.querySelectorAll(".fm-opt").forEach(c=>c.checked = selAll.checked); });
+    search.addEventListener("input", ()=>renderOptions(search.value));
+    menu.querySelector(".fm-clear").addEventListener("click", ()=>{ delete FILTERS[field]; updateTable(); closeMenu(); });
+    menu.querySelector(".fm-cancel").addEventListener("click", ()=>closeMenu());
+    menu.querySelector(".fm-apply").addEventListener("click", ()=>{
+      const chosen = Array.from(list.querySelectorAll(".fm-opt")).filter(c=>c.checked).map(c=>c.getAttribute("data-v"));
+      if (chosen.length === 0) FILTERS[field] = new Set();
+      else if (chosen.length === allValues.length) delete FILTERS[field];
+      else FILTERS[field] = new Set(chosen);
+      updateTable(); closeMenu();
+    });
+
+    menu.querySelector(".fm-sort-asc").addEventListener("click",  ()=>{ setSort(field, "asc");  updateTable(); });
+    menu.querySelector(".fm-sort-desc").addEventListener("click", ()=>{ setSort(field, "desc"); updateTable(); });
+    menu.querySelector(".fm-sort-clear").addEventListener("click", ()=>{ setSort(null, null);   updateTable(); });
+
+    const th = btn.closest("th");
+    th.style.position = "relative";
+    th.appendChild(menu);
+    OPEN_MENU = menu;
+  }
+
+  function updateTable(){
+    const filtered = applyFilters(RAW_ROWS);
+    const sorted   = applySort(filtered);
+    renderHead(sorted);
+    renderBody(sorted);
+  }
+
+  /* ===== Footprint open-count (localStorage) ===== */
+  const FP_PREFIXES = ["footprint_local", "footprintdefault", "footprint"]; // try all common ones
+
+  function stripHTML(s){
+    const d = document.createElement('div');
+    d.innerHTML = s || '';
+    return (d.textContent || '').trim();
+  }
+  function norm(s){ return (s||"").toString().trim(); }
+
+  function candidateFootprintKeys(row, fyVal){
+    const keys = [];
+    const fy = norm(fyVal);
+    const fyHyphen = fy.replaceAll('_','-');
+    const fyUnderscore = fy.replaceAll('-','_');
+    const FY_VARIANTS = Array.from(new Set([fyHyphen, fyUnderscore, fy]));
+
+    const id = row.client_id ?? row.clientId ?? row.clientID ?? row.client ?? null;
+    let legal = row.legal_name ?? row.LegalName
+             ?? (row.legal_name_html ? stripHTML(row.legal_name_html) : null)
+             ?? (row.legal_html ? stripHTML(row.legal_html) : null);
+    legal = norm(legal);
+
+    for (const P of FP_PREFIXES){
+      for (const FY of FY_VARIANTS){
+        if (id)    keys.push(`${P}:${FY}:client:${id}`);
+        if (legal) keys.push(`${P}:${FY}:q:${legal}`);
+      }
+    }
+    return keys;
+  }
+
+  function countForKey(key){
+    try{
+      const raw = localStorage.getItem(key);
+      if (!raw) return 0;
+      const data  = JSON.parse(raw);
+      const notes = Array.isArray(data.notes) ? data.notes : [];
+      let open = 0;
+      for (const n of notes){
+        const s = norm(n.status).toLowerCase();
+        if (s === 'open') open++;
+      }
+      return open;
+    }catch{ return 0; }
+  }
+
+  function openCountByScanning(row, fyVal){
+    const id = row.client_id ?? row.clientId ?? row.clientID ?? row.client ?? "";
+    let legal = row.legal_name ?? row.LegalName
+             ?? (row.legal_name_html ? stripHTML(row.legal_name_html) : null)
+             ?? (row.legal_html ? stripHTML(row.legal_html) : null);
+    legal = norm(legal);
+
+    const fy = norm(fyVal);
+    const fyHyphen = fy.replaceAll('_','-');
+    const fyUnderscore = fy.replaceAll('-','_');
+
+    let best = 0;
+    for (let i=0;i<localStorage.length;i++){
+      const k = localStorage.key(i) || "";
+      const looksLikeFP = FP_PREFIXES.some(P => k.startsWith(P + ":"));
+      const hasFY = k.includes(fyHyphen) || k.includes(fyUnderscore);
+      if (!looksLikeFP || !hasFY) continue;
+
+      if (id && k.includes(`client:${id}`))      best = Math.max(best, countForKey(k));
+      else if (legal && k.includes(`q:${legal}`)) best = Math.max(best, countForKey(k));
+    }
+    return best;
+  }
+
+  function footprintOpenCount(row, fyVal){
+    let best = 0;
+    for (const k of candidateFootprintKeys(row, fyVal)){
+      const open = countForKey(k);
+      if (open > best) best = open;
+    }
+    if (best) return best;
+    return openCountByScanning(row, fyVal);
+  }
+
+  function renderOpenBadge(open){
+  // Use Bootstrap utilities:
+  // const cls = (open === 0) ? "text-bg-secondary" : "text-bg-warning";
+
+  // Or use the custom CSS above:
+  const cls = (open === 0) ? "badge-zero" : "badge-nonzero";
+
+  return `<span class="badge rounded-pill ${cls}" title="Open">${open}</span>`;
+}
+
+
+  {% comment %} function renderOpenBadge(open){
+    return `<span class="badge rounded-pill text-bg-warning" title="Open">${open}</span>`;
+  } {% endcomment %}
+
+  function renderTable(cols, fields, rows){
+    const isAudit = (document.querySelector("#rtype")?.value || "").toLowerCase() === "audit";
+    if (isAudit && !fields.includes("notes_html")) {
+      cols  = (cols  || []).slice();
+      fields= (fields|| []).slice();
+      rows  = (rows  || []).map(r => ({...r}));
+
+      cols.push("NOTES");
+      fields.push("notes_html");
+
+      const fyVal = document.querySelector("#fy")?.value || "";
+
+      rows.forEach(r => {
+        const clientId = r.client_id ?? r.clientId ?? r.client ?? "";
+        const qParam   = clientId
+          ? `client_id=${encodeURIComponent(clientId)}`
+          : (r.legal_name ? `q=${encodeURIComponent(r.legal_name)}` : "");
+
+        let stageTxt = (r.stage_html ?? r.stage ?? "").toString();
+        if (/<[a-z][\s\S]*>/i.test(stageTxt)) {
+          const d = document.createElement("div");
+          d.innerHTML = stageTxt;
+          stageTxt = (d.textContent || "").trim();
+        }
+        stageTxt = stageTxt.trim();
+
+        const href = `{% url 'footprint_local_default' %}`
+                   + `?fy=${encodeURIComponent(fyVal)}${qParam ? `&${qParam}` : ""}`
+                   + (stageTxt ? `&stage=${encodeURIComponent(stageTxt)}` : "");
+
+        const open = footprintOpenCount(r, fyVal);
+        const badge = renderOpenBadge(open);
+
+        r.notes_html = `
+          <div class="d-flex align-items-center gap-2">
+            <a href="${href}" class="btn btn-outline-secondary btn-sm btn-action notes-link"
+               title="Open Footprint Notes" data-stage="${stageTxt}">
+              <i class="bi bi-journal-text"></i>
+            </a>
+            <div class="small" title="Open only">${badge}</div>
+          </div>`;
+      });
+    }
+
+    DATA_COLUMNS = cols || [];
+    DATA_FIELDS  = fields || [];
+    RAW_ROWS     = rows || [];
+    updateTable();
+  }
+
+  async function loadTable(pushState=true){
+    const url=buildURL();
+    qs("#reportTable thead").innerHTML="<tr><th>Loading report data...</th></tr>";
+    qs("#reportTable tbody").innerHTML="";
+    FILTERS={}; closeMenu();
+    try{
+      const res=await fetch(url,{headers:{"X-Requested-With":"XMLHttpRequest"}});
+      if(!res.ok) throw new Error("Network error");
+      const data=await res.json();
+      renderTable(data.columns||[], data.fields||[], data.rows||[]);
+      if(pushState){
+        const u=new URL(url); u.searchParams.delete("format"); history.replaceState(null,"",u.toString());
+      }
+    }catch(e){ renderTable(["Error"],["err"],[{err:e.message}]); }
+  }
+
+  ["rtype","fy"].forEach(id => qs("#"+id).addEventListener("change", ()=>loadTable()));
+  const clearBtn = qs("#clearSearch");
+  const searchEl = qs("#search");
+  let t=null;
+  function debouncedSearch(){ clearTimeout(t); t=setTimeout(()=>loadTable(), 250); }
+  searchEl.addEventListener("input", debouncedSearch);
+  clearBtn.addEventListener("click", ()=>{ searchEl.value=""; loadTable(); });
+
+  loadTable(false);
+
+  // If footprint data changes in another tab, try to refresh counts.
+  window.addEventListener("storage", (e) => {
+    if (e.key && FP_PREFIXES.some(P => e.key.startsWith(P + ":"))) updateTable();
+  });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) updateTable(); });
+</script>
+
+<script>
+(function () {
+  const qs = (s, p=document) => p.querySelector(s);
+  const table = qs('#reportTable');
+
+  function init() {
+    if (!table) return;
+    table.addEventListener('click', onGroupRowClick, false);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+
+  function onGroupRowClick(ev) {
+    const tr = ev.target.closest('tbody tr[data-group-id]');
+    if (!tr || !table.contains(tr)) return;
+
+    if (tr.nextElementSibling && tr.nextElementSibling.classList.contains('detail-row')) {
+      tr.nextElementSibling.remove();
+      tr.classList.remove('expanded');
+      return;
+    }
+
+    for (const r of table.querySelectorAll('tr.detail-row')) {
+      r.previousElementSibling?.classList.remove('expanded');
+      r.remove();
+    }
+
+    const groupId = tr.dataset.groupId;
+    const fy = (qs('#fy') && qs('#fy').value) || new URLSearchParams(location.search).get('fy') || '';
+
+    const detailTr = document.createElement('tr');
+    detailTr.className = 'detail-row';
+    const colCount = (table.tHead && table.tHead.rows[0] && table.tHead.rows[0].cells.length)
+      ? table.tHead.rows[0].cells.length : 3;
+    detailTr.innerHTML = `<td colspan="${colCount}">Loading…</td>`;
+    tr.after(detailTr);
+    tr.classList.add('expanded');
+
+    const url = new URL("{% url 'it_return_report' %}", window.location.origin);
+    url.searchParams.set('rtype', 'group');
+    if (fy) url.searchParams.set('fy', fy);
+    url.searchParams.set('format', 'json');
+    url.searchParams.set('group_id', groupId);
+
+    fetch(url)
+      .then(r => r.json())
+      .then(data => { detailTr.firstElementChild.innerHTML = buildNestedTableHTML(data); })
+      .catch(err => { detailTr.firstElementChild.textContent = 'Failed to load. ' + err; });
+  }
+
+  function buildNestedTableHTML(data) {
+    const head = `<thead><tr>${data.columns.map(c => `<th>${c}</th>`).join('')}</tr></thead>`;
+    let rows = '';
+    if (data.rows.length) {
+      rows = data.rows.map(row =>
+        `<tr>${data.fields.map(f => `<td>${row[f] ?? ''}</td>`).join('')}</tr>`
+      ).join('');
+    } else {
+      rows = `<tr><td colspan="${data.fields.length}" class="text-muted">No entries in this fiscal year.</td></tr>`;
+    }
+    const body = `<tbody>${rows}</tbody>`;
+    return `<div class="mt-2">
+              <div class="fw-semibold mb-1">${data.group_name}</div>
+              <table class="table table-sm table-bordered mb-0 compact">${head}${body}</table>
+            </div>`;
+  }
+})();
+</script>
+
+{% comment %} bult reassignment {% endcomment %}
+<script>
+(function(){
+  const openBtn = document.getElementById("openBulkReassign");
+  const fySel   = document.getElementById("fy");
+  const modalEl = document.getElementById("bulkReassignModal");
+  if (!openBtn || !modalEl) return;
+
+  const brFy    = document.getElementById("br_fy");
+  const brFrom  = document.getElementById("br_from");
+  const brTo    = document.getElementById("br_to");
+  const form    = document.getElementById("bulkReassignForm");
+
+  // bootstrap modal instance
+  let modal;
+  document.addEventListener("DOMContentLoaded", () => {
+    modal = new bootstrap.Modal(modalEl);
+  });
+
+  openBtn.addEventListener("click", async () => {
+    // Prefill FY from the filter select
+    if (brFy && fySel) brFy.value = fySel.value || "";
+
+    // Load users once per open (you can cache globally if you prefer)
+    brFrom.innerHTML = '<option value="">Loading…</option>';
+    brTo.innerHTML   = '<option value="">Loading…</option>';
+    try{
+      const r = await fetch("{% url 'it_user_list_json' %}", {headers: {"X-Requested-With":"XMLHttpRequest"}});
+      const data = await r.json();
+      const opts = ['<option value="">-- Select --</option>']
+        .concat(data.users.map(u => `<option value="${u.id}">${u.username}</option>`))
+        .join('');
+      brFrom.innerHTML = opts;
+      brTo.innerHTML = opts;
+    }catch(e){
+      brFrom.innerHTML = '<option value="">Failed</option>';
+      brTo.innerHTML   = '<option value="">Failed</option>';
+    }
+
+    modal.show();
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const fromId = fd.get("from_user");
+    const toId   = fd.get("to_user");
+    if (!fromId || !toId) return;
+    if (fromId === toId) { alert("From and To cannot be same."); return; }
+
+    try{
+      const res = await fetch(form.action, {
+        method: "POST",
+        headers: {"X-Requested-With":"XMLHttpRequest"},
+        body: fd
+      });
+      if(!res.ok){
+        const t = await res.text();
+        throw new Error(t || "Request failed");
+      }
+      const data = await res.json();
+      // ▶▶ Add the diagnostic-aware success block here
+      if (data.updated === 0 && data.diag) {
+        showToast(
+          `No rows updated.\n` +
+          `From-user matches: ${data.diag.matched_after_from}\n` +
+          `After FY filter:   ${data.diag.matched_after_fy}\n` +
+          `After status:      ${data.diag.matched_after_status}`,
+          true
+        );
+      } else {
+        showToast(`Re-assigned ${data.updated} case(s).`);
+        modal.hide();
+        loadTable(); // refresh your report table
+      }
+    }catch(err){
+      showToast("Failed: " + (err?.message || err), true);
+    }
+  });
+
+  // Tiny helper toast using your existing top-right area (reuses your messages styling)
+  function showToast(text, isError=false){
+    const wrap = document.createElement("div");
+    wrap.className = "toast-container position-fixed top-0 end-0 p-3";
+    wrap.innerHTML = `
+      <div class="toast show ${isError ? 'border border-danger' : ''}" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+          <strong class="me-auto">Notification</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"
+            onclick="this.closest('.toast-container').remove()"></button>
+        </div>
+        <div class="toast-body">${text}</div>
+      </div>`;
+    document.body.appendChild(wrap);
+    setTimeout(()=> wrap.remove(), 4000);
+  }
+})();
+</script>
+
+{% comment %} group allocation {% endcomment %}
+
+<script>
+(function(){
+  const openBtn = document.getElementById("openGroupReassign");
+  const modalEl = document.getElementById("groupReassignModal");
+  if (!openBtn || !modalEl) return;
+
+  const fySel     = document.getElementById("fy");
+  const grFy      = document.getElementById("gr_fy");
+  const gruGroup  = document.getElementById("gru_group");   // <-- this is your group <select>
+  const grTo      = document.getElementById("gr_to");
+  const form      = document.getElementById("groupReassignForm");
+  let modal;
+
+  document.addEventListener("DOMContentLoaded", () => {
+    modal = new bootstrap.Modal(modalEl);
+  });
+
+  // Optional helper: read current rows if you want a fallback
+  function uniqGroupsFromRows() {
+    const m = new Map();
+    (window.RAW_ROWS || []).forEach(r => {
+      if (r.group_id && r.group) m.set(r.group_id, r.group);
+    });
+    return Array.from(m.entries()).sort((a,b)=>a[1].localeCompare(b[1]));
+  }
+
+  // ---- API fetch: load groups into <select id="gru_group"> ----
+  async function loadGroupsForModal() {
+    const fy = fySel ? fySel.value : "";
+    gruGroup.innerHTML = '<option value="">Loading…</option>';
+
+    const url = new URL("{% url 'it_group_list_json' %}", window.location.origin);
+    if (fy) url.searchParams.set("fy", fy);
+    url.searchParams.set("in_fy_only", "1");
+
+    try {
+      const r = await fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" }});
+      const data = await r.json();
+      const opts = ['<option value="">-- Select group --</option>']
+        .concat((data.groups || []).map(g => {
+          const badge = (typeof g.in_fy === "number") ? ` (${g.in_fy})` : "";
+          return `<option value="${g.id}">${g.name}${badge}</option>`;
+        }))
+        .join("");
+      gruGroup.innerHTML = opts || '<option value="">(No groups)</option>';
+    } catch(e) {
+      // fallback to groups visible in the table
+    /*  const entries = uniqGroupsFromRows();
+      if (entries.length) {
+        gruGroup.innerHTML = ['<option value="">-- Select group --</option>']
+          .concat(entries.map(([id, name]) => `<option value="${id}">${name}</option>`))
+          .join('');
+      } else {
+        gruGroup.innerHTML = '<option value="">Failed to load</option>';
+      }*/
+        console.error("Group list fetch failed:", e);
+        gruGroup.innerHTML = '<option value="">Failed to load</option>';
+    }
+  }
+
+  // ---- API fetch: load users into <select id="gr_to"> ----
+  async function loadUsersInto(selectEl) {
+    if (!selectEl) return;
+    selectEl.innerHTML = '<option value="">Loading…</option>';
+    try {
+      const r = await fetch("{% url 'it_user_list_json' %}", { headers: { "X-Requested-With": "XMLHttpRequest" }});
+      const data = await r.json();
+      selectEl.innerHTML = ['<option value="">-- Select user --</option>']
+        .concat((data.users || []).map(u => `<option value="${u.id}">${u.username}</option>`))
+        .join('');
+    } catch {
+      selectEl.innerHTML = '<option value="">Failed to load</option>';
+    }
+  }
+
+  openBtn.addEventListener("click", async () => {
+    // sync FY field inside modal
+    grFy.value = fySel?.value || new URLSearchParams(location.search).get('fy') || '';
+
+    // populate groups + preselect currently expanded group if any
+    await loadGroupsForModal();
+    const expanded = document.querySelector('#reportTable tr.group-row.expanded');
+    if (expanded?.dataset.groupId) {
+      gruGroup.value = expanded.dataset.groupId;
+    } else if (gruGroup.options.length === 2) {
+      // auto-pick the only group if there’s just one
+      gruGroup.selectedIndex = 1;
+    }
+
+    // populate users
+    await loadUsersInto(grTo);
+
+    // finally show the modal
+    modal.show();
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    if (!fd.get("group_id") || !fd.get("to_user")) return;
+
+    try{
+      const res = await fetch(form.action, {
+        method: "POST",
+        headers: {"X-Requested-With":"XMLHttpRequest"},
+        body: fd
+      });
+      if (!res.ok) throw new Error(await res.text() || "Request failed");
+      const data = await res.json();
+
+      if (data.updated === 0 && data.diag) {
+        showToast(
+          `No rows updated.\nGroup: ${data.diag.group_id || 'n/a'}\nClients in group: ${data.diag.clients || 0}`,
+          true
+        );
+      } else {
+        showToast(`Re-assigned ${data.updated} case(s).`);
+        modal.hide();
+        if (typeof loadTable === "function") loadTable();
+      }
+    }catch(err){
+      showToast("Failed: " + (err?.message || err), true);
+    }
+  });
+
+  // tiny toast helper
+  window.showToast = window.showToast || function(text, isError=false){
+    const wrap = document.createElement("div");
+    wrap.className = "toast-container position-fixed top-0 end-0 p-3";
+    wrap.innerHTML = `
+      <div class="toast show ${isError ? 'border border-danger' : ''}" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+          <strong class="me-auto">Notification</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"
+            onclick="this.closest('.toast-container').remove()"></button>
+        </div>
+        <div class="toast-body" style="white-space:pre-line">${text}</div>
+      </div>`;
+    document.body.appendChild(wrap);
+    setTimeout(()=> wrap.remove(), 4000);
+  };
+})();
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

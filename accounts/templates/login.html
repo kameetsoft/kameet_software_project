@@ -1,0 +1,217 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAMEET Soft | Secure Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #e6f0ff;
+            --secondary: #3f37c9;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --error: #dc3545;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color:rgb(190, 211, 232);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+        }
+        
+        .login-form {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+        
+        .login-form h2 {
+            color: var(--dark);
+            margin-bottom: 1.8rem;
+            font-size: 1.8rem;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background-color: #f8fafc;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--primary-light);
+            background-color: white;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            width: 100%;
+            transition: all 0.3s;
+            margin-top: 0.5rem;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+        
+        .errorlist {
+            color: var(--error);
+            margin-bottom: 1rem;
+            list-style: none;
+            font-size: 0.9rem;
+            background-color: #fee2e2;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--error);
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .logo img {
+            height: 50px;
+        }
+        
+        @media (max-width: 480px) {
+            .login-form {
+                padding: 2rem 1.5rem;
+            }
+            
+            .login-form h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-form">
+            <div class="logo" style="margin-bottom: 1.5rem;">
+  <svg width="200" height="70" viewBox="0 0 200 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#4361ee"/>
+        <stop offset="100%" stop-color="#3a0ca3"/>
+      </linearGradient>
+    </defs>
+    <rect x="15" y="15" width="50" height="50" rx="12" fill="url(#gradient)"/>
+    <path d="M30 40L40 30M40 30V36M40 30H34M40 50L30 40L34 44L40 50Z" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    <text x="80" y="42" font-family="Poppins" font-size="28" font-weight="700" fill="#2c3e50">KAMEET</text>
+    <text x="80" y="58" font-family="Poppins" font-size="14" font-weight="500" fill="#7f8c8d">FINANCIAL SOLUTIONS</text>
+    <path d="M80 48H170" stroke="#e0e0e0" stroke-width="1"/>
+  </svg>
+</div>
+            
+            <h2>Sign In to KAMEET Soft</h2>
+            {% if messages %}
+            <div>
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% if form.errors %}
+            <div class="errorlist">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% comment %} <form method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username" required>
+                    {% if form.username.errors %}
+                        <div class="errorlist">{{ form.username.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+                    {% if form.password.errors %}
+                        <div class="errorlist">{{ form.password.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <button type="submit" class="btn">Sign In</button>
+            </form> {% endcomment %}
+            <form method="POST" action="{% url 'login' %}">
+    {% csrf_token %}
+
+    <div class="form-group">
+        {{ form.username.label_tag }}
+        {{ form.username }}
+        {% if form.username.errors %}
+            <div class="errorlist">{{ form.username.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        {{ form.password.label_tag }}
+        {{ form.password }}
+        {% if form.password.errors %}
+            <div class="errorlist">{{ form.password.errors }}</div>
+        {% endif %}
+    </div>
+
+    <button type="submit" class="btn">Sign In</button>
+</form>
+
+        </div>
+    </div>
+</body>
+</html>

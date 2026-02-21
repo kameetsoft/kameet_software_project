@@ -1,0 +1,37 @@
+ICICI Bank account Statement from 10-04-2024 to 10-04-2024. 
+
+
+Account Number|Tran Date |  Tran Particular    | Inst Num      |   Dr Tran Amt   |    Cr Tran Amt |      Bal Amt      | Deposit Branch
+-------------- ---------    ---------------      ---------       ---------------   ---------------        --------    | ------- ------
+624605065980|   27-MAR-2024|  B/F                                                                                                 |                 |                |                |        24158.21|                            
+624605065980|   27-Mar-2024|  RTGS-HDFCR52024032792322272-GPC INFASTRUCTURE-0335 2000005125-HDFC0000240                           |                 |            0.00|      5486934.00|      5511092.21|                   RPC-NASIK
+624605065980|   27-Mar-2024|  RTGS*ICICR52024032700740995/UBIN0911569/JERAMBHAI BHAVANBHAI GOLAKIYA                               |             1277|       700000.00|            0.00|      4811092.21|               AHMEDABAD RPC
+624605065980|   27-Mar-2024|  RTGS*ICICR52024032700740457/HDFC0000251/GOLAKIYA Y ASHVI BHAVESHBHAI                                |             1278|       300000.00|            0.00|      4511092.21|               AHMEDABAD RPC
+624605065980|   27-Mar-2024|  RTGS*ICICR52024032700739846/UBIN0911569/RAJESHBHAI  J GOLAKIYA                                      |             1279|       300000.00|            0.00|      4211092.21|               AHMEDABAD RPC
+624605065980|   27-Mar-2024|  RTGS*ICICR52024032700743392/UTIB0CCH274/ULTRATECH CEMENT                                            |             1276|       200000.00|            0.00|      4011092.21|               AHMEDABAD RPC
+624605065980|   27-Mar-2024|  RTGS*ICICR52024032700745145/BARB0DUDHSA/BALAJI SAL ES CORPORATION                                   |             1269|       300000.00|            0.00|      3711092.21|               AHMEDABAD RPC
+624605065980|   27-Mar-2024|  NEFT*000146164538/BKID0002101/MBH PUMP GUJ PVT LTD                                                  |             1274|       100000.00|            0.00|      3611092.21|               AHMEDABAD RPC
+624605065980|   27-Mar-2024|  RTGS*ICICR52024032700743760/KKBK0002794/CHITRA CON STRUCTION CO                                     |             1273|       238000.00|            0.00|      3373092.21|               AHMEDABAD RPC
+624605065980|   27-Mar-2024|  RTGS*ICICR52024032700744219/HDFC0000955/SQUAREFEET  CERAMIC                                         |             1272|       633000.00|            0.00|      2740092.21|               AHMEDABAD RPC
+624605065980|   27-Mar-2024|  RTGS*ICICR52024032700746567/UTIB0000047/NJ ECO BUI LD PVT LTD                                       |             1266|      1500000.00|            0.00|      1240092.21|               AHMEDABAD RPC
+624605065980|   27-Mar-2024|  RTGS*ICICR52024032700746104/SBIN0060134/SHREE GOPI NATH CONTRACTION                                 |             1275|       300000.00|            0.00|       940092.21|               AHMEDABAD RPC
+624605065980|   27-Mar-2024|  NEFT*000146164881/KKBK0002792/AIRCAB INDUSTRIES                                                     |             1271|        79827.00|            0.00|       860265.21|               AHMEDABAD RPC
+624605065980|   28-Mar-2024|  TRF/PATEL TRADERS /ICI                                                                              |             1267|       800000.00|            0.00|        60265.21|                       BOTAD
+624605065980|   30-Mar-2024|  RTGS-HDFCR52024033093622933-GPC INFASTRUCTURE-0335 2000005125-HDFC0000240                           |                 |            0.00|      1741615.00|      1801880.21|                   RPC-NASIK
+624605065980|   30-Mar-2024|  RTGS*ICICR52024033000275709/HDFC0008455/BHARAT MAR KETING                                           |             1268|       200000.00|            0.00|      1601880.21|               AHMEDABAD RPC
+624605065980|   30-Mar-2024|  NEFT*000146318909/CBIN0284655/BHAGVATI ELECTRICS S TORES                                            |             1280|        49700.00|            0.00|      1552180.21|               AHMEDABAD RPC
+624605065980|   30-Mar-2024|  RTGS*ICICR52024033000274161/HDFC0000251/SAHAJANAND  SERVICES PVT LTD                                |             1283|       850000.00|            0.00|       702180.21|               AHMEDABAD RPC
+624605065980|   30-Mar-2024|  RTGS*ICICR52024033000273596/SBIN0018698/VANDANABEN  RAJESHBHAI GOLAKIYA                             |             1282|       300000.00|            0.00|       402180.21|               AHMEDABAD RPC
+624605065980|   30-Mar-2024|  TRF/ANKIT   ENTERPRISES/ICI                                                                         |             1270|       300000.00|            0.00|       102180.21|       BOTAD - STATIONA ROAD
+624605065980|   30-Mar-2024|  NEFT*000146319585/SBIN0060019/SATNAM TRADERS                                                        |             1281|        51100.00|            0.00|        51080.21|               AHMEDABAD RPC
+624605065980|   03-Apr-2024|  RTGS-HDFCR52024040395113979-SHRINATHJI STONE WORKS -50200028579518-HDFC0000240                      |                 |            0.00|       536000.00|       587080.21|                   RPC-NASIK
+624605065980|   03-Apr-2024|  RTGS*ICICR52024040300489131/IDFB0042268/GOTI SANJA Y MAKODBHAI                                      |             1284|       500000.00|            0.00|        87080.21|               AHMEDABAD RPC
+624605065980|   08-Apr-2024|  MMT/IMPS/409914162199/IMPSTXN/Mr  Goti S/IDFC bank                                                  |                 |            0.00|       100000.00|       187080.21|                SURAT (6246)
+624605065980|   09-Apr-2024|  NEFT-IDFBH24100761553-MR GOTI SANJAY MAKODBHAI-/AT TN/-00000010079866009-IDFB0010201                |                 |            0.00|        40000.00|       227080.21|                  RPC MUMBAI
+624605065980|   09-Apr-2024|  BY CASH -SURAT - VED ROAD                                                                           |                 |            0.00|       125000.00|       352080.21|            SURAT - VED ROAD
+624605065980|   09-Apr-2024|  NEFT-IDFBH24100789993-MR GOTI SANJAY MAKODBHAI-/AT TN/-00000010079866009-IDFB0010201                |                 |            0.00|        35000.00|       387080.21|                  RPC MUMBAI
+624605065980|   09-Apr-2024|  RTGS*ICICR52024040900766822/HDFC0000948/vijay petr oleum                                            |             1285|       300000.00|            0.00|        87080.21|              SURAT - RANDER
+624605065980|   09-Apr-2024|  NEFT-N100242980630928-SHRINATHJI STONE WORKS-DOMNE FT01 - C71074090424144408 -   -50200028579518-HDF|                 |            0.00|       117000.00|       204080.21|                  RPC MUMBAI
+624605065980|   10-Apr-2024|  Business Loan XX83021 EMI Saha                                                                      |                 |       121828.00|            0.00|        82252.21|                    BORIVALI
+
+ Closing Balance as on 11-04-2024 07:58:19 is INR.82252.21 includes Uncleared Funds of INR.0.00

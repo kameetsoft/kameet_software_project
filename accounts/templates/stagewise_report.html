@@ -1,0 +1,457 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stage Wise Report</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 8px;
+            color: #333;
+            font-size: 15px;
+            line-height: 1.3;
+        }
+        .report-container {
+            display: flex;
+            flex-direction: column;
+            max-width: 100%;
+            margin: 0 auto;
+            height: 100vh;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+        .report-header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 6px 10px;
+        }
+        .report-header h1 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .report-meta {
+            background-color: #f8f9fa;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight:500;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+        }
+        .stage-list {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            font-weight:500;
+        }
+        .stage-list th {
+            background-color: #34495e;
+            color: white;
+            padding: 6px 8px;
+            text-align: left;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+        }
+        .stage-list td {
+            padding: 5px 8px;
+            border-bottom: 1px solid #e0e0e0;
+            vertical-align: top;
+        }
+        .stage-list tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .stage-list tr:hover {
+            background-color: #eef7fb;
+        }
+        .empty-cell {
+            color: #999;
+            font-style: italic;
+        }
+        .fiscal-year-form {
+            margin-bottom: 10px;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .fiscal-year-form select {
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .search-box {
+            padding: 0 10px 10px;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .status-pending {
+            color: #d35400;
+            font-weight: 500;
+        }
+        .status-completed {
+            color: #27ae60;
+            font-weight: 500;
+        }
+        .status-inprogress {
+            color: #2980b9;
+            font-weight: 500;
+        }
+        .pan-number {
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 0.3px;
+        }
+           
+        /* Excel Tabs Styles */
+        .excel-tabs {
+            display: flex;
+            background: #f3f2f1;
+            border-top: 1px solid #d4d4d4;
+            padding: 0 10px;
+            height: 30px;
+            align-items: flex-end;
+            overflow-x: auto;
+        }
+        
+        .excel-tab {
+            padding: 4px 12px;
+            font-size: 12px;
+            color: #333;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-radius: 3px 3px 0 0;
+            background: #e9e9e9;
+            border-bottom: none;
+            white-space: nowrap;
+            height: 26px;
+        }
+        
+        .excel-tab:hover {
+            background: #d9d9d9;
+        }
+        
+        .excel-tab.active {
+            background: white;
+            border-color: #d4d4d4;
+            border-bottom-color: white;
+            position: relative;
+            top: 1px;
+            font-weight: 500;
+        }
+        
+        /* New styles for fixed table height */
+        .table-container {
+            height: calc(100vh - 180px); /* Adjust based on your header height */
+            overflow-y: auto;
+            position: relative;
+        }
+        .search-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.clear-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.dropdown {
+    position: absolute;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    margin-top: 2px;
+}
+
+.dropdown-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.dropdown-item:hover,
+.dropdown-item.highlighted {
+    background-color: #007bff;
+    color: white;
+}
+
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <div class="report-header">
+            <h1>📊 STAGE WISE REPORT</h1>
+        </div>
+        <div class="report-meta">
+            <span>Total Records: {{ entries|length }}</span>
+        </div>
+
+        {% comment %} <div class="search-box">
+            <input type="text" placeholder="Search Client, PAN, Group..." x-model="search">
+        </div> {% endcomment %}
+        <div class="search-box" x-data="stagewiseSearch" x-init="init()">
+    <div class="search-container" style="display: flex; gap: 12px; flex-wrap: wrap;">
+        
+        <!-- Group Filter -->
+        <div class="search-field" style="position: relative; min-width: 200px; flex: 1;">
+            <input type="text" class="search-input" placeholder="Search Client"
+                x-model="filters.client"
+                @input="applyFilters"
+                @focus="showDropdown('client')"
+                @blur="hideDropdownDelayed('client')"
+                @keydown.arrow-down.prevent="highlightNext('client')"
+                @keydown.arrow-up.prevent="highlightPrev('client')"
+                @keydown.enter.prevent="selectHighlighted('client')">
+            <template x-if="filters.client">
+                <button class="clear-btn" @click="filters.client = ''; applyFilters()">×</button>
+            </template>
+            {% comment %} <div class="dropdown" x-show="dropdowns.client.length" x-cloak x-transition> {% endcomment %}
+            <div class="dropdown" x-show="dropdownVisible.client && dropdowns.client.length" x-cloak x-transition>
+
+
+                <template x-for="(item, index) in dropdowns.client" :key="item">
+                    <div class="dropdown-item"
+                        :class="{ 'highlighted': highlightedIndex.client === index }"
+                        @mousedown.prevent="selectSuggestion('client', item)"
+                        @mouseenter="highlightedIndex.client = index"
+                        x-text="item"></div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Stage Filter -->
+        <div class="search-field" style="position: relative; min-width: 200px; flex: 1;">
+            <input type="text" class="search-input" placeholder="Search Stage"
+                x-model="filters.stage"
+                @input="applyFilters"
+                @focus="showDropdown('stage')"
+                @blur="hideDropdownDelayed('stage')"
+                @keydown.arrow-down.prevent="highlightNext('stage')"
+                @keydown.arrow-up.prevent="highlightPrev('stage')"
+                @keydown.enter.prevent="selectHighlighted('stage')">
+            <template x-if="filters.stage">
+                <button class="clear-btn" @click="filters.stage = ''; applyFilters()">×</button>
+            </template>
+            {% comment %} <div class="dropdown" x-show="dropdowns.stage.length" x-cloak x-transition> {% endcomment %}
+            <div class="dropdown" x-show="dropdownVisible.stage && dropdowns.stage.length" x-cloak x-transition>
+
+
+                <template x-for="(item, index) in dropdowns.stage" :key="item">
+                    <div class="dropdown-item"
+                        :class="{ 'highlighted': highlightedIndex.stage === index }"
+                        @mousedown.prevent="selectSuggestion('stage', item)"
+                        @mouseenter="highlightedIndex.stage = index"
+                        x-text="item"></div>
+                </template>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+        <form method="get" class="fiscal-year-form">
+            <div>
+                <label for="fy">Select Year:</label>
+                <select name="fy" id="fy" onchange="this.form.submit()">
+                    <option value="">-- Select Year --</option>
+                    <option value="2023_24" {% if fiscal_year == '2023_24' %}selected{% endif %}>2023-24</option>
+                    <option value="2024_25" {% if fiscal_year == '2024_25' %}selected{% endif %}>2024-25</option>
+                    <option value="2025_26" {% if fiscal_year == '2025_26' %}selected{% endif %}>2025-26</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="stage">Filter Stage:</label>
+                <select name="stage" id="stage" onchange="this.form.submit()">
+                    <option value="">All Stages</option>
+                    <option value="Preparation" {% if selected_stage == 'Preparation' %}selected{% endif %}>Preparation</option>
+                    <option value="Review" {% if selected_stage == 'Review' %}selected{% endif %}>Review</option>
+                    <option value="Finalization" {% if selected_stage == 'Finalization' %}selected{% endif %}>Finalization</option>
+                    <option value="Completed" {% if selected_stage == 'Completed' %}selected{% endif %}>Completed</option>
+                </select>
+            </div>
+        </form>
+
+        <div class="table-container">
+            <table class="stage-list">
+                <thead>
+                    <tr>
+                        <th width="5%">Sr</th>
+                        <th width="20%">Client</th>
+                        <th width="20%">Legal Name</th>
+                        <th width="10%">PAN</th>
+                        <th width="10%">CA</th>
+                        <th width="10%">Audit Stage</th>
+                        <th width="10%">Account Stage</th>
+                        <th width="10%">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in entries %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ entry.client_obj.client_name }}</td>
+                        <td>{{ entry.client_obj.legal_name }}</td>
+                        <td class="pan-number">{{ entry.client_obj.pan }}</td>
+                        <td>{{ entry.ca }}</td>
+                        <td>{{ entry.audit_stage }}</td>
+                        <td>{{ entry.stage }}</td>
+                        <td>{{ entry.return_status }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="empty-cell">No entries found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Excel Tabs -->
+        <div class="excel-tabs">
+            <div class="excel-tab">Sheet1</div>
+            <div class="excel-tab">Case Updates</div>
+            <div class="excel-tab "  onclick="window.location.href='{% url 'group_wise_report' %}'">Group Wise Report</div>
+            <div class="excel-tab " onclick="window.location.href='{% url 'audit_list' %}'">Audit</div>
+            <div class="excel-tab" onclick="window.location.href='{% url 'staffwise_report' %}'">Staffwise</div>
+            <div class="excel-tab active" onclick="window.location.href='{% url 'stagewise_report' %}'">Stagewise</div>
+            <div class="excel-tab">Salaried Case</div>
+            <div class="excel-tab">Return Check</div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('stagewiseSearch', () => ({
+        filters: {
+            client: '',
+            stage: ''
+        },
+        dropdowns: {
+            client: [],
+            stage: []
+        },
+        highlightedIndex: {
+            client: -1,
+            stage: -1
+        },
+        tableRows: [],
+
+        init() {
+            this.tableRows = Array.from(document.querySelectorAll('.stage-list tbody tr'));
+            this.applyFilters();
+        },
+
+        applyFilters() {
+            const clientVal = this.filters.client.toLowerCase();
+            const stageVal = this.filters.stage.toLowerCase();
+
+            this.tableRows.forEach(row => {
+                const clientText = row.children[1]?.textContent.toLowerCase(); // Client name
+                const stageText = row.children[6]?.textContent.toLowerCase();  // Account stage
+
+                const match = clientText.includes(clientVal) && stageText.includes(stageVal);
+                row.style.display = match ? '' : 'none';
+            });
+
+            this.updateSuggestions('client');
+            this.updateSuggestions('stage');
+        },
+
+        updateSuggestions(field) {
+            const indexMap = { client: 1, stage: 6 };
+            const index = indexMap[field];
+            const value = this.filters[field].toLowerCase();
+            const suggestions = new Set();
+
+            this.tableRows.forEach(row => {
+                const text = row.children[index]?.textContent.trim();
+                if (text && text.toLowerCase().includes(value)) {
+                    suggestions.add(text);
+                }
+            });
+
+            this.dropdowns[field] = [...suggestions].slice(0, 10);
+            this.highlightedIndex[field] = -1;
+        },
+
+        selectSuggestion(field, value) {
+            this.filters[field] = value;
+            this.dropdowns[field] = [];
+            this.applyFilters();
+        },
+
+        showDropdown(field) {
+    this.dropdownVisible[field] = true;
+    this.updateSuggestions(field);
+},
+
+       hideDropdownDelayed(field) {
+    setTimeout(() => {
+        this.dropdownVisible[field] = false;
+        this.highlightedIndex[field] = -1;
+    }, 200);
+},
+selectSuggestion(field, value) {
+    this.filters[field] = value;
+    this.dropdowns[field] = [];
+    this.dropdownVisible[field] = false;  // explicitly hide
+    this.applyFilters();
+},
+dropdownVisible: {
+    client: false,
+    stage: false
+},
+
+
+        highlightNext(field) {
+            if (this.dropdowns[field].length > 0) {
+                this.highlightedIndex[field] = (this.highlightedIndex[field] + 1) % this.dropdowns[field].length;
+            }
+        },
+
+        highlightPrev(field) {
+            if (this.dropdowns[field].length > 0) {
+                this.highlightedIndex[field] = (this.highlightedIndex[field] - 1 + this.dropdowns[field].length) % this.dropdowns[field].length;
+            }
+        },
+
+        selectHighlighted(field) {
+            if (this.highlightedIndex[field] >= 0) {
+                const item = this.dropdowns[field][this.highlightedIndex[field]];
+                this.selectSuggestion(field, item);
+            }
+        }
+    }));
+});
+</script>
+
+
+</body>
+</html>

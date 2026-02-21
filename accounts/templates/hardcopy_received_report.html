@@ -1,0 +1,474 @@
+{% load static %}
+<html>
+<head>
+    <title>Hard Copy Received Report</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            background: #f5f7fa;
+            font-size: 14px;
+        }
+
+        .table thead th {
+            position: sticky;
+            top: 0;
+            background: #212529;
+            color: #fff;
+            z-index: 2;
+        }
+        .close-btn {
+            border: none;
+            background: red;
+            font-size: 22px;
+            font-weight: bold;
+            line-height: 1;
+            color: #333;
+            cursor: pointer;
+            padding: 0 6px;
+        }
+
+        .close-btn:hover {
+            color: #dc3545;
+        }
+
+        /* ===== FULL ROW SELECTION (Bootstrap-safe) ===== */
+        .table tbody tr.active-row > td {
+            background-color: #d1e7fd !important;
+        }
+
+        /* Optional left blue indicator */
+        .table tbody tr.active-row > td:first-child {
+            box-shadow: inset 4px 0 0 #0d6efd;
+        }
+
+        /* Hover should NOT override selected row */
+        .table tbody tr:hover:not(.active-row) > td {
+            background-color: #f1f5ff;
+        }
+
+
+    </style>
+</head>
+
+<body>
+
+<div class="container-fluid h-100 p-3 d-flex flex-column">
+
+    <!-- Header -->
+     <div class="d-flex justify-content-between align-items-center mb-2">
+
+        <h4 class="mb-0">
+            Hard Copy Received (Client-wise)
+            <span class="badge bg-success">{{ grand_total }}</span>
+        </h4>
+
+        <div class="d-flex align-items-center gap-2">
+            <form method="get" class="d-flex align-items-center gap-2 mb-0">
+                <label class="fw-bold mb-0">FY:</label>
+                <select name="fy" class="form-select form-select-sm" onchange="this.form.submit()">
+                    {% for y in fy_list %}
+                        <option value="{{ y }}" {% if y == fy %}selected{% endif %}>
+                            {{ y }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+
+            <!-- ❌ Close Button -->
+            <button type="button"
+                    class="close-btn"
+                    title="Close"
+                   onclick="window.location.href='{% url "home" %}';">
+                &times;
+            </button>
+        </div>
+
+    </div>
+
+    {% comment %} <div class="d-flex justify-content-between align-items-center mb-2">
+        <h4 class="mb-0">
+            Hard Copy Received (Client-wise)
+            <span class="badge bg-success">{{ grand_total }}</span>
+        </h4>
+
+        <form method="get" class="d-flex align-items-center gap-2">
+            <label class="fw-bold mb-0">FY:</label>
+            <select name="fy" class="form-select form-select-sm" onchange="this.form.submit()">
+                {% for y in fy_list %}
+                    <option value="{{ y }}" {% if y == fy %}selected{% endif %}>
+                        {{ y }}
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div> {% endcomment %}
+
+
+    {% comment %} <form method="get" class="row g-2 mb-2">
+
+        <div class="col-md-2">
+            <label class="fw-bold">FY</label>
+            <select name="fy" class="form-select form-select-sm" onchange="this.form.submit()">
+                {% for y in fy_list %}
+                    <option value="{{ y }}" {% if y == fy %}selected{% endif %}>{{ y }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="fw-bold">Group</label>
+            <select name="group" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">-- All Groups --</option>
+                {% for g in groups %}
+                    <option value="{{ g.group__id }}" {% if sel_group == g.group__id|stringformat:"s" %}selected{% endif %}>
+                        {{ g.group__group_name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="fw-bold">Client</label>
+            <select name="client" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">-- All Clients --</option>
+                {% for c in clients_dd %}
+                    <option value="{{ c.id }}" {% if sel_client == c.id|stringformat:"s" %}selected{% endif %}>
+                        {{ c.client_name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+    </form> {% endcomment %}
+
+    <form method="get" id="filterForm" class="row g-2 mb-2">
+
+        <!-- FY -->
+        <div class="col-md-2">
+            <label class="fw-bold">FY</label>
+            <select name="fy" class="form-select form-select-sm" onchange="this.form.submit()">
+                {% for y in fy_list %}
+                    <option value="{{ y }}" {% if y == fy %}selected{% endif %}>{{ y }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- GROUP MULTI SELECT -->
+        <div class="col-md-3">
+            <label class="fw-bold">Group</label>
+            <div class="dropdown">
+                <button class="form-select form-select-sm text-start"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        id="groupDropdown">
+                    -- All Groups --
+                </button>
+
+                <div class="dropdown-menu w-100 p-2" style="max-height:300px; overflow:auto;">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="group_all">
+                        <label class="form-check-label fw-bold">Select All</label>
+                    </div>
+                    <hr class="my-1">
+
+                    {% for g in groups %}
+                    <div class="form-check">
+                        <input class="form-check-input group-check"
+                            type="checkbox"
+                            name="group"
+                            value="{{ g.group__id }}"
+                            {% if g.group__id|stringformat:"s" in sel_groups %}checked{% endif %}>
+                        <label class="form-check-label">
+                            {{ g.group__group_name }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- CLIENT MULTI SELECT -->
+        <div class="col-md-3">
+            <label class="fw-bold">Client</label>
+            <div class="dropdown">
+                <button class="form-select form-select-sm text-start"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        id="clientDropdown">
+                    -- All Clients --
+                </button>
+
+                <div class="dropdown-menu w-100 p-2" style="max-height:300px; overflow:auto;">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="client_all">
+                        <label class="form-check-label fw-bold">Select All</label>
+                    </div>
+                    <hr class="my-1">
+
+                    {% for c in clients_dd %}
+                    <div class="form-check">
+                        <input class="form-check-input client-check"
+                            type="checkbox"
+                            name="client"
+                            value="{{ c.id }}"
+                            {% if c.id|stringformat:"s" in sel_clients %}checked{% endif %}>
+                        <label class="form-check-label">
+                            {{ c.client_name }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ACCOUNT TYPE FILTER -->
+        <div class="col-md-2">
+            <label class="fw-bold">Account Type</label>
+
+            <div class="form-check mt-1">
+                <input class="form-check-input"
+                    type="checkbox"
+                    name="exclude_virtual"
+                    value="1"
+                    id="excludeVirtual"
+                    {% if exclude_virtual %}checked{% endif %}
+                    onchange="this.form.submit()">
+                <label class="form-check-label" for="excludeVirtual">
+                    Exclude Sales / Purchase
+                </label>
+            </div>
+        </div>
+
+
+    </form>
+
+    <!-- Table Card (fills remaining height) -->
+    <div class="card shadow-sm flex-grow-1 d-flex flex-column">
+
+        <div class="table-responsive flex-grow-1">
+            <table class="table table-bordered table-hover table-sm align-middle mb-0">
+                 <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Group</th>
+                        <th>Client</th>
+                        <th>Account</th>
+                        <th class="text-center">Hard Copy Count</th>
+                        <th class="text-center">Total FY Entries</th>
+                    </tr>
+                      <!-- 🔍 Column filters -->
+                    <tr class="table-secondary">
+                        <th></th>
+                        <th>
+                            <input type="text" class="form-control form-control-sm column-filter"
+                                placeholder="Filter Group" data-col="1">
+                        </th>
+                        <th>
+                            <input type="text" class="form-control form-control-sm column-filter"
+                                placeholder="Filter Client" data-col="2">
+                        </th>
+                        <th>
+                            <input type="text" class="form-control form-control-sm column-filter"
+                                placeholder="Filter Account" data-col="3">
+                        </th>
+                        <th>
+                            <input type="text" class="form-control form-control-sm column-filter"
+                                placeholder="Count (e.g. 5)" data-col="4" data-type="number">
+                        </th>
+
+                        <th>
+                            <input type="text" class="form-control form-control-sm column-filter"
+                                placeholder="FY (e.g. 8)" data-col="5" data-type="number">
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in rows %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ r.group }}</td>
+                        <td>{{ r.client }}</td>
+                        <td>{{ r.account }}</td>
+                        <td class="text-center fw-bold text-success">{{ r.count }}</td>
+                        <td class="text-center fw-bold text-primary">{{ r.total_entries }}</td>
+
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                            No Hard Copy entries found
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="table-light fw-bold">
+                        <td colspan="4" class="text-end">Grand Total</td>
+                        <td class="text-center text-success">{{ grand_total }}</td>
+                        <td class="text-center text-primary">{{ grand_total_all }}</td>
+
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const form = document.getElementById("filterForm");
+
+    function updateLabel(selector, buttonId, placeholder) {
+        const checked = [...document.querySelectorAll(selector + ":checked")];
+        const btn = document.getElementById(buttonId);
+
+        if (checked.length === 0) {
+            btn.textContent = placeholder;
+        } else if (checked.length === 1) {
+            btn.textContent = checked[0].nextElementSibling.innerText;
+        } else {
+            btn.textContent = `${checked.length} selected`;
+        }
+    }
+
+    /* GROUP */
+    document.getElementById("group_all").addEventListener("change", e => {
+        document.querySelectorAll(".group-check").forEach(cb => cb.checked = e.target.checked);
+        form.submit();
+    });
+
+    document.querySelectorAll(".group-check").forEach(cb => {
+        cb.addEventListener("change", () => {
+            updateLabel(".group-check", "groupDropdown", "-- All Groups --");
+            form.submit();
+        });
+    });
+
+    /* CLIENT */
+    document.getElementById("client_all").addEventListener("change", e => {
+        document.querySelectorAll(".client-check").forEach(cb => cb.checked = e.target.checked);
+        form.submit();
+    });
+
+    document.querySelectorAll(".client-check").forEach(cb => {
+        cb.addEventListener("change", () => {
+            updateLabel(".client-check", "clientDropdown", "-- All Clients --");
+            form.submit();
+        });
+    });
+
+    /* Initial labels */
+    updateLabel(".group-check", "groupDropdown", "-- All Groups --");
+    updateLabel(".client-check", "clientDropdown", "-- All Clients --");
+
+});
+</script>
+
+
+{% comment %} Column wise filteration {% endcomment %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const filters = document.querySelectorAll(".column-filter");
+    const rows = document.querySelectorAll("tbody tr");
+
+    function matchNumber(cellValue, filter) {
+        if (!filter) return true;
+
+        const num = parseFloat(cellValue);
+        if (isNaN(num)) return false;
+
+        // range: 5-8
+        if (filter.includes("-")) {
+            const [min, max] = filter.split("-").map(Number);
+            return num >= min && num <= max;
+        }
+
+        // >= <= > <
+        if (filter.startsWith(">=")) return num >= parseFloat(filter.slice(2));
+        if (filter.startsWith("<=")) return num <= parseFloat(filter.slice(2));
+        if (filter.startsWith(">"))  return num >  parseFloat(filter.slice(1));
+        if (filter.startsWith("<"))  return num <  parseFloat(filter.slice(1));
+
+        // exact match
+        return num === parseFloat(filter);
+    }
+
+    filters.forEach(input => {
+        input.addEventListener("keyup", () => {
+
+            rows.forEach(row => {
+                let show = true;
+
+                filters.forEach(f => {
+                    const col = parseInt(f.dataset.col);
+                    const type = f.dataset.type;
+                    const value = f.value.trim().toLowerCase();
+
+                    if (!value) return;
+
+                    const cellText = row.children[col]?.innerText.trim();
+
+                    if (type === "text") {
+                        if (!cellText.toLowerCase().includes(value)) {
+                            show = false;
+                        }
+                    }
+
+                    if (type === "number") {
+                        if (!matchNumber(cellText, value)) {
+                            show = false;
+                        }
+                    }
+                });
+
+                row.style.display = show ? "" : "none";
+            });
+
+        });
+    });
+
+});
+</script>
+
+{% comment %} Select row {% endcomment %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const tbody = document.querySelector(".table tbody");
+    if (!tbody) return;
+
+    let selectedRow = null;
+
+    tbody.addEventListener("click", function (e) {
+        const row = e.target.closest("tr");
+        if (!row || row.querySelector("td[colspan]")) return; // ignore empty rows
+
+        // remove previous selection
+        if (selectedRow) {
+            selectedRow.classList.remove("active-row");
+        }
+
+        // select new row
+        row.classList.add("active-row");
+        selectedRow = row;
+    });
+
+});
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,26 @@
+ICICI Bank account Statement from 06-11-2024 to 06-11-2024. 
+
+
+Account Number|Tran Date |  Tran Particular    | Inst Num      |   Dr Tran Amt   |    Cr Tran Amt |      Bal Amt      | Deposit Branch
+-------------- ---------    ---------------      ---------       ---------------   ---------------        --------    | ------- ------
+624605065980|   23-OCT-2024|  B/F                                                                                                 |                 |                |                |      2191639.53|                            
+624605065980|   23-Oct-2024|  RTGS*ICICR52024102300723766/HDFC0001702/YASHVI COR PORATE                                           |             1433|      1400000.00|            0.00|       791639.53|               AHMEDABAD RPC
+624605065980|   23-Oct-2024|  RTGS*ICICR52024102300724024/SBIN0005098/AMIT MEHTA                                                  |             1435|       764857.00|            0.00|        26782.53|               AHMEDABAD RPC
+624605065980|   24-Oct-2024|  BIL/INFT/DJS6830423/Bill Payment/  NIKUNJ RAMESHBH                                                  |                 |            0.00|       167000.00|       193782.53|                       SURAT
+624605065980|   25-Oct-2024|  NEFT*000153390285/IDFB0042268/GOTI SANJAY MAKODBHA I                                                |             1438|       155000.00|            0.00|        38782.53|               AHMEDABAD RPC
+624605065980|   25-Oct-2024|  TRF/SHREE/ICI                                                                                       |             1437|         5700.00|            0.00|        33082.53|      BHAVNAGAR - RTO CIRCLE
+624605065980|   28-Oct-2024|  CLG/JAY ENTERPRISE/HDF                                                                              |             1436|        24983.00|            0.00|         8099.53|                RPC - BARODA
+624605065980|   29-Oct-2024|  RTGS-KKBKR52024102900764301-CHITRA CONSTRUCTION CO -3445849227-KKBK0000958                          |                 |            0.00|      1200000.00|      1208099.53|                   RPC-NASIK
+624605065980|   29-Oct-2024|  RTGS*ICICR52024102900351650/UBIN0911569/JERAMBHAI BHAVANBHAI GOLAKIYA                               |             1446|       500000.00|            0.00|       708099.53|               AHMEDABAD RPC
+624605065980|   29-Oct-2024|  RTGS*ICICR52024102900352172/HDFC0000251/BHAVESHBHA I J GOLAKIYA HUF                                 |             1447|       500000.00|            0.00|       208099.53|               AHMEDABAD RPC
+624605065980|   29-Oct-2024|  NEFT*000153525610/UTIB0001587/POWER ON ELECTRIC                                                     |             1445|        98800.00|            0.00|       109299.53|               AHMEDABAD RPC
+624605065980|   29-Oct-2024|  NEFT*000153526566/HDFC0008455/BHARAT MARKETING                                                      |             1443|        84000.00|            0.00|        25299.53|               AHMEDABAD RPC
+624605065980|   30-Oct-2024|  RTGS-KKBKR52024103000732072-CHITRA CONSTRUCTION CO -3445849227-KKBK0000958                          |                 |            0.00|      1583779.00|      1609078.53|                   RPC-NASIK
+624605065980|   30-Oct-2024|  CASH PAID*Self 0193 SURAT - ADAJAN CHQ,1451                                                         |             1451|       300000.00|            0.00|      1309078.53|              SURAT - ADAJAN
+624605065980|   30-Oct-2024|  RTGS*ICICR52024103000454351/UTIB0000047/NJ ECO BUI LD PVT LTD                                       |             1448|       400000.00|            0.00|       909078.53|               AHMEDABAD RPC
+624605065980|   30-Oct-2024|  RTGS*ICICR52024103000454616/UTIB0CCH274/ULTRATECH CEMENT                                            |             1449|       200000.00|            0.00|       709078.53|               AHMEDABAD RPC
+624605065980|   30-Oct-2024|  RTGS*ICICR52024103000455920/IDFB0042268/GOTI SANJA Y MAKODBHAI                                      |             1455|       300000.00|            0.00|       409078.53|               AHMEDABAD RPC
+624605065980|   30-Oct-2024|  TRF/PATEL TRADERS /ICI                                                                              |             1100|       400000.00|            0.00|         9078.53|                       BOTAD
+624605065980|   05-Nov-2024|  Statement Chg Aug-24+GST                                                                            |                 |           29.50|            0.00|         9049.03|               NARIMAN POINT
+
+ Closing Balance as on 07-11-2024 04:34:29 is INR.9049.03 includes Uncleared Funds of INR.0.00

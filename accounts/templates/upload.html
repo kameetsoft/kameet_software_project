@@ -1,0 +1,15 @@
+
+<h2>Upload AIS PDF</h2>
+
+{% if error %}
+  <div style="color:red">{{ error }}</div>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <label for="pdf_file">Select AIS PDF:</label>
+  <input type="file" name="pdf_file" required>
+  <br><br>
+  <button type="submit">Upload & Extract</button>
+</form>
+

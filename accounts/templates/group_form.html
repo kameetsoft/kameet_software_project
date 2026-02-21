@@ -1,0 +1,519 @@
+{% load static %}
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ title }}</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+    />
+    <style>
+      :root {
+        --primary-color: #4e73df;
+        --secondary-color: #f8f9fc;
+        --accent-color: #2e59d9;
+      }
+
+      body {
+        background-color: #f8f9fa;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        padding: 10px;
+      }
+
+      .group-form-container {
+        max-width: 800px;
+        margin: 6px auto;
+      }
+
+      .form-card {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        overflow: hidden;
+      }
+
+      .form-card .card-header {
+        background-color: var(--primary-color);
+        color: white;
+        border-bottom: none;
+        padding: 0.30rem 0.60rem;
+      }
+
+      .form-card .card-header h3 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.05rem;
+      }
+
+      .form-card .card-body {
+        padding: 1rem;
+        background-color: white;
+      }
+
+      .form-label {
+        font-weight: 600;
+        color: #5a5c69;
+        margin-bottom: 0.25rem;
+        font-size: 0.9rem;
+      }
+
+      .form-control,
+      .form-select {
+        border-radius: 0.3rem;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #d1d3e2;
+        font-size: 0.9rem;
+        height: auto;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+      }
+
+      .btn {
+        border-radius: 0.3rem;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+
+      .btn-success {
+        background-color: #1cc88a;
+        border-color: #1cc88a;
+      }
+
+      .btn-success:hover {
+        background-color: #17a673;
+        border-color: #169b6b;
+      }
+
+      .btn-outline-secondary {
+        color: #6e707e;
+        border-color: #d1d3e2;
+      }
+
+      .btn-outline-secondary:hover {
+        background-color: #dddfeb;
+        border-color: #d1d3e2;
+      }
+
+      .btn-outline-danger {
+        color: #e74a3b;
+        border-color: #e74a3b;
+      }
+
+      .btn-outline-danger:hover {
+        background-color: #e74a3b;
+        color: white;
+      }
+
+      .invalid-feedback {
+        font-size: 0.8rem;
+        color: #e74a3b;
+        margin-top: 0.2rem;
+      }
+
+      .was-validated .form-control:invalid,
+      .was-validated .form-control:invalid {
+        border-color: #e74a3b;
+      }
+
+      .was-validated .form-control:invalid:focus,
+      .was-validated .form-control:invalid:focus {
+        box-shadow: 0 0 0 0.2rem rgba(231, 74, 59, 0.25);
+      }
+
+      .section-divider {
+        border-top: 1px solid #e3e6f0;
+        margin: 0.2rem 0;
+      }
+
+      .form-section-title {
+        color: var(--primary-color);
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        font-size: 1rem;
+      }
+
+      /* Group select dropdown styling */
+      .group-select-container {
+        position: relative;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .group-form-container {
+          margin: 5px auto;
+        }
+
+        .form-card .card-body {
+          padding: 0.20rem;
+        }
+
+        .row {
+          margin-left: -5px;
+          margin-right: -5px;
+        }
+
+        [class*="col-"] {
+          padding-left: 5px;
+          padding-right: 5px;
+        }
+      }
+
+
+      .page-close-btn {
+  position: fixed;
+  top: 12px;
+  right: 16px;
+  z-index: 1050; /* above cards & forms, below modals */
+
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 6px;
+
+  background: #dc3545;
+  color: #fff;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.page-close-btn:hover {
+  background: #bb2d3b;
+}
+
+    </style>
+  </head>
+  <body>
+    <!-- ❌ Close Button -->
+    <button type="button"
+            class="page-close-btn"
+            title="Go to Home"
+            onclick="window.location.href='{% url 'home' %}'">
+      &times;
+    </button>
+
+    <div class="group-form-container">
+        <div class="form-card card shadow">
+            <div class="card-header">
+                <h3 class="mb-0">{{ title }}</h3>
+            </div>
+            <div class="card-body">
+                <!-- Group Selection Form (GET) - Separate from main form -->
+                {% if is_modify_mode %}
+              
+                 <form method="get" id="group-select-form" class="mb-2">
+                    <input type="hidden" name="mode" value="modify">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-5">
+                            <div class="group-select-container">
+                                <label for="group-select" class="form-label">Select Group *</label>
+                                <select name="group_id" id="group-select" class="form-select" 
+                                        onchange="document.getElementById('group-select-form').submit()">
+                                    <option value="">-- Select Group --</option>
+                                    {% for group in groups %}
+                                    <option value="{{ group.id }}" 
+                                            {% if group.id == selected_group_id %}selected{% endif %}>
+                                        {{ group.group_name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please select a group to modify.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                {% endif %}
+                <!-- Main Group Form (POST) -->
+                {% comment %} <form method="post" class="needs-validation" novalidate> {% endcomment %}
+                {% comment %} <form method="post" action="{% url 'group_form' %}?popup=1" class="needs-validation" novalidate> {% endcomment %}
+                <form method="post"
+                      action="{% if popup %}{% url 'group_form' %}?popup=1{% else %}{% url 'group_form' %}{% endif %}"
+                      class="needs-validation"
+                      novalidate>
+
+                    {% csrf_token %}
+                    
+                    <!-- Hidden fields for mode and group_id -->
+                    {% if is_modify_mode %}
+                    <input type="hidden" name="mode" value="modify">
+                    {% if selected_group_id %}
+                    <input type="hidden" name="group_id" value="{{ selected_group_id }}">
+                    {% endif %}
+                    {% endif %}
+
+                    
+               
+                    <!-- Group Information Section -->
+                    <h5 class="form-section-title">Group Information</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="{{ form.group_name.id_for_label }}" class="form-label">Group Name *</label>
+                            {{ form.group_name }}
+                          {% if form.group_name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.group_name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.group_email.id_for_label }}" class="form-label">Email *</label>
+                            {{ form.group_email }}
+                             {% if form.group_email.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.group_email.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                      
+                    </div>
+                    
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <label for="{{ form.group_phno.id_for_label }}" class="form-label">Phone Number *</label>
+                            {{ form.group_phno }}
+                            {% if form.group_phno.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.group_phno.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% comment %} <div class="col-md-4">
+                          <label for="{{ form.suspend_date.id_for_label }}" class="form-label">Suspend Date</label>
+                          {{ form.suspend_date }}
+                          <div class="invalid-feedback">Please provide a valid suspend date.</div>
+                      </div> {% endcomment %}
+
+                    </div>
+
+                    <div class="section-divider"></div>
+
+                    <!-- Form Actions -->
+                    <div class="d-flex justify-content-end gap-2 mt-1">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle me-1"></i>
+                            {% if is_modify_mode %}Update{% else %}Submit{% endif %}
+                        </button>
+                        <button type="reset" class="btn btn-outline-secondary">
+                            <i class="bi bi-eraser me-1"></i>Clear
+                        </button>
+                        <a href="#" class="btn btn-outline-danger">
+                            <i class="bi bi-x-circle me-1"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% if is_modify_mode %}
+<!-- 🔐 Modify Password Modal -->
+<div class="modal fade" id="modifyPasswordModal" tabindex="-1" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h5 class="modal-title">Enter Modify Password</h5>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2">
+          <input type="password" id="modifyPasswordInput"
+                 class="form-control form-control-sm"
+                 placeholder="Modify password">
+          <div id="modifyPwdError"
+               class="text-danger small mt-1"
+               style="display:none;">
+            Wrong password. Try again.
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" id="modifyPwdCancel">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-sm btn-primary" id="modifyPwdOk">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+
+    {% if messages %} 
+    {% for message in messages %}
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                {{ message }}
+            </div>
+        </div>
+    </div>
+    {% endfor %} 
+    {% endif %}
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function () {
+            "use strict";
+            window.addEventListener("load", function () {
+                // Bootstrap validation
+                var forms = document.getElementsByClassName("needs-validation");
+                Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener("submit", function (event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add("was-validated");
+                    });
+
+                    // Clear button logic
+                    var clearBtn = form.querySelector('button[type="reset"]');
+                    if (clearBtn) {
+                        clearBtn.addEventListener("click", function () {
+                            form.classList.remove("was-validated");
+                            form.querySelectorAll(".form-control").forEach(function (input) {
+                                input.classList.remove("is-valid", "is-invalid");
+                            });
+                        });
+                    }
+
+                    // Cancel button logic
+                    var cancelBtn = form.querySelector(".btn-outline-danger");
+                    if (cancelBtn) {
+                        cancelBtn.addEventListener("click", function (event) {
+                            event.preventDefault();
+                            if (confirm("Are you sure you want to cancel?")) {
+                                window.location.href = "/";
+                            }
+                        });
+                    }
+                });
+            });
+        })();
+    </script>
+<!-- JavaScript for form validation -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle form submission
+    const form = document.querySelector('form.needs-validation');
+    
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    }, false);
+    
+    // Add Bootstrap validation classes when fields are blurred
+    Array.from(form.elements).forEach(element => {
+        if (element.tagName === 'INPUT' || element.tagName === 'SELECT') {
+            element.addEventListener('blur', function() {
+                this.classList.add('is-touched');
+                if (!this.checkValidity()) {
+                    this.classList.add('is-invalid');
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+        }
+    });
+});
+      document.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    const inputs = Array.from(
+                        document.querySelectorAll('input:not([readonly]), button')
+                    );
+                    const index = inputs.indexOf(document.activeElement);
+                    if (index !== -1 && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                        event.preventDefault();
+                    }
+                }
+            });
+
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    {% if is_modify_mode %}
+    // 🔐 Hard-coded modify password
+    const MODIFY_PASSWORD = "Kameet@a1";   // <-- change here if needed
+
+    const modalEl    = document.getElementById('modifyPasswordModal');
+    const pwdInput   = document.getElementById('modifyPasswordInput');
+    const errorLabel = document.getElementById('modifyPwdError');
+    const btnOk      = document.getElementById('modifyPwdOk');
+    const btnCancel  = document.getElementById('modifyPwdCancel');
+
+    if (modalEl && pwdInput && btnOk && btnCancel) {
+        // Show modal immediately when page loads (modify mode)
+        const modal = new bootstrap.Modal(modalEl, {
+            backdrop: 'static',
+            keyboard: false
+        });
+        modal.show();
+        pwdInput.focus();
+
+        btnOk.addEventListener('click', function () {
+            const val = pwdInput.value.trim();
+            if (val === MODIFY_PASSWORD) {
+                errorLabel.style.display = 'none';
+                modal.hide();  // allow user to use the form
+            } else {
+                errorLabel.style.display = 'block';
+                pwdInput.focus();
+                pwdInput.select();
+            }
+        });
+
+        // Press Enter inside password field = click OK
+        pwdInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                btnOk.click();
+            }
+        });
+
+        // Cancel → go back to home (or wherever you want)
+        btnCancel.addEventListener('click', function () {
+            window.location.href = "{{ cancel_url }}";
+        });
+    }
+    {% endif %}
+});
+</script>
+
+</body>
+</html>

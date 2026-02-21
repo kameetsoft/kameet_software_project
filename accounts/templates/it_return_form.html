@@ -1,0 +1,669 @@
+{% load static %}
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ title }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"/>
+  <style>
+    :root { --primary-color:#4e73df; --secondary-color:#f8f9fc; --accent-color:#2e59d9; }
+    body { background:#f8f9fa; font-family:"Segoe UI", Tahoma, Geneva, Verdana, sans-serif; padding:10px; }
+    .user-form-container{ max-width:1000px; margin:6px auto; }
+    .form-card{ border:none; border-radius:8px; box-shadow:0 0.15rem 1.75rem 0 rgba(58,59,69,.15); overflow:hidden; }
+    .form-card .card-header{ background:var(--primary-color); color:#fff; border-bottom:none; padding:.30rem .60rem; }
+    .form-card .card-header h3{ margin:0; font-weight:600; font-size:1.05rem; }
+    .form-card .card-body{ padding:1rem; background:#fff; }
+    .form-label{ font-weight:600; color:#5a5c69; margin-bottom:.25rem; font-size:.9rem; }
+    .form-control,.form-select{ border-radius:.3rem; padding:.5rem .75rem; border:1px solid #d1d3e2; font-size:.9rem; height:auto; }
+    .form-control:focus,.form-select:focus{ border-color:var(--primary-color); box-shadow:0 0 0 .2rem rgba(78,115,223,.25); }
+    .btn{ border-radius:.3rem; padding:.5rem 1rem; font-weight:500; font-size:.9rem; }
+    .btn-success{ background:#1cc88a; border-color:#1cc88a; } .btn-success:hover{ background:#17a673; border-color:#169b6b; }
+    .btn-outline-secondary{ color:#6e707e; border-color:#d1d3e2; } .btn-outline-secondary:hover{ background:#dddfeb; border-color:#d1d3e2; }
+    .btn-outline-danger{ color:#e74a3b; border-color:#e74a3b; } .btn-outline-danger:hover{ background:#e74a3b; color:#fff; }
+    .invalid-feedback{ font-size:.8rem; color:#e74a3b; margin-top:.2rem; }
+    .section-divider{ border-top:1px solid #e3e6f0; margin:.2rem 0; }
+    .form-section-title{ color:var(--primary-color); font-weight:600; margin-bottom:.75rem; font-size:1rem; }
+    @media (max-width:768px){ .user-form-container{ margin:5px auto; } .form-card .card-body{ padding:.20rem; }
+      .row{ margin-left:-5px; margin-right:-5px; } [class*="col-"]{ padding-left:5px; padding-right:5px; } }
+    .dropdown-options{ max-height:220px; overflow-y:auto; background:#fff; border:1px solid #ccc; border-radius:4px; box-shadow:0 4px 8px rgba(0,0,0,.1); padding:0; z-index:1000; }
+    .dropdown-option{ padding:8px 12px; font-size:14px; color:#333; cursor:pointer; border-bottom:1px solid #eee; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .dropdown-option:last-child{ border-bottom:none; } .dropdown-option:hover{ background:#f0f4ff; color:#000; }
+    .dropdown-option.active-option{ background:#007bff; color:#fff; }
+       .page-close-btn {
+        position: fixed;
+        top: 12px;
+        right: 16px;
+        z-index: 1050; /* above cards & forms, below modals */
+
+        width: 34px;
+        height: 34px;
+        border: none;
+        border-radius: 6px;
+
+        background: #dc3545;
+        color: #fff;
+        font-size: 20px;
+        font-weight: bold;
+        line-height: 1;
+        cursor: pointer;
+      }
+
+      .page-close-btn:hover {
+        background: #bb2d3b;
+      }
+    
+  </style>
+</head>
+<body>
+
+   <button type="button"
+            class="page-close-btn"
+            title="Go to Home"
+            onclick="window.location.href='{% url 'home' %}'">
+      &times;
+    </button>
+<div class="user-form-container">
+  <div class="form-card card shadow">
+    <div class="card-header"><h3 class="mb-0">{{ title }}</h3></div>
+    <div class="card-body">
+      <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+
+        {% if is_modify_mode %}
+          <input type="hidden" name="mode" value="modify">
+          {% if selected_it_id %}
+            <input type="hidden" name="it_id" value="{{ selected_it_id }}">
+          {% endif %}
+          {% if form.fy.value %}
+            <input type="hidden" name="fy" value="{{ form.fy.value }}">
+          {% endif %}
+        {% endif %}
+
+        <!-- Section 1: Basic Information -->
+        <h5 class="form-section-title mb-3">Basic Information</h5>
+
+        <div class="row mb-3">
+          <!-- FY select -->
+          <div class="col-md-4">
+            <label for="id_fy" class="form-label">Financial Year *</label>
+            <select class="form-select" id="id_fy" name="fy" required>
+              {% for val,label in form.fields.fy.choices %}
+                <option value="{{ val }}" {% if form.fy.value == val %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Client (searchable in add mode, readonly in modify mode) -->
+          <div class="col-md-4">
+            <label class="form-label">Client * {% if is_modify_mode %}{% endif %}</label>
+
+            {% if is_modify_mode %}
+              <input type="text" class="form-control" value="{{ selected_client_obj.client_name }}" readonly>
+              <input type="hidden" name="client" value="{{ selected_client_obj.id }}">
+            {% else %}
+              <div class="position-relative">
+                <input type="text" id="id_client_input" class="form-control"
+                       placeholder="Select or search client…" autocomplete="off"
+                       {% if form.client.value %}value="{{ selected_client_obj.client_name }}"{% endif %}>
+                <input type="hidden" name="client" id="id_client_hidden"
+                       {% if form.client.value %}value="{{ selected_client_obj.id }}"{% endif %} required>
+                <div class="dropdown-options position-absolute w-100 bg-white"
+                     id="id_client_options" style="display:none;">
+                  {% for client in clients %}
+                    <div class="dropdown-option px-2 py-1" data-id="{{ client.id }}">{{ client.client_name }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Allotted To -->
+          <div class="col-md-4">
+            <label class="form-label">Allotted To</label>
+            <div class="position-relative">
+              <input type="text" id="id_user_input" class="form-control"
+                     placeholder="Select or search user…" autocomplete="off"
+                     {% if form.alloted_to.value %}value="{{ selected_user_obj.username }}"{% endif %}>
+              <input type="hidden" name="alloted_to" id="id_user_hidden"
+                     {% if form.alloted_to.value %}value="{{ selected_user_obj.id }}"{% endif %}>
+              <div class="dropdown-options position-absolute w-100 bg-white"
+                   id="id_user_options" style="display:none;">
+                {% for user in users %}
+                  <div class="dropdown-option px-2 py-1" data-id="{{ user.id }}">{{ user.username }}</div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Auto-filled client info (readonly) -->
+        <div class="row mb-3">
+          <div class="col-md-3">
+            <label class="form-label">Group Name</label>
+            <input type="text" id="group_name" class="form-control" readonly>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">PAN No</label>
+            <input type="text" id="pan_no" class="form-control" readonly>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Legal Name</label>
+            <input type="text" id="legal_name" class="form-control" readonly>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">DOB</label>
+            <input type="date" id="dob" class="form-control" readonly>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-12">
+              <label for="flag" class="form-label">Flag</label>
+              <input type="text" class="form-control" id="flag" name="flag"
+                     placeholder="High Tax / Return Urgent"
+                     value="{{ form.flag.value|default_if_none:'' }}">
+            </div>
+          </div>
+        </div>
+
+        <!-- Audit Applicable + CA (conditional) -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="audit_applicable" class="form-label">Audit Applicable *</label>
+            <select class="form-select" id="audit_applicable" name="audit_applicable" required>
+              <option value="">-- Select --</option>
+              {% for v,l in form.fields.audit_applicable.choices %}
+                <option value="{{ v }}" {% if form.audit_applicable.value == v %}selected{% endif %}>{{ l }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- CA: only show when audit_applicable == 'audit applicable' -->
+          <div class="col-md-6" id="ca_container"
+               style="display: {% if form.audit_applicable.value == 'audit applicable' %}block{% else %}none{% endif %};">
+            <label for="ca" class="form-label">CA</label>
+            <input type="text" class="form-control" id="ca" name="ca"
+                   value="{{ form.ca.value|default_if_none:'' }}"
+                   {% if not form.audit_applicable.value or form.audit_applicable.value != 'audit applicable' %}disabled{% endif %}>
+          </div>
+        </div>
+
+        <!-- Section 2: Audit Details -->
+        <div id="audit_details_section" style="display: {% if form.audit_applicable.value == 'audit applicable' %}block{% else %}none{% endif %};">
+          <div class="section-divider"></div>
+          <h5 class="form-section-title mb-3">Audit Details</h5>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="audit_stage" class="form-label">Audit Stage</label>
+              <select class="form-select" id="audit_stage" name="audit_stage">
+                <option value="">-- Select Stage --</option>
+                {% for v,l in form.fields.audit_stage.choices %}
+                  <option value="{{ v }}" {% if form.audit_stage.value == v %}selected{% endif %}>{{ l }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="audit_status" class="form-label">Audit Status</label>
+              <select class="form-select" id="audit_status" name="audit_status">
+                {% for v,l in form.fields.audit_status.choices %}
+                  <option value="{{ v }}"
+                    {% if form.audit_status.value == v %}selected{% elif not form.audit_status.value and v == 'Active' %}selected{% endif %}>
+                    {{ l }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6" id="audit_hold_reason_container" style="display: {% if form.audit_status.value == 'Hold' %}block{% else %}none{% endif %};">
+              <label for="audit_hold_reason" class="form-label">Audit Hold Reason</label>
+              <textarea class="form-control" id="audit_hold_reason" name="audit_hold_reason" rows="2">{{ form.audit_hold_reason.value|default_if_none:'' }}</textarea>
+            </div>
+            
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="audit_ack" class="form-label">Audit ACK</label>
+              <input type="text" class="form-control" id="audit_ack" name="audit_ack" value="{{ form.audit_ack.value|default_if_none:'' }}">
+            </div>
+            <div class="col-md-6">
+              <label for="audit_date" class="form-label">Audit Date</label>
+              <input type="date" class="form-control" id="audit_date" name="audit_date" value="{{ form.audit_date.value|date:'Y-m-d'|default_if_none:'' }}">
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Return Details -->
+        <div class="section-divider"></div>
+        <h5 class="form-section-title mb-3">Return Details</h5>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="stage" class="form-label">Account Stage</label>
+            <select class="form-select" id="stage" name="stage">
+              <option value="">-- Select Stage --</option>
+              {% for v,l in form.fields.stage.choices %}
+                <option value="{{ v }}" {% if form.stage.value == v %}selected{% endif %}>{{ l }}</option>
+              {% endfor %}
+              {% comment %} <option value="__other__" {% if form.stage.value == '__other__' %}selected{% endif %}>Other…</option> {% endcomment %}
+            </select>
+          </div>
+          <!-- NEW: Custom stage input (hidden by default) -->
+<div class="col-md-6" id="stage_other_row" style="display:none;">
+  <label for="stage_other" class="form-label">Specify Other Stage</label>
+  <input type="text" class="form-control" id="stage_other" name="stage_other"
+         value="{{ request.POST.stage_other|default:stage_other_initial }}" placeholder="Type stage (e.g., Reopened)">
+  <div class="invalid-feedback">Please enter a custom stage.</div>
+</div>
+          <div class="col-md-6">
+            <label for="return_status" class="form-label">Return Status</label>
+            <select class="form-select" id="return_status" name="return_status">
+              {% for v,l in form.fields.return_status.choices %}
+                <option value="{{ v }}"
+                  {% if form.return_status.value == v %}selected{% elif not form.return_status.value and v == 'Active' %}selected{% endif %}>
+                  {{ l }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <!-- Return type + Revise no -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="return_type" class="form-label">Return Type *</label>
+            <select class="form-select" id="return_type" name="return_type" required>
+              {% for v,l in form.fields.return_type.choices %}
+                <option value="{{ v }}"
+                  {% if form.return_type.value == v %}selected{% elif not form.return_type.value and v == 'Original' and not is_modify_mode %}selected{% endif %}>
+                  {{ l }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-6" id="revise_no_container"
+               style="display: {% if form.return_type.value == 'Revised' or form.return_type.value == 'Rectified' or form.return_type.value == 'Updated' %}block{% else %}none{% endif %};">
+            <label for="revise_no" class="form-label">Revise No</label>
+            <input type="number" class="form-control" id="revise_no" name="revise_no"
+                   value="{{ form.revise_no.value|default_if_none:'' }}" min="1">
+          </div>
+        </div>
+
+        <!-- Filed-only: ACK / ACK Date / Verification + Revised & Rectified controls -->
+        <div id="filed_block" style="display: {% if form.stage.value == 'Filed' %}block{% else %}none{% endif %};">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="ack_no" class="form-label">ACK No</label>
+              <input type="text" class="form-control" id="ack_no" name="ack_no"
+                     value="{{ form.ack_no.value|default_if_none:'' }}">
+            </div>
+            <div class="col-md-6">
+              <label for="ack_date" class="form-label">ACK Date</label>
+              <input type="date" class="form-control" id="ack_date" name="ack_date"
+                     value="{{ form.ack_date.value|date:'Y-m-d'|default_if_none:'' }}">
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="verification_date" class="form-label">Verification Date</label>
+              <input type="date" class="form-control" id="verification_date" name="verification_date"
+                     value="{{ form.verification_date.value|date:'Y-m-d'|default_if_none:'' }}">
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Want to Revised?</label>
+              <select class="form-select" id="want_revised" name="want_revised">
+                {% for v,l in form.fields.want_revised.choices %}
+                  <option value="{{ v }}"
+                    {% if form.want_revised.value == v %}selected{% elif not form.want_revised.value and v == 'No' %}selected{% endif %}>
+                    {{ l }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6" id="revised_status_row"
+                 style="display: {% if form.want_revised.value == 'Yes' %}block{% else %}none{% endif %};">
+              <label class="form-label">Revised Return Status</label>
+              <select class="form-select" id="revised_status" name="revised_status">
+                {% for v,l in form.fields.revised_status.choices %}
+                  <option value="{{ v }}" {% if form.revised_status.value == v %}selected{% endif %}>{{ l }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Want to Rectified?</label>
+              <select class="form-select" id="want_rectified" name="want_rectified">
+                {% for v,l in form.fields.want_rectified.choices %}
+                  <option value="{{ v }}"
+                    {% if form.want_rectified.value == v %}selected{% elif not form.want_rectified.value and v == 'No' %}selected{% endif %}>
+                    {{ l }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-6" id="rectification_status_row"
+                 style="display: {% if form.want_rectified.value == 'Yes' %}block{% else %}none{% endif %};">
+              <label class="form-label">Rectification Return Status</label>
+              <select class="form-select" id="rectification_status" name="rectification_status">
+                {% for v,l in form.fields.rectification_status.choices %}
+                  <option value="{{ v }}" {% if form.rectification_status.value == v %}selected{% endif %}>{{ l }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="d-flex justify-content-end gap-2 mt-1">
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-check-circle me-1"></i>{% if is_modify_mode %}Update{% else %}Submit{% endif %}
+          </button>
+          <button type="reset" class="btn btn-outline-secondary"><i class="bi bi-eraser me-1"></i>Clear</button>
+          <a href="{{ cancel_url }}" class="btn btn-outline-danger"><i class="bi bi-x-circle me-1"></i>Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% if messages %}
+  {% for message in messages %}
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto">Notification</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">{{ message }}</div>
+    </div>
+  </div>
+  {% endfor %}
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+/* -------- Validation + all conditional toggles (single source of truth) -------- */
+(function () {
+  "use strict";
+
+  function toggleConditionalFields() {
+    // Audit section & CA visibility
+    const auditApplicable = document.getElementById('audit_applicable');
+    const isAudit = (auditApplicable && auditApplicable.value === 'audit applicable');
+
+    const auditSection = document.getElementById('audit_details_section');
+    if (auditSection) auditSection.style.display = isAudit ? 'block' : 'none';
+
+    const caContainer = document.getElementById('ca_container');
+    const caInput = document.getElementById('ca');
+    if (caContainer) {
+      caContainer.style.display = isAudit ? 'block' : 'none';
+      if (caInput) {
+        if (isAudit) {
+          caInput.removeAttribute('disabled');
+        } else {
+          caInput.value = '';
+          caInput.setAttribute('disabled','disabled');
+        }
+      }
+    }
+
+    // Return type -> Revise No
+    const returnType = document.getElementById('return_type');
+    const reviseNoContainer = document.getElementById('revise_no_container');
+    if (returnType && reviseNoContainer) {
+      const v = returnType.value;
+      reviseNoContainer.style.display = (v === 'Revised' || v === 'Rectified' || v === 'Updated') ? 'block' : 'none';
+    }
+
+    // Audit Hold reason
+    const auditStatus = document.getElementById('audit_status');
+    const auditHoldReason = document.getElementById('audit_hold_reason_container');
+    if (auditHoldReason) auditHoldReason.style.display = (auditStatus && auditStatus.value === 'Hold') ? 'block' : 'none';
+
+    // Return Hold reason (if you add such container later)
+    const returnStatus = document.getElementById('return_status');
+    const returnHoldReason = document.getElementById('return_hold_reason_container');
+    if (returnHoldReason) returnHoldReason.style.display = (returnStatus && returnStatus.value === 'Hold') ? 'block' : 'none';
+
+    // Filed-only block
+    /*const stage = document.getElementById('stage');
+    const filedBlock = document.getElementById('filed_block');
+    if (filedBlock) filedBlock.style.display = (stage && stage.value === 'Filed') ? 'block' : 'none';*/
+        // ===== NEW: handle 'Other…' for Account Stage =====
+    const stage = document.getElementById('stage');
+    const stageOtherRow = document.getElementById('stage_other_row');
+    const stageOther = document.getElementById('stage_other');
+
+    const usingOther = stage && stage.value === '__other__';
+    if (stageOtherRow) stageOtherRow.style.display = usingOther ? 'block' : 'none';
+    if (stageOther) {
+      if (usingOther) {
+        stageOther.setAttribute('required', 'required');
+      } else {
+        stageOther.removeAttribute('required');
+        stageOther.value = stageOther.value; // no-op keep value
+      }
+    }
+
+    // Filed-only block visibility
+    const filedBlock = document.getElementById('filed_block');
+    if (filedBlock) {
+      const isFiled =
+        (stage && stage.value === 'Filed') ||
+        (usingOther && stageOther && stageOther.value.trim().toLowerCase() === 'filed');
+      filedBlock.style.display = isFiled ? 'block' : 'none';
+    }
+    // Revised / Rectified status rows
+    toggleReviseRectify();
+  }
+
+  function toggleReviseRectify() {
+    const wantRevised = document.getElementById('want_revised');
+    const wantRectified = document.getElementById('want_rectified');
+    const revisedRow = document.getElementById('revised_status_row');
+    const rectRow = document.getElementById('rectification_status_row');
+
+    if (revisedRow) revisedRow.style.display = (wantRevised && wantRevised.value === 'Yes') ? 'block' : 'none';
+    if (rectRow) rectRow.style.display = (wantRectified && wantRectified.value === 'Yes') ? 'block' : 'none';
+  }
+
+  window.addEventListener("load", function () {
+    const forms = document.getElementsByClassName("needs-validation");
+    Array.prototype.filter.call(forms, function (form) {
+      form.addEventListener("submit", function (event) {
+        /*if (form.checkValidity() === false) { event.preventDefault(); event.stopPropagation(); }
+        form.classList.add("was-validated");
+      });
+
+      const clearBtn = form.querySelector('button[type="reset"]');
+      if (clearBtn) clearBtn.addEventListener("click", function () {
+        form.classList.remove("was-validated");
+        // Reset a few fields sensibly
+        const wr = document.getElementById('want_revised');
+        const wx = document.getElementById('want_rectified');
+        if (wr) wr.value = 'No';
+        if (wx) wx.value = 'No';
+        toggleConditionalFields();
+      });*/
+
+      /*const cancelBtn = form.querySelector(".btn-outline-danger");
+      if (cancelBtn) cancelBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        if (confirm("Are you sure you want to cancel?")) { window.location.href = "/"; }
+      });*/
+        // ===== NEW: front-end validation for 'Other…' =====
+        const stage = document.getElementById('stage');
+        const stageOther = document.getElementById('stage_other');
+        if (stage && stage.value === '__other__') {
+          if (!stageOther || !stageOther.value.trim()) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (stageOther) {
+              stageOther.classList.add('is-invalid');
+              stageOther.focus();
+            }
+          } else {
+            stageOther.classList.remove('is-invalid');
+          }
+        }
+
+        if (form.checkValidity() === false) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add("was-validated");
+      });
+
+      const clearBtn = form.querySelector('button[type="reset"]');
+      if (clearBtn) clearBtn.addEventListener("click", function () {
+        form.classList.remove("was-validated");
+        const wr = document.getElementById('want_revised');
+        const wx = document.getElementById('want_rectified');
+        if (wr) wr.value = 'No';
+        if (wx) wx.value = 'No';
+        toggleConditionalFields();
+      });
+
+               const cancelBtn = document.getElementById("cancelBtn");
+        if (cancelBtn) {
+            cancelBtn.addEventListener("click", function (event) {
+            event.preventDefault();
+            if (confirm("Are you sure you want to cancel?")) {
+                window.location.href = cancelBtn.href;
+            }
+            });
+        }
+
+    });
+
+    // Listeners
+    document.getElementById('audit_applicable')?.addEventListener('change', toggleConditionalFields);
+    document.getElementById('return_type')?.addEventListener('change', toggleConditionalFields);
+    document.getElementById('audit_status')?.addEventListener('change', toggleConditionalFields);
+    document.getElementById('return_status')?.addEventListener('change', toggleConditionalFields);
+    document.getElementById('stage')?.addEventListener('change', toggleConditionalFields);
+    document.getElementById('want_revised')?.addEventListener('change', toggleConditionalFields);
+    document.getElementById('want_rectified')?.addEventListener('change', toggleConditionalFields);
+
+        document.getElementById('stage_other')?.addEventListener('input', toggleConditionalFields);
+
+    // Initial state
+    toggleConditionalFields();
+  });
+
+  // Enter to next input
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') {
+      const inputs = Array.from(document.querySelectorAll('input:not([readonly]), button, select, textarea'));
+      const index = inputs.indexOf(document.activeElement);
+      if (index !== -1 && index < inputs.length - 1) { inputs[index + 1].focus(); event.preventDefault(); }
+    }
+  });
+})();
+</script>
+
+<script>
+/* -------- Custom searchable dropdowns + client details fetch -------- */
+document.addEventListener("DOMContentLoaded", function () {
+  function setupSearchableDropdown(inputId, dropdownId, hiddenId, onSelectCallback=null, nextInputId=null) {
+    const input = document.getElementById(inputId);
+    const dropdown = document.getElementById(dropdownId);
+    const hidden = document.getElementById(hiddenId);
+    let currentFocus = -1;
+    if(!input || !dropdown || !hidden) return;
+
+    const visibleOptions = () => dropdown.querySelectorAll(".dropdown-option:not([style*='display: none'])");
+
+    input.addEventListener("focus", () => dropdown.style.display = "block");
+    input.addEventListener("click", () => dropdown.style.display = "block");
+    input.addEventListener("input", function () {
+      const q = this.value.toLowerCase();
+      dropdown.style.display = "block";
+      dropdown.querySelectorAll(".dropdown-option").forEach(opt => {
+        const m = opt.textContent.toLowerCase().includes(q);
+        opt.style.display = m ? "block" : "none";
+      });
+      currentFocus = 0;
+      highlightOption(visibleOptions());
+    });
+
+    input.addEventListener("keydown", function (e) {
+      const opts = visibleOptions();
+      if (e.key === "ArrowDown") { currentFocus++; highlightOption(opts); e.preventDefault(); }
+      else if (e.key === "ArrowUp") { currentFocus--; highlightOption(opts); e.preventDefault(); }
+      else if (e.key === "Enter") { e.preventDefault(); if (currentFocus >= 0 && opts[currentFocus]) opts[currentFocus].click(); }
+    });
+
+    dropdown.addEventListener("click", function (e) {
+      const opt = e.target.closest(".dropdown-option");
+      if (!opt || opt.classList.contains("disabled")) return;
+      input.value = opt.textContent.trim();
+      hidden.value = opt.dataset.id;
+      dropdown.style.display = "none";
+      if (onSelectCallback) onSelectCallback(opt.dataset.id);
+      if (nextInputId) setTimeout(() => document.getElementById(nextInputId)?.focus(), 50);
+    });
+
+    document.addEventListener("click", function (e) {
+      if (!dropdown.contains(e.target) && e.target !== input) dropdown.style.display = "none";
+    });
+
+    function highlightOption(opts) {
+      if (!opts.length) return;
+      if (currentFocus >= opts.length) currentFocus = 0;
+      if (currentFocus < 0) currentFocus = opts.length - 1;
+      opts.forEach(o => o.classList.remove("active-option"));
+      if (opts[currentFocus]) opts[currentFocus].classList.add("active-option");
+    }
+  }
+
+  const isModify = {{ is_modify_mode|yesno:"true,false" }};
+
+  // Client dropdown: only interactive in add mode
+  if (!isModify) {
+    setupSearchableDropdown("id_client_input", "id_client_options", "id_client_hidden",
+      function (clientId) {
+        fetch(`/get-client-details/${clientId}/`).then(r => r.ok ? r.json() : {})
+          .then(d => {
+            document.getElementById('group_name').value = d.group_name || '';
+            document.getElementById('pan_no').value = d.pan_no || '';
+            document.getElementById('legal_name').value = d.legal_name || '';
+            document.getElementById('dob').value = d.dob || '';
+          }).catch(()=>{});
+      }, "id_user_input"
+    );
+  }
+
+  // User dropdown: searchable in both modes
+  setupSearchableDropdown("id_user_input", "id_user_options", "id_user_hidden", null, "ca");
+
+  // Preload client details in modify mode
+  const preselectedClientId = document.getElementById('id_client_hidden')?.value
+                           || "{{ selected_client_obj.id|default:'' }}";
+  if (preselectedClientId) {
+    fetch(`/get-client-details/${preselectedClientId}/`).then(r => r.ok ? r.json() : {})
+      .then(d => {
+        document.getElementById('group_name').value = d.group_name || '';
+        document.getElementById('pan_no').value = d.pan_no || '';
+        document.getElementById('legal_name').value = d.legal_name || '';
+        document.getElementById('dob').value = d.dob || '';
+      }).catch(()=>{});
+  }
+});
+</script>
+</body>
+</html>

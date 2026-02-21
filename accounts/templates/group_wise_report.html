@@ -1,0 +1,371 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Wise Report - Excel Style</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #e1e1e1;
+            padding: 8px;
+            color: #333;
+            font-size: 15px;
+            line-height: 1.3;
+        }
+        
+        .excel-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            max-width: 100vw;
+            overflow: hidden;
+        }
+        
+        /* Excel Ribbon Styles */
+        .excel-ribbon {
+            background: #f3f2f1;
+            border-bottom: 1px solid #d4d4d4;
+            padding: 5px 10px;
+        }
+        
+        .ribbon-search {
+            display: flex;
+            margin-bottom: 5px;
+        }
+        
+        .ribbon-search input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #c4c4c4;
+            border-radius: 3px;
+            background: white;
+            font-size: 14px;
+        }
+        
+        .ribbon-tabs {
+            display: flex;
+            gap: 1px;
+            flex-wrap: wrap;
+        }
+        
+        .ribbon-tab {
+            padding: 6px 12px;
+            font-size: 12px;
+            color: #333;
+            cursor: pointer;
+            border-radius: 3px 3px 0 0;
+            background: #e9e9e9;
+            border: 1px solid transparent;
+            border-bottom: none;
+            white-space: nowrap;
+        }
+        
+        .ribbon-tab:hover {
+            background: #d9d9d9;
+        }
+        
+        .ribbon-tab.active {
+            background: white;
+            border-color: #d4d4d4;
+            border-bottom-color: white;
+            position: relative;
+            top: 1px;
+            font-weight: 500;
+        }
+        
+        .ribbon-spacer {
+            flex-grow: 1;
+        }
+        
+        /* Report Header Styles */
+        .report-header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 8px 12px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .report-meta {
+            background-color: #f8f9fa;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        /* Filter Controls */
+        .filter-controls {
+            padding: 8px 12px;
+            background: #f3f2f1;
+            border-bottom: 1px solid #d4d4d4;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .filter-controls label {
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .filter-controls select {
+            padding: 5px 8px;
+            border: 1px solid #c4c4c4;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+        
+        /* Excel Content Styles */
+        .excel-content {
+            flex: 1;
+            overflow-x: auto;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(12, minmax(120px, 1fr));
+            grid-auto-rows: min-content;
+            gap: 1px;
+            background: #d4d4d4;
+        }
+        
+        .excel-row {
+            display: contents;
+        }
+        
+        .excel-cell {
+            background: white;
+            padding: 6px 8px;
+            font-size: 13px;
+            min-height: 30px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        .header-row .excel-cell {
+            background: #34495e;
+            color: white;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid #d4d4d4;
+        }
+        
+        /* Status colors */
+        .status-sessionall {
+            color: #1a73e8;
+            font-weight: 500;
+        }
+        
+        .status-average {
+            color: #0f9d58;
+            font-weight: 500;
+        }
+        
+        .status-regular {
+            color: #ea8600;
+            font-weight: 500;
+        }
+        
+        .cancelled-cell {
+            background-color: #fce8e6;
+            color: #d93025;
+            font-weight: bold;
+        }
+        
+        /* Excel Tabs Styles */
+        .excel-tabs {
+            display: flex;
+            background: #f3f2f1;
+            border-top: 1px solid #d4d4d4;
+            padding: 0 10px;
+            height: 30px;
+            align-items: flex-end;
+            overflow-x: auto;
+        }
+        
+        .excel-tab {
+            padding: 4px 12px;
+            font-size: 12px;
+            color: #333;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-radius: 3px 3px 0 0;
+            background: #e9e9e9;
+            border-bottom: none;
+            white-space: nowrap;
+            height: 26px;
+        }
+        
+        .excel-tab:hover {
+            background: #d9d9d9;
+        }
+        
+        .excel-tab.active {
+            background: white;
+            border-color: #d4d4d4;
+            border-bottom-color: white;
+            position: relative;
+            top: 1px;
+            font-weight: 500;
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        /* Empty cell style */
+        .empty-cell {
+            color: #999;
+            font-style: italic;
+        }
+        
+        /* PAN number style */
+        .pan-number {
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 0.3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="excel-container">
+        <!-- Report Header -->
+        <div class="report-header">
+            <h1>📊 GROUP WISE REPORT</h1>
+        </div>
+        <div class="ribbon-search">
+                <input type="text" id="search_input" placeholder="Search Client, PAN, Group..." x-model="search">
+        </div>
+        <!-- Report Meta -->
+        <div class="report-meta">
+            <span>Total Groups: {{ groups|length }}</span>
+            <span>Total Cases: {{ total_cases }}</span>
+        </div>
+        
+        <!-- Filter Controls -->
+        <div class="filter-controls">
+            <div>
+                <label for="fy">Financial Year:</label>
+                <select name="fy" id="fy" onchange="this.form.submit()">
+                    <option value="">-- Select Year --</option>
+                    <option value="2023_24" {% if fiscal_year == '2023_24' %}selected{% endif %}>2023-24</option>
+                    <option value="2024_25" {% if fiscal_year == '2024_25' %}selected{% endif %}>2024-25</option>
+                    <option value="2025_26" {% if fiscal_year == '2025_26' %}selected{% endif %}>2025-26</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Excel Content -->
+        <div class="excel-content">
+            <!-- Detail Table Header -->
+            <div class="excel-row header-row">
+                <div class="excel-cell">Group</div>
+                <div class="excel-cell">Total Case</div>
+                <div class="excel-cell">Cancelled</div>
+                <div class="excel-cell">Audit</div>
+                <div class="excel-cell">Filed</div>
+                <div class="excel-cell">Check but not</div>
+                <div class="excel-cell">Working</div>
+                <div class="excel-cell">Total Case</div>
+                <div class="excel-cell">Sessionall / Average</div>
+                <div class="excel-cell">Final Status</div>
+                <div class="excel-cell">Filed</div>
+                <div class="excel-cell">Alloted To</div> 
+            </div>
+            
+            <!-- Detail Table Rows -->
+            {% for group in groups %}
+            <div class="excel-row" data-group="{{ group.group_name|lower }}">
+                <div class="excel-cell">{{ group.group_name }}</div>
+                <div class="excel-cell">{{ group.total_it_clients }}</div>
+                <div class="excel-cell">{{ group.cancelled_count|default:"0" }}</div>
+                <div class="excel-cell">{{ group.audit_count|default:"0" }}</div>
+                <div class="excel-cell">{{ group.filed_count|default:"0" }}</div>
+                <div class="excel-cell">{{ group.check_not_filed_count|default:"0" }}</div>
+                <div class="excel-cell">{{ group.working_count|default:"0" }}</div>
+                <div class="excel-cell">{{ group.total_cases|default:"0" }}</div>
+                <div class="excel-cell {% if 'Sessionall' in group.sessionall_avg %}status-sessionall{% elif 'Average' in group.sessionall_avg %}status-average{% elif 'Regular' in group.sessionall_avg %}status-regular{% endif %}">
+                    {{ group.sessionall_avg|default:"-" }}
+                </div>
+                <div class="excel-cell">{{ group.final_status|default:"-" }}</div>
+                <div class="excel-cell">{{ group.filed_date|default:"-" }}</div>
+                <div class="excel-cell">{{ group.alloted_to|default:"-" }}</div>
+            </div>
+            {% empty %}
+            <div class="excel-row">
+                <div class="excel-cell empty-cell" colspan="12">No groups found for the selected criteria</div>
+            </div>
+            {% endfor %} 
+        </div>
+        
+        <!-- Excel Tabs -->
+        <div class="excel-tabs">
+            <div class="excel-tab">Sheet1</div>
+            <div class="excel-tab">Case Updates</div>
+            <div class="excel-tab active"  onclick="window.location.href='{% url 'group_wise_report' %}'">Group Wise Report</div>
+            <div class="excel-tab" onclick="window.location.href='{% url 'audit_list' %}'">Audit</div>
+            <div class="excel-tab" onclick="window.location.href='{% url 'staffwise_report' %}'">Staffwise</div>
+            <div class="excel-tab" onclick="window.location.href='{% url 'stagewise_report' %}'">Stagewise</div>
+            <div class="excel-tab">Salaried Case</div>
+            <div class="excel-tab">Return Check</div>
+        </div>
+    </div>
+ <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+ <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('search', () => ({
+                search: ''
+            }));
+        }); 
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const input = document.getElementById("search_input");
+    const rows = document.querySelectorAll(".excel-row:not(.header-row)");
+
+    input.addEventListener("input", function () {
+        const search = input.value.trim().toLowerCase();
+
+        rows.forEach(row => {
+            const groupName = row.querySelector(".excel-cell")?.innerText.toLowerCase() || "";
+            if (groupName.includes(search)) {
+                row.style.display = ""; // show
+            } else {
+                row.style.display = "none"; // hide
+            }
+        });
+    });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1454 @@
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #f8f9fc;
+            --accent-color: #2e59d9;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 10px;
+        }
+        
+        .data-entry-form-container {
+            max-width: 1200px;
+            margin: 2px auto;
+        }
+        
+        .form-card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            overflow: hidden;
+        }
+        
+        .form-card .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-bottom: none;
+            padding: 0.50rem 1rem;
+        }
+        
+        .form-card .card-header h3 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .form-card .card-body {
+            padding: 1rem;
+            background-color: white;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #5a5c69;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 0.3rem;
+            border: 1px solid #d1d3e2;
+            font-size: 0.9rem;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+        
+        .form-check-input {
+            width: 1.1em;
+            height: 1.1em;
+            margin-top: 0.1em;
+        }
+        
+        .form-check-label {
+            margin-left: 0.3rem;
+            font-size: 0.9rem;
+        }
+        
+        .btn {
+            border-radius: 0.3rem;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .btn-success {
+            background-color: #1cc88a;
+            border-color: #1cc88a;
+        }
+        
+        .btn-success:hover {
+            background-color: #17a673;
+            border-color: #169b6b;
+        }
+        
+        .btn-outline-secondary {
+            color: #6e707e;
+            border-color: #d1d3e2;
+        }
+        
+        .btn-outline-secondary:hover {
+            background-color: #dddfeb;
+            border-color: #d1d3e2;
+        }
+        
+        .btn-outline-danger {
+            color: #e74a3b;
+            border-color: #e74a3b;
+        }
+        
+        .btn-outline-danger:hover {
+            background-color: #e74a3b;
+            color: white;
+        }
+        
+        .invalid-feedback {
+            font-size: 0.8rem;
+            color: #e74a3b;
+            margin-top: 0.2rem;
+        }
+        
+        .was-validated .form-control:invalid,
+        .was-validated .form-control:invalid {
+            border-color: #e74a3b;
+        }
+        
+        .was-validated .form-control:invalid:focus,
+        .was-validated .form-control:invalid:focus {
+            box-shadow: 0 0 0 0.2rem rgba(231, 74, 59, 0.25);
+        }
+        
+        .section-divider {
+            border-top: 1px solid #e3e6f0;
+            margin: 0.2rem 0;
+        }
+        
+        .form-section-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .data-entry-form-container {
+                margin: 5px auto;
+            }
+            
+            .form-card .card-body {
+                padding: 0.75rem;
+            }
+            
+            .row {
+                margin-left: -5px;
+                margin-right: -5px;
+            }
+            
+            [class*="col-"] {
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+        }
+        
+        /* Toggle switch styles */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #1cc88a;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Date picker styling */
+        .date-picker-container {
+            position: relative;
+        }
+        
+        .date-picker-container .bi-calendar {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+           /* Style for datalist dropdown */
+        datalist {
+            position: absolute;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            width: auto;
+            min-width: 200px;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        datalist option {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        
+        datalist option:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* Ensure the input stays above the dropdown */
+        #id_alloted_to {
+            position: relative;
+            z-index: 1001;
+        }
+        #id_account_options {
+            max-height: 200px;
+            overflow-y: auto;
+            position: absolute;
+            z-index: 1000;
+            background-color: white;
+            border: 1px solid #ccc;
+            width: 100%;
+        }
+
+        .dropdown-group {
+            font-weight: bold;
+            font-size: 0.85rem;
+            padding: 4px 8px;
+            background-color: #f5f5f5;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .dropdown-option {
+            padding: 6px 8px;
+            cursor: pointer;
+        }
+        
+        .dropdown-item:hover {
+        background-color: #f0f0f0;
+        }
+
+        .dropdown-option:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown-option.highlighted {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .highlighted {
+            background-color: #007bff !important;
+            color: white !important;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="data-entry-form-container">
+        <div class="form-card card shadow">
+            <div class="card-header">
+                <h3 class="mb-0">{{ title }}</h3>
+            </div>
+            <div class="card-body">
+                <!-- Main Data Entry Form -->
+                <form method="post" class="needs-validation" novalidate enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    {% if is_modify_mode %}
+                        <input type="hidden" name="mode" value="modify">
+                        <input type="hidden" name="original_entry_id" value="{{ form.instance.id }}">
+
+                    {% endif %}
+
+                    <!-- Client Information Section -->
+                    <h5 class="form-section-title">Client Information</h5>
+                    <div class="row mb-1">
+                        
+                        <div class="col-md-3 mb-1">
+                            <label for="id_client" class="form-label">Client</label>
+                           
+                            <div class="custom-dropdown position-relative">
+                                <input type="text" id="id_client_input" class="form-select" placeholder="Select or search client..." autocomplete="off" required>
+                                <input type="hidden" name="client" id="id_client_hidden">
+                                <div class="dropdown-options border position-absolute w-100 bg-white" id="id_client_options" style="max-height: 200px; overflow-y: auto; display: none; z-index: 1000;">
+                                    {% for client in clients %}
+                                        <div class="dropdown-option px-2 py-1" data-id="{{ client.client_id }}"  data-group="{{ client.group }}">
+                                            {{ client.client_name }} (ID: {{ client.client_id }})
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                         <!-- Hidden or readonly client_id and account_id display -->
+                
+                            <div class="col-md-2 mb-1">
+                                <label for="display_client_id" class="form-label">Client ID</label>
+                                <div id="display_client_id" class="form-control-plaintext" style="padding-left: 0;">
+                                    <!-- Will be filled dynamically by JS -->
+                                </div>
+                                {% comment %} <input type="text" class="form-control" id="display_client_id" name="client_id" readonly> {% endcomment %}
+                            </div>
+
+                            <div class="col-md-2 mb-1">
+                                <label class="form-label d-block">Client Group</label>
+                                <div id="display_client_group" class="form-control-plaintext"></div>
+                            </div>
+
+                        <div class="col-md-3 mb-1">
+                            
+                           <div class="custom-dropdown position-relative mb-3">
+                            <label for="id_account_input" class="form-label">Account *</label>
+
+                            <!-- Input for searching/selecting account -->
+                            <input type="text" id="id_account_input" class="form-control" placeholder="Select or search account..." autocomplete="off" required>
+
+                            <!-- Hidden field to store selected account ID -->
+                            <input type="hidden" name="account" id="id_account_hidden">
+
+                            <!-- Dropdown list (populated via JS dynamically) -->
+                            <div class="dropdown-options border position-absolute w-100 bg-white" id="id_account_options" style="max-height: 200px; overflow-y: auto; display: none; z-index: 1000;">
+                                <!-- Will be dynamically filled by JavaScript -->
+                            </div>
+                        </div>
+
+                        </div>
+                            <div class="invalid-feedback">Please select an account.</div>
+
+                             
+                        
+                            
+                            <div class="col-md-1 mb-1">
+                                <label class="form-label  d-block">Account ID</label>
+                                <div id="display_account_id" class="form-control-plaintext"></div>
+                            </div>
+                      
+                            <div class="col-md-1 mt-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="id_is_nil" name="is_nil" {% if form.instance.is_nil %}checked{% endif %}>
+                                    <label class="form-check-label" for="id_is_nil">Nil</label>
+                            </div>
+                    </div>
+
+                    <div class="section-divider"></div>
+
+                      
+                    <div class="row mb-1">
+                        <div class="col-md-2 mb-1 date-picker-container">
+                            <label for="id_rec_date" class="form-label">Received Date *</label>
+                            <input type="date" class="form-control" id="id_rec_date" name="rec_date" 
+                                   value="{{ form.instance.rec_date|date:'Y-m-d' }}" required>
+                        </div>
+                           <div class="col-md-2 mb-1">
+                            <label for="id_format" class="form-label">Format *</label>
+                            <select class="form-select" id="id_format" name="format" required>
+                                {% for value, label in form.fields.format.choices %}
+                                    <option value="{{ value }}" {% if form.instance.format == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-1">
+                            <label for="id_received_by" class="form-label">Received By *</label>
+                            <select class="form-select" id="id_received_by" name="received_by" required>
+                                {% for value, label in form.fields.received_by.choices %}
+                                    <option value="{{ value }}" {% if form.instance.received_by == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-1 date-picker-container">
+                            <label for="id_from_date" class="form-label">From Date *</label>
+                            <input type="date" class="form-control" id="id_from_date" name="from_date" 
+                                   value="{{ form.instance.from_date|date:'Y-m-d' }}" required>
+                        </div>
+                        <div class="col-md-2 mb-1 date-picker-container">
+                            <label for="id_last_date" class="form-label">Last Date *</label>
+                            <input type="date" class="form-control" id="id_last_date" name="last_date" 
+                                   value="{{ form.instance.last_date|date:'Y-m-d' }}" required>
+                                  
+
+                        </div>
+                        
+                    </div>
+
+                        <div class="section-divider"></div>
+                  
+                    <div class="row mb-1"> 
+                 
+                                        
+                        <div class="col-md-2 mb-1 position-relative">
+                            <label for="id_alloted_to" class="form-label">Alloted To</label>
+                            <input type="text" class="form-control" id="id_alloted_to" placeholder="-- Select User --" 
+                                value="{% if form.instance.alloted_to %}{{ form.instance.alloted_to.username }}{% endif %}" autocomplete="off">
+                                <!-- Hidden actual value -->
+                                <input type="hidden" name="client_id" id="client_hidden">
+                                <div id="custom-dropdown" class="d-none position-absolute w-100 bg-white border mt-1" style="max-height: 200px; overflow-y: auto; z-index: 1000;">
+                                {% for user in users %}
+                                    <div class="dropdown-item p-2" data-value="{{ user.id }}">{{ user.username }}</div>
+                                {% endfor %}
+                            </div>
+                            <input type="hidden" name="alloted_to" id="alloted_to_id" value="{% if form.instance.alloted_to %}{{ form.instance.alloted_to.id }}{% endif %}">
+                        </div>
+                         <div class="col-md-2 mb-1 date-picker-container">
+                            <label for="id_alloted_date" class="form-label">Alloted Date</label>
+                            <input type="date" class="form-control" id="id_alloted_date" name="alloted_date" 
+                                   value="{% if form.instance.alloted_date %}{{ form.instance.alloted_date|date:'Y-m-d' }}{% endif %}">
+                        </div>
+
+                        <div class="col-md-2 mb-1">
+                            <label for="id_status" class="form-label">Status</label>
+                            <select class="form-select" id="id_status" name="status" >
+                                {% for value, label in form.fields.status.choices %}
+                                    <option value="{{ value }}" {% if form.instance.status == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-1 date-picker-container">
+                            <label for="id_done_date" class="form-label">Done Date</label>
+                            <input type="date" class="form-control" id="id_done_date" name="done_date" 
+                                   value="{% if form.instance.done_date %}{{ form.instance.done_date|date:'Y-m-d' }}{% endif %}">
+                        </div>
+                        
+                        <div class="col-md-2 mb-1">
+                            <label for="id_query" class="form-label">Query</label>
+                            <select class="form-select" id="id_query" name="query">
+                                {% for value, label in form.fields.query.choices %}
+                                    <option value="{{ value }}" {% if form.instance.query == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                    </div>
+                    <div class="section-divider"></div>
+
+                    <!-- Additional Information Section -->
+                    <h5 class="form-section-title">Additional Information</h5>
+                    <div class="row mb-1">
+                        <div class="col-md-6 mb-1">
+                            <label for="id_remark" class="form-label">Remark</label>
+                            <textarea class="form-control" id="id_remark" name="remark" rows="2">{{ form.instance.remark }}</textarea>
+                        </div>
+                        {% comment %} <div class="col-md-6 mb-1">
+                            <label for="id_attach_file" class="form-label">Attachment</label>
+                            <input type="file" class="form-control" id="id_attach_file" name="attach_file">
+                            {% if form.instance.attach_file %}
+                                <small class="text-muted">Current file: <a href="{{ form.instance.attach_file.url }}" target="_blank">{{ form.instance.attach_file.name }}</a></small>
+                            {% endif %}
+                        </div> {% endcomment %}
+                        <div class="col-md-6 mb-1">
+                            <label for="id_attach_file" class="form-label">Attachment</label>
+                            <input type="file" class="form-control" id="id_attach_file" name="attach_file">
+
+                            {% if form.instance.attach_file %}
+                                <small class="text-muted d-block">
+                                    Current file:
+                                    <a href="{{ form.instance.attach_file.url }}" target="_blank">
+                                        {{ form.instance.attach_file.name }}
+                                    </a>
+                                </small>
+
+                                <!-- ✅ checkbox to remove existing file -->
+                                <div class="form-check mt-1">
+                                    <input class="form-check-input" type="checkbox" id="id_remove_file" name="remove_file">
+                                    <label class="form-check-label" for="id_remove_file">
+                                        Remove current file
+                                    </label>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="section-divider"></div>
+
+                    <!-- Form Actions -->
+                    <div class="d-flex justify-content-end gap-2 mt-1">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle me-1"></i>
+                            {% if is_modify_mode %}Update{% else %}Submit{% endif %}
+                        </button>
+                        <button type="reset" class="btn btn-outline-secondary">
+                            <i class="bi bi-eraser me-1"></i>Clear
+                        </button>
+                        {% comment %} <a href="{% url 'home' %}" class="btn btn-outline-danger">
+                            <i class="bi bi-x-circle me-1"></i>Cancel
+                        </a> {% endcomment %}
+                        <a href="{{ cancel_url }}" class="btn btn-outline-danger" id="cancelBtn">
+                            <i class="bi bi-x-circle me-1"></i>Cancel
+                        </a>
+
+                         {% if is_modify_mode %}
+                            <button type="button" class="btn btn-danger" id="deleteEntryBtn" data-entry-id="{{ form.instance.id }}" data-fy="{{ fy }}">
+                                <i class="bi bi-trash me-1"></i>Delete
+                            </button>
+                            {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="__prefill"
+     data-client-id="{{ prefill.client_id }}"
+     data-client-name="{{ prefill.client_name }}"
+     data-client-group="{{ prefill.client_group }}"
+     data-account-pk="{{ prefill.account_pk }}"
+     data-account-code="{{ prefill.account_code }}"
+     data-account-name="{{ prefill.account_name }}"
+     data-from="{{ prefill.from }}"
+     data-to="{{ prefill.to }}">
+</div>
+
+
+    {% if messages %} 
+    {% for message in messages %}
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                {{ message }}
+            </div>
+        </div>
+    </div>
+    {% endfor %} 
+    {% endif %}
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+
+<script>
+    // === Validate From Date <= Last Date ===
+const fromDateInput = document.getElementById('id_from_date');
+const lastDateInput = document.getElementById('id_last_date');
+
+function validateDateOrder() {
+    const fromDateVal = fromDateInput.value;
+    const lastDateVal = lastDateInput.value;
+
+    if (fromDateVal && lastDateVal) {
+        const from = new Date(fromDateVal);
+        const last = new Date(lastDateVal);
+
+        if (last < from) {
+            lastDateInput.setCustomValidity("Last Date must be after or same as From Date");
+            alert("Last Date must be after or same as From Date");
+        } else {
+            lastDateInput.setCustomValidity("");
+        }
+    } else {
+        lastDateInput.setCustomValidity("");
+    }
+}
+
+// Attach listener to both fields
+fromDateInput.addEventListener('change', validateDateOrder);
+lastDateInput.addEventListener('change', validateDateOrder);
+
+</script>
+
+<script>
+
+    function handleClientChange(clientId) {
+        const clientIdField = document.getElementById('display_client_id');
+        const clientGroupField = document.getElementById('display_client_group');  // <-- Add this line
+        const accountIdField = document.getElementById('display_account_id');
+        const accountInput = document.getElementById('id_account_input');
+        const accountHidden = document.getElementById('id_account_hidden');
+        const accountOptionsBox = document.getElementById('id_account_options');
+
+        if (!clientId) return;
+
+        clientIdField.textContent  = clientId;
+        accountIdField.textContent = '';
+
+        accountInput.value = '';
+        accountHidden.value = '';
+        accountOptionsBox.innerHTML = ''; // Clear existing dropdown options
+
+        fetch(`/get-client-accounts-add/?client_id=${clientId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.grouped_accounts) {
+                    for (const [groupName, accounts] of Object.entries(data.grouped_accounts)) {
+                        // Create and append group header inside the dropdown container
+                        const groupHeader = document.createElement('div');
+                        groupHeader.className = 'dropdown-group';
+                        groupHeader.textContent = groupName;
+                        accountOptionsBox.appendChild(groupHeader);
+
+                        // Create and append account options under the group
+                        accounts.forEach(account => {
+                            const option = document.createElement('div');
+                            option.className = 'dropdown-option px-2 py-1';
+                            option.textContent = `${account.account} (${account.account_id})`;
+                            option.dataset.id = account.id;
+                            option.dataset.accountid = account.account_id;
+                            accountOptionsBox.appendChild(option);
+                        });
+                    }
+                }
+            })
+            .catch(error => {
+                console.error("Failed to load accounts:", error);
+            });
+    }
+
+    
+    document.addEventListener('DOMContentLoaded', function () {
+        
+        // === CLIENT DROPDOWN ===
+        const clientInput = document.getElementById("id_client_input");
+        const clientHidden = document.getElementById("id_client_hidden");
+        const clientOptionsBox = document.getElementById("id_client_options");
+        const clientOptions = clientOptionsBox.querySelectorAll(".dropdown-option");
+        const clientIdField = document.getElementById('display_client_id');
+        let clientCurrentIndex = -1;
+
+        clientInput.addEventListener("focus", () => clientOptionsBox.style.display = "block");
+        clientInput.addEventListener("click", () => clientOptionsBox.style.display = "block");
+
+        clientInput.addEventListener("input", () => {
+            const value = clientInput.value.toLowerCase();
+            clientCurrentIndex = -1;
+            let anyVisible = false;
+
+            clientOptions.forEach(opt => {
+                const isMatch = opt.textContent.toLowerCase().includes(value);
+                opt.style.display = isMatch ? "block" : "none";
+                opt.classList.remove("highlighted");
+                if (isMatch) anyVisible = true;
+            });
+
+            clientOptionsBox.style.display = anyVisible ? "block" : "none";
+        });
+
+        clientInput.addEventListener("keydown", function (e) {
+            const visibleOptions = Array.from(clientOptions).filter(opt => opt.style.display !== 'none');
+            if (e.key === "ArrowDown") {
+                e.preventDefault();
+                if (visibleOptions.length === 0) return;
+                clientCurrentIndex = (clientCurrentIndex + 1) % visibleOptions.length;
+                updateClientHighlight(visibleOptions);
+            } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                if (visibleOptions.length === 0) return;
+                clientCurrentIndex = (clientCurrentIndex - 1 + visibleOptions.length) % visibleOptions.length;
+                updateClientHighlight(visibleOptions);
+            } else if (e.key === "Enter") {
+                const selected = visibleOptions[clientCurrentIndex];
+                if (selected) {
+                    e.preventDefault();
+                    selectClientOption(selected);
+                }
+            }
+        });
+
+        clientOptions.forEach(opt => {
+            opt.addEventListener("click", () => selectClientOption(opt));
+        });
+
+        function updateClientHighlight(visibleOptions) {
+            visibleOptions.forEach(opt => opt.classList.remove("highlighted"));
+            if (clientCurrentIndex >= 0 && clientCurrentIndex < visibleOptions.length) {
+                const current = visibleOptions[clientCurrentIndex];
+                current.classList.add("highlighted");
+                current.scrollIntoView({ block: "nearest" });
+            }
+        }
+
+    
+        function selectClientOption(opt) {
+        const clientId = opt.dataset.id;
+        const clientGroup = opt.dataset.group || '';
+
+        // Set input and hidden field
+        clientInput.value = opt.textContent.trim();
+        clientHidden.value = clientId;
+
+        // Set display field (if span/div instead of input)
+        if (clientIdField) {
+            clientIdField.textContent = clientId;
+        }
+
+        // Set group field if available
+        const clientGroupField = document.getElementById('display_client_group');
+        if (clientGroupField) {
+            clientGroupField.textContent = clientGroup;
+        }
+
+        // Hide all options
+        clientOptionsBox.querySelectorAll(".dropdown-option").forEach(opt => {
+            opt.classList.remove("highlighted");
+            opt.style.display = "none";
+        });
+
+        clientOptionsBox.style.display = "none";
+
+        // Load accounts or other related data
+        handleClientChange(clientId);
+    }
+
+
+    // === ACCOUNT DROPDOWN ===
+    const accountInput = document.getElementById("id_account_input");
+    const accountHidden = document.getElementById("id_account_hidden");
+    const accountOptionsBox = document.getElementById("id_account_options");
+    const accountIdField = document.getElementById("display_account_id");
+    const amountField = document.getElementById("id_amount");
+    let accountCurrentIndex = -1;
+
+    accountInput.addEventListener("focus", () => accountOptionsBox.style.display = "block");
+    accountInput.addEventListener("click", () => accountOptionsBox.style.display = "block");
+
+    accountInput.addEventListener("input", () => {
+        const value = accountInput.value.toLowerCase();
+        accountCurrentIndex = -1;
+        let anyVisible = false;
+
+        accountOptionsBox.querySelectorAll(".dropdown-option").forEach(opt => {
+            const isMatch = opt.textContent.toLowerCase().includes(value);
+            opt.style.display = isMatch ? "block" : "none";
+            opt.classList.remove("highlighted");
+            if (isMatch) anyVisible = true;
+        });
+
+        accountOptionsBox.style.display = anyVisible ? "block" : "none";
+    });
+
+    accountInput.addEventListener("keydown", function (e) {
+        const visibleOptions = Array.from(accountOptionsBox.querySelectorAll(".dropdown-option")).filter(opt => opt.style.display !== 'none');
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            if (visibleOptions.length === 0) return;
+            accountCurrentIndex = (accountCurrentIndex + 1) % visibleOptions.length;
+            updateAccountHighlight(visibleOptions);
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            if (visibleOptions.length === 0) return;
+            accountCurrentIndex = (accountCurrentIndex - 1 + visibleOptions.length) % visibleOptions.length;
+            updateAccountHighlight(visibleOptions);
+        } else if (e.key === "Enter") {
+            const selected = visibleOptions[accountCurrentIndex];
+            if (selected) {
+                e.preventDefault();
+                selectAccountOption(selected);
+            }
+        }
+    });
+
+    accountOptionsBox.addEventListener("click", function (e) {
+        const opt = e.target.closest(".dropdown-option");
+        if (opt) selectAccountOption(opt);
+    });
+
+    function updateAccountHighlight(visibleOptions) {
+        visibleOptions.forEach(opt => opt.classList.remove("highlighted"));
+        if (accountCurrentIndex >= 0 && accountCurrentIndex < visibleOptions.length) {
+            const current = visibleOptions[accountCurrentIndex];
+            current.classList.add("highlighted");
+            current.scrollIntoView({ block: "nearest" });
+        }
+    }
+
+
+   function selectAccountOption(opt) {
+    if (!opt) {
+        console.warn(" selectAccountOption called with null");
+        return;
+    }
+
+    console.log("✅ selectAccountOption triggered", opt.textContent, opt.dataset);
+
+    accountInput.value = opt.textContent.trim();
+    accountHidden.value = opt.dataset.id || '';
+    accountIdField.textContent = opt.dataset.accountid || '';
+    accountOptionsBox.style.display = "none";
+    console.log("✅ Account ID set to:", accountHidden.value);  // DEBUG
+
+    //amountField.disabled = false;
+    const amountField = document.getElementById("id_amount");
+    if (amountField) {
+        amountField.disabled = false;
+    } else {
+        console.warn("❌ amountField not found in DOM");
+    }
+
+
+    const recDateInput = document.getElementById('id_rec_date');
+    const fromDateInput = document.getElementById('id_from_date');
+    const lastDateInput = document.getElementById('id_last_date');
+
+    if (recDateInput && fromDateInput && lastDateInput) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = today.getMonth(); // 0-indexed
+        const dd = today.getDate();
+
+        const pad = n => n.toString().padStart(2, '0');
+        const formatDate = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+        const firstOfLastMonth = new Date(yyyy, mm - 1, 1);
+        const lastOfLastMonth = new Date(yyyy, mm, 0);
+
+        recDateInput.value = formatDate(today);
+        fromDateInput.value = formatDate(firstOfLastMonth);
+        lastDateInput.value = formatDate(lastOfLastMonth);
+
+        console.log("📅 Dates set:", {
+            rec_date: recDateInput.value,
+            from_date: fromDateInput.value,
+            last_date: lastDateInput.value
+        });
+    } else {
+        console.warn("❌ Date inputs not found in DOM");
+    }
+}
+
+const allotedInput = document.getElementById("id_alloted_to");
+const allotedHidden = document.getElementById("alloted_to_id");
+const allotedOptionsBox = document.getElementById("custom-dropdown");
+let allotedCurrentIndex = -1;
+
+allotedInput.addEventListener("focus", () => allotedOptionsBox.classList.remove("d-none"));
+allotedInput.addEventListener("click", () => allotedOptionsBox.classList.remove("d-none"));
+
+allotedInput.addEventListener("input", () => {
+    const value = allotedInput.value.toLowerCase();
+    allotedCurrentIndex = -1;
+    let anyVisible = false;
+
+    allotedOptionsBox.querySelectorAll(".dropdown-item").forEach(opt => {
+        const isMatch = opt.textContent.toLowerCase().includes(value);
+        opt.style.display = isMatch ? "block" : "none";
+        opt.classList.remove("highlighted");
+        if (isMatch) anyVisible = true;
+    });
+
+    if (anyVisible) {
+        allotedOptionsBox.classList.remove("d-none");
+    } else {
+        allotedOptionsBox.classList.add("d-none");
+    }
+});
+
+allotedInput.addEventListener("keydown", function (e) {
+    const visibleOptions = Array.from(allotedOptionsBox.querySelectorAll(".dropdown-item")).filter(opt => opt.style.display !== 'none');
+
+    if (e.key === "ArrowDown") {
+        e.preventDefault();
+        if (visibleOptions.length === 0) return;
+        allotedCurrentIndex = (allotedCurrentIndex + 1) % visibleOptions.length;
+        updateAllotedHighlight(visibleOptions);
+    } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        if (visibleOptions.length === 0) return;
+        allotedCurrentIndex = (allotedCurrentIndex - 1 + visibleOptions.length) % visibleOptions.length;
+        updateAllotedHighlight(visibleOptions);
+    } else if (e.key === "Enter") {
+        e.preventDefault();
+        const selected = visibleOptions[allotedCurrentIndex]; // ✅ correct index now
+        if (selected) {
+            selectAllotedOption(selected);
+        }
+    }
+});
+
+allotedOptionsBox.addEventListener("click", function (e) {
+    const opt = e.target.closest(".dropdown-item");
+    if (opt) selectAllotedOption(opt);
+});
+
+function updateAllotedHighlight(visibleOptions) {
+    visibleOptions.forEach(opt => opt.classList.remove("highlighted"));
+    if (allotedCurrentIndex >= 0 && allotedCurrentIndex < visibleOptions.length) {
+        const current = visibleOptions[allotedCurrentIndex];
+        current.classList.add("highlighted");
+        current.scrollIntoView({ block: "nearest" });
+    }
+}
+function selectAllotedOption(option) {
+    if (!option) return;
+
+    allotedInput.value = option.textContent.trim();
+   // allotedHidden.value = option.dataset.id || ""; // assuming you have data-id in your dropdown
+    allotedHidden.value = option.dataset.value || option.getAttribute('data-value') || "";
+
+   allotedOptionsBox.classList.add("d-none");
+
+    // ✅ Set today's date in the alloted date field
+    const today = new Date().toISOString().split("T")[0];  // format: YYYY-MM-DD
+    const allotedDateInput = document.getElementById("id_alloted_date");
+    if (allotedDateInput) {
+        allotedDateInput.value = today;
+    }
+}
+
+document.addEventListener("click", function (e) {
+    // Close client dropdown if clicked outside
+    if (!e.target.closest("#id_client_input") && !e.target.closest("#id_client_options")) {
+        clientOptionsBox.style.display = "none";
+    }
+
+    // Close account dropdown if clicked outside
+    if (!e.target.closest("#id_account_input") && !e.target.closest("#id_account_options")) {
+        accountOptionsBox.style.display = "none";
+    }
+
+    // Close alloted-to dropdown if clicked outside
+    if (!e.target.closest("#id_alloted_to") && !e.target.closest("#custom-dropdown")) {
+        allotedOptionsBox.classList.add("d-none");
+    }
+});
+
+
+    // === IS NIL CHECKBOX AUTO SELECT STATUS ===
+    const isNilCheckbox = document.getElementById('id_is_nil');
+    const doneDateInput = document.getElementById('id_done_date');
+    const statusSelect = document.getElementById('id_status');
+    const querySelect = document.getElementById('id_query');
+
+    if (isNilCheckbox) {
+        isNilCheckbox.addEventListener('change', function () {
+            if (this.checked) {
+                const today = new Date().toISOString().split('T')[0];
+                doneDateInput.value = today;
+                [...statusSelect.options].forEach(opt => opt.selected = opt.value === 'Nil');
+                [...querySelect.options].forEach(opt => opt.selected = opt.value === 'Done');
+            } else {
+                doneDateInput.value = '';
+            }
+        });
+    }
+
+    // === BOOTSTRAP VALIDATION ===
+    const forms = document.getElementsByClassName("needs-validation");
+    Array.prototype.forEach.call(forms, function (form) {
+        form.addEventListener("submit", function (event) {
+            validateDateOrder();  // <== CALL THIS FIRST
+
+            if (form.checkValidity() === false) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add("was-validated");
+        });
+
+        const clearBtn = form.querySelector('button[type="reset"]');
+        if (clearBtn) {
+            clearBtn.addEventListener("click", function () {
+                form.classList.remove("was-validated");
+                form.querySelectorAll(".form-control").forEach(input => {
+                    input.classList.remove("is-valid", "is-invalid");
+                });
+            });
+        }
+
+         const cancelBtn = document.getElementById("cancelBtn");
+        if (cancelBtn) {
+            cancelBtn.addEventListener("click", function (event) {
+            event.preventDefault();
+            if (confirm("Are you sure you want to cancel?")) {
+                window.location.href = cancelBtn.href;
+            }
+            });
+        }
+    });
+
+    // === AUTO-LOAD ACCOUNTS IF CLIENT PRE-SELECTED ===
+    if (clientHidden && clientHidden.value) {
+        handleClientChange(clientHidden.value);
+    }
+});
+
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector("form.needs-validation");
+
+if (!form) return;
+    form.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+        const formElements = Array.from(form.querySelectorAll(
+            'input, select, textarea'
+        )).filter(el =>
+            el.offsetParent !== null &&
+            !el.disabled &&
+            !el.readOnly &&
+            el.type !== "hidden"
+        );
+
+        const index = formElements.indexOf(e.target);
+
+        e.preventDefault();
+
+        // If not at last field, go to next
+        if (index > -1 && index < formElements.length - 1) {
+            formElements[index + 1].focus();
+        } else {
+            // Reached last field: validate, then submit
+            validateDateOrder();
+            if (form.checkValidity()) {
+                form.submit();
+            } else {
+                // Focus first invalid field (optional)
+                const firstInvalid = form.querySelector(":invalid");
+                if (firstInvalid) firstInvalid.focus();
+            }
+        }
+    }
+});
+
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const selectedClientId = "{{ request.GET.client_id|default:'' }}";
+    if (selectedClientId) {
+        // Find the client option from all_client_accounts or backend data
+        const clientOption = [...document.querySelectorAll("#id_client_options .dropdown-option")]
+            .find(opt => opt.dataset.id === selectedClientId);
+
+        if (clientOption) {
+            // Simulate selecting the client
+            document.getElementById("id_client_input").value = clientOption.textContent.trim();
+            document.getElementById("id_client_hidden").value = selectedClientId;
+            document.getElementById("display_client_id").textContent = selectedClientId;
+            document.getElementById("display_client_group").textContent = clientOption.dataset.group || "";
+
+            handleClientChange(selectedClientId);  // ⬅️ Trigger account loading
+        }
+    }
+});
+</script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Calculate dates
+    const today = new Date().toISOString().split('T')[0];
+
+    const now = new Date();
+    const firstOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+
+    const pad = n => n.toString().padStart(2, '0');
+    const formatDate = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+    const recDateInput = document.getElementById('id_rec_date');
+    const fromDateInput = document.getElementById('id_from_date');
+    const lastDateInput = document.getElementById('id_last_date');
+    const allotedDateInput = document.getElementById('id_alloted_date');
+    const doneDateInput = document.getElementById('id_done_date');
+    const statusSelect = document.getElementById('id_status');
+    
+
+    // Delegated listener for dynamically added account options
+    document.addEventListener('click', function (e) {
+        if (e.target.closest('#id_account_options') && e.target.classList.contains('dropdown-option')) {
+            recDateInput.value = today;
+            fromDateInput.value = formatDate(firstOfLastMonth);
+            lastDateInput.value = formatDate(lastOfLastMonth);
+        }
+
+        if (e.target.closest('#custom-dropdown') && e.target.classList.contains('dropdown-item')) {
+            allotedDateInput.value = today;
+        }
+    });
+
+    if (!doneDateInput || !statusSelect) return;
+
+    // Helper: get today's date (YYYY-MM-DD)
+
+    function updateDoneDateState() {
+        if (statusSelect.value === 'Done') {
+            doneDateInput.disabled = false;
+
+            // Auto-set today's date ONLY if no value already exists
+            if (!doneDateInput.value) {
+                doneDateInput.value = today;
+            }
+
+        } else {
+            doneDateInput.disabled = true;
+            doneDateInput.value = "";   // Clear for non-Done statuses
+        }
+    }
+
+    // Run on page load (modify mode support)
+    updateDoneDateState();
+
+    // Run on every status change
+    statusSelect.addEventListener('change', updateDoneDateState);
+
+    // Status change sets done date
+    /*statusSelect.addEventListener('change', function () {
+        if (statusSelect.value === 'Done') {
+            doneDateInput.value = today;
+        }
+    });*/
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  {% if is_modify_mode %}
+    const selectedClientId = "{{ form.instance.client.client_id }}";
+    const selectedClientName = "{{ form.instance.client.client_name }}";
+
+    {% if form.instance.client.group %}
+      const selectedClientGroup = "{{ form.instance.client.group.group_name }}";
+    {% else %}
+      const selectedClientGroup = "";
+    {% endif %}
+
+    {% if form.instance.account %}
+      const selectedAccountId = "{{ form.instance.account.id }}";
+      const selectedAccountName = "{{ form.instance.account.account }}";
+      const selectedAccountCode = "{{ form.instance.account.account_id }}";
+    {% else %}
+      const selectedAccountId = "";
+      const selectedAccountName = "";
+      const selectedAccountCode = "";
+    {% endif %}
+
+    // Set client fields immediately
+    document.getElementById("id_client_input").value = `${selectedClientName} (ID: ${selectedClientId})`;
+    document.getElementById("id_client_hidden").value = selectedClientId;
+    document.getElementById("display_client_id").textContent = selectedClientId;
+    document.getElementById("display_client_group").textContent = selectedClientGroup;
+
+    // Load accounts for selected client
+    fetch(`/get-client-accounts-add/?client_id=${selectedClientId}`)
+      .then(res => res.json())
+      .then(data => {
+        const optionsBox = document.getElementById('id_account_options');
+        optionsBox.innerHTML = '';
+
+        if (data.grouped_accounts) {
+          for (const [groupName, accounts] of Object.entries(data.grouped_accounts)) {
+            const groupHeader = document.createElement('div');
+            groupHeader.className = 'dropdown-group';
+            groupHeader.textContent = groupName;
+            optionsBox.appendChild(groupHeader);
+
+            accounts.forEach(account => {
+              const option = document.createElement('div');
+              option.className = 'dropdown-option px-2 py-1';
+              option.textContent = `${account.account} (${account.account_id})`;
+              option.dataset.id = account.id;
+              option.dataset.accountid = account.account_id;
+              optionsBox.appendChild(option);
+
+              // ✅ Pre-select if this is the account we want
+              if (account.id == selectedAccountId) {
+                document.getElementById("id_account_input").value = account.account;
+                document.getElementById("id_account_hidden").value = account.id;
+                document.getElementById("display_account_id").textContent = account.account_id;
+              }
+            });
+          }
+        }
+      });
+  {% endif %}
+});
+
+
+document.querySelectorAll('.dropdown-options').forEach(el => {
+    el.style.zIndex = 1050;
+    el.style.position = 'absolute';
+});
+
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('input[type="text"], input[type="search"], input[type="number"], input[type="email"], input[type="date"], textarea').forEach(function(input) {
+        input.addEventListener('focus', function() {
+            // Select all content when field receives focus
+            this.select();
+        });
+
+        // Prevent double click issue
+        input.addEventListener('mouseup', function(e) {
+            e.preventDefault(); // prevents deselect
+        });
+    });
+});
+
+
+
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const deleteBtn = document.getElementById("deleteEntryBtn");
+  if (deleteBtn) {
+    deleteBtn.addEventListener("click", function () {
+      if (!confirm("Are you sure you want to delete this entry?")) return;
+
+      const entryId = deleteBtn.dataset.entryId;
+      const fy = deleteBtn.dataset.fy;
+
+      const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+      console.log("🟢 Deleting entry:", entryId, "FY:", fy, "Token:", csrfToken);
+
+      fetch("/delete_report_data_entry/", {
+        method: "POST",
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": csrfToken
+        },
+        body: new URLSearchParams({
+          entry_id: entryId,
+          fy: fy
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert("✅ Entry deleted successfully.");
+          window.location.href = "/reports/";
+        } else {
+          alert("❌ Delete failed: " + (data.error || "Unknown error."));
+        }
+      })
+      .catch(err => {
+        alert("❌ Delete request failed.");
+        console.error(err);
+      });
+    });
+  }
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const pf = document.getElementById("__prefill");
+  if (!pf) return;
+
+  const cid     = pf.dataset.clientId || "";
+  let   cname   = pf.dataset.clientName || "";   // might be empty if server couldn’t look it up
+  const cgroup  = pf.dataset.clientGroup || "";
+  const accPk   = pf.dataset.accountPk || "";
+  const accCode = pf.dataset.accountCode || "";
+  const fromStr = pf.dataset.from || "";
+  const toStr   = pf.dataset.to   || "";
+
+  // 🔁 Fallback: if name missing, read it from your client options list
+  if (cid && !cname) {
+    const opt = document.querySelector(`#id_client_options .dropdown-option[data-id="${cid}"]`);
+    if (opt) cname = opt.textContent.trim();
+  }
+
+  // Set client fields if we have an id
+  if (cid) {
+    document.getElementById("id_client_input").value = cname ? `${cname} (ID: ${cid})` : cid;
+    document.getElementById("id_client_hidden").value = cid;
+    const spanId = document.getElementById("display_client_id");
+    if (spanId) spanId.textContent = cid;
+    const spanGrp = document.getElementById("display_client_group");
+    if (spanGrp) spanGrp.textContent = cgroup || "";
+  }
+
+  // Load accounts and preselect
+  if (cid) {
+    fetch(`/get-client-accounts-add/?client_id=${encodeURIComponent(cid)}`)
+      .then(r => r.json())
+      .then(data => {
+        const box = document.getElementById("id_account_options");
+        box.innerHTML = "";
+        if (data.grouped_accounts) {
+          for (const [groupName, accounts] of Object.entries(data.grouped_accounts)) {
+            const gh = document.createElement("div");
+            gh.className = "dropdown-group";
+            gh.textContent = groupName;
+            box.appendChild(gh);
+
+            accounts.forEach(a => {
+              const opt = document.createElement("div");
+              opt.className = "dropdown-option px-2 py-1";
+              opt.textContent = `${a.account} (${a.account_id})`;
+              opt.dataset.id = a.id;               // pk
+              opt.dataset.accountid = a.account_id; // code
+              box.appendChild(opt);
+
+              // auto-select by pk, else by code
+              const shouldPick = (accPk && String(a.id) === String(accPk)) ||
+                                 (!accPk && accCode && a.account_id === accCode);
+              if (shouldPick) {
+                if (typeof selectAccountOption === "function") {
+                  selectAccountOption(opt);
+                } else {
+                  document.getElementById("id_account_input").value = a.account;
+                  document.getElementById("id_account_hidden").value = a.id;
+                  const disp = document.getElementById("display_account_id");
+                  if (disp) disp.textContent = a.account_id;
+                }
+              }
+            });
+          }
+        }
+      });
+  }
+
+  // dates
+  const toYMD = dmy => dmy ? dmy.split("-").reverse().join("-") : "";
+  if (fromStr) document.getElementById("id_from_date").value = toYMD(fromStr);
+  if (toStr)   document.getElementById("id_last_date").value = toYMD(toStr);
+  const rec = document.getElementById("id_rec_date");
+  if (rec && !rec.value) rec.value = new Date().toISOString().slice(0,10);
+});
+</script>
+
+{% comment %} if file attached force format to Soft Copy {% endcomment %}
+<script>
+{% comment %} document.addEventListener("DOMContentLoaded", function () {
+    const attachInput  = document.getElementById("id_attach_file");
+    const formatSelect = document.getElementById("id_format");
+
+    if (attachInput && formatSelect) {
+        attachInput.addEventListener("change", function () {
+            if (this.files && this.files.length > 0) {
+                // When user selects a file → set format to Soft Copy
+                for (const opt of formatSelect.options) {
+                    if (opt.value === "Soft Copy") {   // <-- same value as in model
+                        opt.selected = true;
+                        break;
+                    }
+                }
+            }
+        });
+    }
+}); {% endcomment %}
+{% comment %} ############ {% endcomment %}
+{% comment %} document.addEventListener("DOMContentLoaded", function () {
+    const attachInput   = document.getElementById("id_attach_file");
+    const formatSelect  = document.getElementById("id_format");
+    const removeCheckbox = document.getElementById("id_remove_file");
+
+    if (attachInput && formatSelect) {
+        attachInput.addEventListener("change", function () {
+            if (this.files && this.files.length > 0) {
+                // Set format to Soft Copy
+                for (const opt of formatSelect.options) {
+                    if (opt.value === "Soft Copy") {
+                        opt.selected = true;
+                        break;
+                    }
+                }
+                if (removeCheckbox) removeCheckbox.checked = false;
+            }
+        });
+    }
+
+    if (removeCheckbox && formatSelect) {
+        removeCheckbox.addEventListener("change", function () {
+            if (this.checked) {
+                // Move off Soft Copy
+                for (const opt of formatSelect.options) {
+                    if (opt.value !== "Soft Copy") {
+                        opt.selected = true;
+                        break;
+                    }
+                }
+                if (attachInput) attachInput.value = "";
+            }
+        });
+    }
+}); {% endcomment %}
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const attachInput    = document.getElementById("id_attach_file");
+    const formatSelect   = document.getElementById("id_format");
+    const removeCheckbox = document.getElementById("id_remove_file");
+
+    // When user selects a file → force "Soft Copy"
+    if (attachInput && formatSelect) {
+        attachInput.addEventListener("change", function () {
+            if (this.files && this.files.length > 0) {
+                // Set format to Soft Copy
+                for (const opt of formatSelect.options) {
+                    if (opt.value === "Soft Copy") {   // value from your choices
+                        opt.selected = true;
+                        break;
+                    }
+                }
+                // Uncheck "Remove current file" if they choose a new file
+                if (removeCheckbox) {
+                    removeCheckbox.checked = false;
+                }
+            }
+        });
+    }
+
+    // 🔹 When user ticks "Remove current file" → just clear file input, DON'T change format
+    if (removeCheckbox && attachInput) {
+        removeCheckbox.addEventListener("change", function () {
+            if (this.checked) {
+                // Clear any newly chosen file from the input
+                attachInput.value = "";
+                // ⚠️ Do NOT touch formatSelect here – it stays as user selected
+            }
+        });
+    }
+});
+</script>
+
+
+</html>

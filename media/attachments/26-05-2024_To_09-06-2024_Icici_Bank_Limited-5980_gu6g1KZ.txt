@@ -1,0 +1,33 @@
+ICICI Bank account Statement from 26-05-2024 to 09-06-2024. 
+
+
+Account Number|Tran Date |  Tran Particular    | Inst Num      |   Dr Tran Amt   |    Cr Tran Amt |      Bal Amt      | Deposit Branch
+-------------- ---------    ---------------      ---------       ---------------   ---------------        --------    | ------- ------
+624605065980|   26-MAY-2024|  B/F                                                                                                 |                 |                |                |        37653.71|                            
+624605065980|   27-May-2024|  RTGS-HDFCR52024052760438762-SAHAJANAND SERVICES PR IVATE LIMITED-59209909043435  -HDFC0000240       |                 |            0.00|       200000.00|       237653.71|                   RPC-NASIK
+624605065980|   27-May-2024|  NEFT*000148262940/UTIB0CCH274/ULTRATECH CEMENT                                                      |             1353|       175000.00|            0.00|        62653.71|               AHMEDABAD RPC
+624605065980|   27-May-2024|  RTGS-HDFCR52024052760570606-GPC INFASTRUCTURE-0335 2000005125-HDFC0000240                           |                 |            0.00|      7000000.00|      7062653.71|                   RPC-NASIK
+624605065980|   28-May-2024|  TRF/PATEL HARDWARE AND SANATERY/ICI                                                                 |             1362|      1000000.00|            0.00|      6062653.71|                       BOTAD
+624605065980|   28-May-2024|  TRF/PATEL TRADERS/ICI                                                                               |             1361|       500000.00|            0.00|      5562653.71|                       BOTAD
+624605065980|   28-May-2024|  TRF/SAGAR ENTERPRISE/ICI                                                                            |             1355|       200000.00|            0.00|      5362653.71|                       BOTAD
+624605065980|   28-May-2024|  RTGS*ICICR52024052800275821/HDFC0003863/HARI KRUPA  ENTERPRISE                                      |             1363|       500000.00|            0.00|      4862653.71|               AHMEDABAD RPC
+624605065980|   28-May-2024|  RTGS*ICICR52024052800275501/SBIN0060019/SATNAM TRA DERS                                             |             1360|       500000.00|            0.00|      4362653.71|               AHMEDABAD RPC
+624605065980|   28-May-2024|  RTGS*ICICR52024052800276218/SGBA0000262/CHAMUNDA E NTERPRISE                                        |             1358|       285000.00|            0.00|      4077653.71|               AHMEDABAD RPC
+624605065980|   28-May-2024|  NEFT*000148324281/UCBA0000617/JAY JALARAM INFRASTR UCTURE                                           |             1367|       114000.00|            0.00|      3963653.71|               AHMEDABAD RPC
+624605065980|   28-May-2024|  RTGS*ICICR52024052800275027/SGBA0000262/CHAMUNDA E NTERPRISE                                        |             1359|       225000.00|            0.00|      3738653.71|               AHMEDABAD RPC
+624605065980|   28-May-2024|  RTGS*ICICR52024052800274708/HDFC0000251/BHAVESHBHA I J GOLAKIYA HUF                                 |             1356|       200000.00|            0.00|      3538653.71|               AHMEDABAD RPC
+624605065980|   28-May-2024|  RTGS*ICICR52024052800274342/IDFB0042268/GOTI SANJA Y MAKODBHAI                                      |             1354|      1000000.00|            0.00|      2538653.71|               AHMEDABAD RPC
+624605065980|   28-May-2024|  RTGS*ICICR52024052800274044/HDFC0000251/SAHAJANAND  SERVICES PVT LTD                                |             1365|      1000000.00|            0.00|      1538653.71|               AHMEDABAD RPC
+624605065980|   28-May-2024|  RTGS*ICICR52024052800293085/KKBK0002794/CHITRA CON STRUCTION                                        |             1369|       200000.00|            0.00|      1338653.71|               AHMEDABAD RPC
+624605065980|   28-May-2024|  TRF/CONFAST CHEMICALS PVT LTD /ICI                                                                  |             1370|       192500.00|            0.00|      1146153.71|                      NADIAD
+624605065980|   28-May-2024|  NEFT*000148336616/BKID0002045/SMIT STEEL TRADERS                                                    |             1368|       100000.00|            0.00|      1046153.71|               AHMEDABAD RPC
+624605065980|   29-May-2024|  RTGS-SBINR12024052925676920-SHREE GOPINATH CONTRAC TION-39421568524-SBIN0060134                     |                 |            0.00|       200000.00|      1246153.71|                   RPC-NASIK
+624605065980|   30-May-2024|  NEFT*000148391177/IDFB0042268/GOTI SANJAY MAKODBHA I                                                |             1372|       100000.00|            0.00|      1146153.71|               AHMEDABAD RPC
+624605065980|   31-May-2024|  RTGS*ICICR52024053100440969/IDFB0042268/GOTI SANJA Y MAKODBHAI                                      |             1375|       550000.00|            0.00|       596153.71|               AHMEDABAD RPC
+624605065980|   31-May-2024|  RTGS*ICICR52024053100442292/BARB0PORXXX/A TO Z ENT ERPRISES                                         |             1376|       250000.00|            0.00|       346153.71|               AHMEDABAD RPC
+624605065980|   31-May-2024|  TRF/GANESHBHAI SAVJIBHAI VASANI/ICI                                                                 |             1374|       300000.00|            0.00|        46153.71|                       BOTAD
+624605065980|   07-Jun-2024|  RTGS-HDFCR52024060764100825-GPC INFASTRUCTURE-0335 2000005125-HDFC0000240                           |                 |            0.00|       500000.00|       546153.71|                   RPC-NASIK
+624605065980|   07-Jun-2024|  NEFT-SBIN424159407664-SHREE GOPINATH CONTRACTION-/ ATTN//INB-00000039421568524-SBIN0060134          |                 |            0.00|       100000.00|       646153.71|                  RPC MUMBAI
+624605065980|   07-Jun-2024|  TRFR TO* SHREE GANESH TRADING CO                                                                    |             1377|       410000.00|            0.00|       236153.71|               AHMEDABAD RPC
+
+ Closing Balance as on 09-06-2024 08:33:21 is INR.236153.71 includes Uncleared Funds of INR.0.00

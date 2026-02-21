@@ -1,0 +1,576 @@
+{% load static %}
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Stage/Notes – Local Only</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body{padding:12px;background:#f8f9fa}
+    .compact td,.compact th{padding:.4rem .55rem;font-size:.92rem}
+    .table-fixed{table-layout:fixed}
+    td input,td select,td textarea{width:100%;border:none;outline:none;background:transparent}
+    td input:focus,td textarea:focus,td select:focus{background:#fffbea;border:1px solid #f0d000;border-radius:4px}
+    .w-10{width:10%}.w-15{width:15%}.w-20{width:20%}.w-30{width:30%}.w-35{width:35%}
+    .row-actions{white-space:nowrap}
+    .badge-local{background:#e7f3ff;color:#084298}
+    /* make disabled/readonly look truly locked */
+td input[readonly], td input[disabled]{
+  {% comment %} background:#f8f9fa !important; color:#6c757d; {% endcomment %}
+   cursor:not-allowed;
+  border:none !important;
+}
+td input[readonly]:focus, td input[disabled]:focus{
+  background:#f8f9fa !important; border:none !important; outline:none !important;
+  box-shadow:none !important;
+}
+
+/* --- Excel-like Status filter --- */
+.status-filter-trigger{
+  border:none;background:transparent;padding:0 6px;cursor:pointer
+}
+.status-filter-panel{
+  position:absolute; z-index:1050; width:230px;
+  background:#fff; border:1px solid #dcdfe4; border-radius:6px;
+  box-shadow:0 8px 24px rgba(0,0,0,.12); padding:8px; display:none;
+}
+.status-filter-panel .hdr{font-weight:600; font-size:.9rem; margin:4px 4px 6px}
+.status-filter-panel .btn-row{display:flex; gap:6px; justify-content:flex-end; margin-top:8px}
+.status-filter-backdrop{
+  position:fixed; inset:0; display:none; background:transparent;
+}
+/* generic scrollable table wrapper with sticky header */
+.table-scroll {
+  max-height: 300px;          /* default cap; per-table overrides below */
+  overflow: auto;             /* both axes if needed */
+  border-radius: .375rem;
+}
+
+.table-scroll .table { margin-bottom: 0; width: 100%; table-layout: fixed; }
+
+.table-scroll thead th {
+  position: sticky;
+   top: 0;
+  background: #f8f9fa;        /* keep header visible over rows */
+  z-index: 2;                  /* above body cells */
+}
+
+/* per-table heights */
+#stageWrap { max-height: 350px; overflow: auto; }   /* adjust to taste */
+#notesWrap { max-height: 350px; overflow: auto; }   /* adjust to taste */
+th.col-date,  td.col-date  { width: 10% }
+th.col-time,  td.col-time  { width: 10% }
+th.col-stage, td.col-stage { width: 22% }
+/* remarks flexes; no explicit width */
+
+/* auto-grow textareas for remarks */
+textarea.autosize {
+  width: 100%;
+  min-height: 34px;
+  border: none;
+  outline: none;
+  background: transparent;
+  resize: none;          /* user can’t drag; JS will size */
+  overflow: hidden;      /* hide scrollbar while we grow */
+  line-height: 1.35;
+}
+td textarea.autosize:focus {
+  background:#fffbea; border:1px solid #f0d000; border-radius:4px;
+}
+
+/* keep other cells compact */
+td input.compact-input { height: 34px; }
+</style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+      <div>
+        <h5 class="mb-0">Stage Option / Notes – Local Storage</h5>
+        <small class="text-muted">Saved locally in this browser only · key: <span class="badge badge-local">{{ storage_key }}</span></small>
+      </div>
+    </div>
+
+    <!-- Stage History -->
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>Stage Option-History</strong>
+        <div class="d-flex gap-2">
+          <button id="addStageRow" class="btn btn-primary btn-sm">Add Row</button>
+          <button id="sortStage" class="btn btn-outline-secondary btn-sm" title="Sort by Date+Time">Sort</button>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-scroll" id="stageWrap">
+          <table class="table table-bordered compact table-fixed mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="col-date">Date (DD-MM-YYYY)</th>
+                <th class="col-time">Time (HH:MM)</th>
+                <th class="col-stage">Stage Upgrade</th>
+                <th class="col-remarks">Remarks</th>
+                {% comment %} <th class="w-10">Action</th> {% endcomment %}
+              </tr>
+            </thead>
+            <tbody id="stageBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes / Query -->
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>Notes / Query</strong>
+        <div class="d-flex gap-2">
+          <button id="addNoteRow" class="btn btn-primary btn-sm">Add Row</button>
+          <button id="sortNotes" class="btn btn-outline-secondary btn-sm" title="Sort by Sr">Sort</button>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-scroll" id="notesWrap">
+
+          <table class="table table-bordered compact table-fixed mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="width:8%">Sr</th>
+                <th style="width:18%">Stage</th>
+                <th style="width:36%">Particular</th>
+                <th>Remarks</th>
+                {% comment %} <th style="width:10%">Status</th> {% endcomment %}
+                <th style="width:10%; position:relative">
+                  Status
+                  <button id="statusFilterBtn" class="status-filter-trigger" title="Filter Status">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="opacity:.8">
+                      <path d="M3 5h18v2H3V5zm4 6h10v2H7v-2zm4 6h2v2h-2v-2z"/>
+                    </svg>
+                  </button>
+
+                  <!-- panel lives inside the TH so it stays aligned -->
+                  <div id="statusFilterPanel" class="status-filter-panel">
+                    <div class="hdr">Filter Status</div>
+                    <div class="form-check ms-1">
+                      <input class="form-check-input" type="checkbox" id="sfAll" checked>
+                      <label class="form-check-label" for="sfAll">(Select All)</label>
+                    </div>
+                    <div class="ms-3">
+                      <div class="form-check">
+                        <input class="form-check-input sf-opt" type="checkbox" id="sfOpen" value="Open" checked>
+                        <label class="form-check-label" for="sfOpen">Open</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input sf-opt" type="checkbox" id="sfClosed" value="Closed" checked>
+                        <label class="form-check-label" for="sfClosed">Closed</label>
+                      </div>
+                    </div>
+                    <div class="btn-row">
+                      <button id="sfClear" class="btn btn-sm btn-outline-secondary">Clear</button>
+                      <button id="sfApply" class="btn btn-sm btn-primary">OK</button>
+                    </div>
+                  </div>
+                </th>
+
+                {% comment %} <th style="width:10%">Action</th> {% endcomment %}
+              </tr>
+            </thead>
+            <tbody id="noteBody"></tbody>
+          </table>
+          <div id="statusFilterBackdrop" class="status-filter-backdrop"></div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ---------- config ----------
+  const STORAGE_KEY = "{{ storage_key }}";     // e.g., "footprintdefault"
+  const initialData = { stages: [], notes: [] };
+
+  // ---------- helpers ----------
+  function uid(){ return Math.random().toString(36).slice(2,10); }
+  function todayDate(){ const d=new Date(); return String(d.getDate()).padStart(2,"0")+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+d.getFullYear(); }
+  function nowTime(){ const d=new Date(); return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); }
+  function getParam(name){ return new URLSearchParams(location.search).get(name) || ""; }
+function autosize(el){
+  // guard if el is null
+  if(!el) return;
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+  // Compose a scoped key per FY + client
+  const scopedKey = (() => {
+    const fy = getParam("fy");
+    const cid = getParam("client_id");
+    const q   = getParam("q");
+    if (cid) return `${STORAGE_KEY}:${fy}:client:${cid}`;
+    if (q)   return `${STORAGE_KEY}:${fy}:q:${q}`;
+    return STORAGE_KEY;
+  })();
+
+  // ---------- state ----------
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(scopedKey);
+      if(!raw) return structuredClone(initialData);
+      const data = JSON.parse(raw);
+      if(!data.stages) data.stages=[];
+      if(!data.notes) data.notes=[];
+      return data;
+    }catch(e){ return structuredClone(initialData) }
+  }
+  function saveState(){
+    localStorage.setItem(scopedKey, JSON.stringify(state));
+  }
+  let state = loadState();
+
+  // ---------- seed from ?stage once ----------
+  (function seedFromQueryStage(){
+    const stageFromQuery = (getParam("stage") || "").trim();
+    if (!stageFromQuery) return;
+    const already = state.stages.some(s => (s.stage_upgrade||"").trim().toLowerCase() === stageFromQuery.toLowerCase());
+    if (!already) {
+      state.stages.push({ id: uid(), date: todayDate(), time: nowTime(), stage_upgrade: stageFromQuery, remarks: "" });
+      saveState();
+    }
+  })();
+
+  // ---------- keep Notes in sync with Stage history ----------
+  function syncNotesFromStages() {
+    const notesByStage = new Map(state.notes.map(n => [String(n.stage||"").trim().toLowerCase(), n]));
+    let changed = false;
+
+    state.stages.forEach((s) => {
+      const stg = String(s.stage_upgrade||"").trim();
+      if (!stg) return;
+      const key = stg.toLowerCase();
+      if (!notesByStage.has(key)) {
+        const sr = (state.notes.reduce((m,n)=>Math.max(m, Number(n.sr||0)),0) || 0) + 1;
+        const n = { id: uid(), sr, stage: stg, particular: "", remarks: "", status: "Open" };
+        state.notes.push(n);
+        notesByStage.set(key, n);
+        changed = true;
+      }
+    });
+
+    const stageSet = new Set(state.stages.map(s => String(s.stage_upgrade||"").trim().toLowerCase()));
+    const beforeLen = state.notes.length;
+    state.notes = state.notes.filter(n => stageSet.has(String(n.stage||"").trim().toLowerCase()));
+    if (state.notes.length !== beforeLen) changed = true;
+
+    if (changed) saveState();
+  }
+  syncNotesFromStages();
+
+  // ---------- render ----------
+  const stageBody = document.getElementById("stageBody");
+  const noteBody  = document.getElementById("noteBody");
+
+  function renderStages(){
+    if(state.stages.length === 0){
+      stageBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No rows yet</td></tr>`;
+      return;
+    }
+    /*stageBody.innerHTML = state.stages.map(r => `
+      <tr data-id="${r.id}">
+        <td><input type="text" data-field="date"  value="${r.date||""}"  placeholder="12-05-2025" disabled></td>
+        <td><input type="text" data-field="time"  value="${r.time||""}"  placeholder="16:12"      disabled></td>
+        <td><input type="text" data-field="stage_upgrade" value="${r.stage_upgrade||""}" disabled></td>
+        <td><input type="text" data-field="remarks" value="${r.remarks||""}" placeholder="Any remarks…"></td>
+      </tr>
+    `).join("");*/
+    stageBody.innerHTML = state.stages.map(r => `
+    <tr data-id="${r.id}">
+      <td class="col-date"><input class="compact-input" type="text" data-field="date"  value="${r.date||""}"  placeholder="12-05-2025" disabled></td>
+      <td class="col-time"><input class="compact-input" type="text" data-field="time"  value="${r.time||""}"  placeholder="16:12"      disabled></td>
+      <td class="col-stage"><input class="compact-input" type="text" data-field="stage_upgrade" value="${r.stage_upgrade||""}" disabled></td>
+      <td><textarea class="autosize" data-field="remarks" placeholder="Any remarks…">${r.remarks||""}</textarea></td>
+    </tr>
+  `).join("");
+    stageBody.querySelectorAll('textarea.autosize').forEach(autosize);
+
+  }
+
+  function renderNotes(){
+    if(state.notes.length === 0){
+      noteBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No notes yet</td></tr>`;
+      return;
+    }
+    /*noteBody.innerHTML = state.notes.map(n => `
+      <tr data-id="${n.id}">
+        <td><input type="number" min="1" data-field="sr"    value="${n.sr||1}"    disabled></td>
+        <td><input type="text"             data-field="stage" value="${n.stage||""}" disabled></td>
+        <td><input type="text"             data-field="particular" value="${n.particular||""}" placeholder="Write details…"></td>
+        <td><input type="text"             data-field="remarks"    value="${n.remarks||""}"    placeholder="Any remarks…"></td>
+        <td>
+          <select data-field="status">
+            <option value="Open"   ${n.status==="Open"   ? "selected": ""}>Open</option>
+            <option value="Closed" ${n.status==="Closed" ? "selected": ""}>Closed</option>
+          </select>
+        </td>
+      </tr>
+    `).join("");*/
+    noteBody.innerHTML = state.notes.map(n => `
+    <tr data-id="${n.id}">
+      <td><input class="compact-input" type="number" min="1" data-field="sr" value="${n.sr||1}" disabled></td>
+      <td><input class="compact-input" type="text" data-field="stage" value="${n.stage||""}" disabled></td>
+      <td><textarea class="autosize" data-field="particular" placeholder="Write details…">${n.particular||""}</textarea></td>
+      <td><textarea class="autosize" data-field="remarks" placeholder="Any remarks…">${n.remarks||""}</textarea></td>
+      <td>
+        <select data-field="status">
+          <option value="Open"   ${n.status==="Open"   ? "selected": ""}>Open</option>
+          <option value="Closed" ${n.status==="Closed" ? "selected": ""}>Closed</option>
+        </select>
+      </td>
+    </tr>
+  `).join("");
+    noteBody.querySelectorAll('textarea.autosize').forEach(autosize);
+
+  }
+
+  renderStages(); renderNotes();
+
+  // ---------- add rows ----------
+  document.getElementById("addStageRow").addEventListener("click", () => {
+    state.stages.push({ id: uid(), date: todayDate(), time: nowTime(), stage_upgrade:"", remarks:"" });
+    saveState();
+    syncNotesFromStages();
+    renderStages(); renderNotes();
+  });
+
+  // Hide the "Add Row" for notes (notes are tied to stages)
+  const addNoteBtn = document.getElementById("addNoteRow");
+  if (addNoteBtn) addNoteBtn.style.display = "none";
+
+  // ---------- delete ----------
+  stageBody.addEventListener("click", e => {
+    if(!e.target.classList.contains("del-stage")) return;
+    const id = e.target.closest("tr").dataset.id;
+    state.stages = state.stages.filter(x => x.id !== id);
+    saveState();
+    syncNotesFromStages();
+    renderStages(); renderNotes();
+  });
+  noteBody.addEventListener("click", e => {
+    if(!e.target.classList.contains("del-note")) return;
+    const id = e.target.closest("tr").dataset.id;
+    state.notes = state.notes.filter(x => x.id !== id);
+    saveState(); renderNotes();
+  });
+
+  // ---------- autosave ----------
+  function updateRow(el, arrName){
+    const tr = el.closest("tr");
+    const id = tr.dataset.id;
+    const field = el.dataset.field;
+    const value = el.value;
+    const arr = state[arrName];
+    const row = arr.find(x => x.id === id);
+    if(!row) return;
+    row[field] = value;
+    saveState();
+  }
+
+  // History: save remarks immediately (date/time/stage are readonly anyway)
+// Stage history: ONLY remarks are editable/saved
+{% comment %} stageBody.addEventListener("input",  e => {
+  if (e.target.matches("input[data-field='remarks']")) updateRow(e.target, "stages");
+});
+stageBody.addEventListener("change", e => {
+  if (e.target.matches("input[data-field='remarks']")) updateRow(e.target, "stages");
+});
+stageBody.addEventListener("blur",   e => {
+  if (e.target.matches("input[data-field='remarks']")) updateRow(e.target, "stages");
+}, true);
+
+  // Notes: save particular/remarks as you type + status on change
+  noteBody.addEventListener("input", e => {
+    if(e.target.matches("input[data-field='particular'], input[data-field='remarks']")) updateRow(e.target, "notes");
+  });
+  noteBody.addEventListener("blur", e => {
+    if(e.target.matches("input[data-field='particular'], input[data-field='remarks']")) updateRow(e.target, "notes");
+  }, true);
+  noteBody.addEventListener("change", e => {
+    if (e.target.matches("select[data-field='status']")) updateRow(e.target, "notes");
+  }); {% endcomment %}
+
+  // Stage history: ONLY remarks are editable/saved
+stageBody.addEventListener("input",  e => {
+  if (e.target.matches("textarea[data-field='remarks']")) { 
+    autosize(e.target);
+    updateRow(e.target, "stages");
+  }
+});
+stageBody.addEventListener("change", e => {
+  if (e.target.matches("textarea[data-field='remarks']")) updateRow(e.target, "stages");
+});
+stageBody.addEventListener("blur",   e => {
+  if (e.target.matches("textarea[data-field='remarks']")) updateRow(e.target, "stages");
+}, true);
+
+// Notes: save particular/remarks as you type + status on change
+noteBody.addEventListener("input", e => {
+  if(e.target.matches("textarea[data-field='particular'], textarea[data-field='remarks']")){
+    autosize(e.target);
+    updateRow(e.target, "notes");
+  }
+});
+noteBody.addEventListener("blur", e => {
+  if(e.target.matches("textarea[data-field='particular'], textarea[data-field='remarks']")) updateRow(e.target, "notes");
+}, true);
+noteBody.addEventListener("change", e => {
+  if (e.target.matches("select[data-field='status']")) applyStatusFilter(), updateRow(e.target, "notes");
+});
+
+  // ---------- sorting ----------
+  function parseDate(dmy){
+    const m = /^(\d{2})-(\d{2})-(\d{4})$/.exec(dmy||"");
+    if(!m) return "";
+    return `${m[3]}-${m[2]}-${m[1]}`;
+  }
+  document.getElementById("sortStage").addEventListener("click", () => {
+    state.stages.sort((a,b) => {
+      const ad = parseDate(a.date||"") || "";
+      const bd = parseDate(b.date||"") || "";
+      const at = (a.time||"");
+      const bt = (b.time||"");
+      return (ad+at).localeCompare(bd+bt);
+    });
+    saveState(); renderStages();
+  });
+  document.getElementById("sortNotes").addEventListener("click", () => {
+    state.notes.sort((a,b) => Number(a.sr||0) - Number(b.sr||0));
+    saveState(); renderNotes();
+  });
+</script>
+
+<!-- pre-seed when clicking Notes from the report -->
+<script>
+document.addEventListener("click", function(e){
+  const a = e.target.closest("a.notes-link");
+  if (!a) return;
+
+  const fy = document.querySelector("#fy")?.value || "";
+  const url = new URL(a.href, location.origin);
+  const client_id = url.searchParams.get("client_id");
+  const q         = url.searchParams.get("q");
+  const key = client_id
+    ? `footprintdefault:${fy}:client:${client_id}`
+    : `footprintdefault:${fy}:q:${q||""}`;
+
+  const stage = (a.dataset.stage || "").trim();
+  if (!stage) return;
+
+  const now = new Date();
+  const dd = String(now.getDate()).padStart(2,"0");
+  const mm = String(now.getMonth()+1).padStart(2,"0");
+  const yyyy = now.getFullYear();
+  const hh = String(now.getHours()).padStart(2,"0");
+  const mi = String(now.getMinutes()).padStart(2,"0");
+
+  let data; try { data = JSON.parse(localStorage.getItem(key) || '{"stages":[],"notes":[]}'); }
+  catch { data = {stages:[], notes:[]}; }
+
+  if (!data.stages.some(s => (s.stage_upgrade||"").trim().toLowerCase() === stage.toLowerCase())) {
+    data.stages.push({ id: Math.random().toString(36).slice(2,10),
+                       date: `${dd}-${mm}-${yyyy}`, time: `${hh}:${mi}`,
+                       stage_upgrade: stage, remarks: "" });
+  }
+  localStorage.setItem(key, JSON.stringify(data));
+});
+</script>
+<script>
+// ------- Excel-like Status filter (only for Notes/Query table) -------
+
+// elements
+const sfBtn   = document.getElementById("statusFilterBtn");
+const sfPanel = document.getElementById("statusFilterPanel");
+const sfBack  = document.getElementById("statusFilterBackdrop");
+const sfAll   = document.getElementById("sfAll");
+const sfOpts  = [...document.querySelectorAll(".sf-opt")];
+const sfApply = document.getElementById("sfApply");
+const sfClear = document.getElementById("sfClear");
+
+// remember per-page (scoped to your existing key)
+const SF_KEY = scopedKey + "::statusFilter";
+
+// restore previous selection
+(function restoreStatusFilter(){
+  try{
+    const saved = JSON.parse(localStorage.getItem(SF_KEY) || '{"Open":true,"Closed":true}');
+    sfOpts.forEach(cb => cb.checked = !!saved[cb.value]);
+    sfAll.checked = sfOpts.every(cb => cb.checked);
+  }catch{}
+})();
+
+// open/close panel
+function openSf(){
+  // position panel just under the button
+  const th = sfBtn.closest("th");
+  const rect = sfBtn.getBoundingClientRect();
+  const thRect = th.getBoundingClientRect();
+  sfPanel.style.left = (rect.left - thRect.left) + "px";
+  sfPanel.style.top  = (rect.bottom - thRect.top + 6) + "px";
+  sfPanel.style.display = "block";
+  sfBack.style.display  = "block";
+}
+function closeSf(){
+  sfPanel.style.display = "none";
+  sfBack.style.display  = "none";
+}
+
+sfBtn.addEventListener("click", e => {
+  e.stopPropagation();
+  if (sfPanel.style.display === "block") closeSf(); else openSf();
+});
+sfBack.addEventListener("click", closeSf);
+
+// select all toggling
+sfAll.addEventListener("change", () => {
+  sfOpts.forEach(cb => cb.checked = sfAll.checked);
+});
+sfOpts.forEach(cb => {
+  cb.addEventListener("change", () => {
+    sfAll.checked = sfOpts.every(x => x.checked);
+  });
+});
+
+// apply & clear
+sfApply.addEventListener("click", () => {
+  applyStatusFilter();
+  closeSf();
+});
+sfClear.addEventListener("click", () => {
+  sfAll.checked = true;
+  sfOpts.forEach(cb => cb.checked = false); // Excel Clear clears all
+  applyStatusFilter();
+});
+
+// core filtering: show rows whose <select data-field="status"> value is in checked set
+function applyStatusFilter(){
+  const allowed = new Set(sfOpts.filter(cb => cb.checked).map(cb => cb.value));
+  // persist selection
+  const toSave = {};
+  sfOpts.forEach(cb => { toSave[cb.value] = cb.checked; });
+  localStorage.setItem(SF_KEY, JSON.stringify(toSave));
+
+  // when nothing selected, hide all rows (Excel behavior after Clear)
+  const trs = document.querySelectorAll("#noteBody tr");
+  trs.forEach(tr => {
+    const sel = tr.querySelector("select[data-field='status']");
+    const val = (sel?.value || "").trim();
+    const show = allowed.size === 0 ? false : allowed.has(val);
+    tr.style.display = show ? "" : "none";
+  });
+}
+// run once on load to respect any saved filter
+applyStatusFilter();
+
+// also re-apply filter whenever a row's status is changed by the user
+noteBody.addEventListener("change", e => {
+  if (e.target.matches("select[data-field='status']")) applyStatusFilter();
+});
+
+</script>
+
+</body>
+</html>

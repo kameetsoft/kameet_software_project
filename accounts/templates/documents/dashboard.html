@@ -1,0 +1,1400 @@
+{% load static %}
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Document Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+       .page-close-btn {
+        position: fixed;
+        top: 12px;
+        right: 16px;
+        z-index: 1050; /* above cards & forms, below modals */
+
+        width: 34px;
+        height: 34px;
+        border: none;
+        border-radius: 6px;
+
+        background: #dc3545;
+        color: #fff;
+        font-size: 20px;
+        font-weight: bold;
+        line-height: 1;
+        cursor: pointer;
+      }
+
+      .page-close-btn:hover {
+        background: #bb2d3b;
+      }
+
+
+    /* highlight selected row (works even with table-striped) */
+    #dashboardBody tr.row-selected > td {
+      background: #d4e2f7ff !important;   /* light blue */
+    }
+
+    #dashboardBody tr {
+      cursor: pointer;
+    }
+
+
+  </style>
+</head>
+<body class="bg-light">
+   
+<div class="container-fluid p-3">
+
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h4 class="mb-0">Client Document Dashboard</h4>
+    <button class="btn btn-primary" onclick="openUploadModal()">+ Upload</button>
+        <!--  Close Button -->
+    <button type="button"
+            class="btn btn-danger btn-sm"
+            title="Go to Home"
+            onclick="window.location.href='{% url 'home' %}'">
+      &times;
+    </button>
+  </div>
+
+
+  <!-- Filters -->
+  <form class="row g-2 mb-3" onsubmit="return false;" method="get">
+    <div class="col-md-3">
+      <select name="client_id" class="form-select">
+        <option value="">All Clients</option>
+        {% for c in clients %}
+          <option value="{{c.id}}" {% if filters.client_id == c.id|stringformat:"s" %}selected{% endif %}>
+            {{c.client_name}}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-2">
+        <select name="fy" id="filter_fy" class="form-select"></select>
+    </div>
+
+
+    <div class="col-md-2">
+      <select name="category_id" class="form-select">
+        <option value="">All Categories</option>
+        {% for cat in categories %}
+          <option value="{{cat.id}}" {% if filters.category_id == cat.id|stringformat:"s" %}selected{% endif %}>
+            {{cat.category_type}}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <select name="status" class="form-select">
+        <option value="">All Status</option>
+        <option value="PENDING" {% if filters.status == "PENDING" %}selected{% endif %}>Pending</option>
+        <option value="RECEIVED" {% if filters.status == "RECEIVED" %}selected{% endif %}>Received</option>
+        <option value="NA" {% if filters.status == "NA" %}selected{% endif %}>Not Applicable</option>
+      </select>
+    </div>
+
+    <div class="col-md-3">
+      <input name="search" class="form-control" placeholder="Search client / PAN / category" value="{{filters.search}}">
+    </div>
+
+    <div class="col-12">
+      {% comment %} <button class="btn btn-dark btn-sm">Apply</button> {% endcomment %}
+      <a class="btn btn-outline-secondary btn-sm" href="{% url 'dashboard' %}">Reset</a>
+    </div>
+  </form>
+
+  <!-- Table -->
+  <div class="table-responsive bg-white border rounded">
+    <table class="table table-sm table-striped mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th>Client</th>
+          {% comment %} <th>PAN</th> {% endcomment %}
+          {% comment %} <th>Category</th> {% endcomment %}
+          <th>Category Type</th>
+          <th>Category Name</th>
+          <th>Sub-Doc</th>
+          <th>FY</th>
+          {% comment %} <th>Event</th> {% endcomment %}
+          <th>Recieved Status</th>
+          <th>Data Entry Status</th>
+          <th>Files</th>
+          <th>Action</th> 
+        </tr>
+      </thead>
+      <tbody id="dashboardBody">
+        {% for it in items %}
+          <tr>
+            <td>{{it.client.client_name}}</td>
+            {% comment %} <td>{{it.client.pan}}</td> {% endcomment %}
+            {% comment %} <td>{{it.category.name}}</td> {% endcomment %}
+            <td>{{it.category.category_type}}</td>
+            <td>{{it.category_name.name|default:"-"}}</td>
+            <td>{{it.subtype.name|default:"-"}}</td>
+            <td> {{it.financial_year| default:"-"}}</td>
+            {% comment %} <td> {{it.event_name | default:"-"}}</td> {% endcomment %}
+            <td>
+              <span class="badge
+                {% if it.status == 'RECEIVED' %} bg-success
+                {% elif it.status == 'PENDING' %} bg-warning text-dark
+                {% else %} bg-secondary {% endif %}">
+                {{it.status}}
+              </span>
+            </td>
+            <td>
+              <span class="badge
+                {% if it.data_entry_status == 'DONE' %} bg-success
+                {% elif it.data_entry_status == 'HOLD' %} bg-warning text-dark
+                {% elif it.data_entry_status == 'DONE_NO_RECEIVE' %} bg-info text-dark
+                {% else %} bg-secondary {% endif %}">
+                {{ it.data_entry_status }}
+              </span>
+            </td>
+
+           
+            <td>
+              {% if it.files.count %}
+              {% comment %} {% if it.files.all.using(db_alias).count %} {% endcomment %}
+
+                <button class="btn btn-link p-0"
+                        onclick="openFilesModal({{ it.id }}, '{{ it.financial_year }}')">
+                  {{ it.files.count }} file(s)
+                </button>
+              {% else %}
+                -
+              {% endif %}
+
+              
+            </td>
+            <td class="text-nowrap">
+              {% comment %} <button class="btn btn-sm btn-outline-primary"
+                      onclick="editDocItem({{ it.id }}, '{{ it.financial_year }}')">
+                Edit
+              </button> {% endcomment %}
+
+              <button class="btn btn-sm btn-outline-danger ms-1"
+                      onclick="deleteDocItem({{ it.id }}, '{{ it.financial_year }}')">
+                Delete
+              </button>
+            </td>
+
+ 
+          </tr>
+        {% empty %}
+          <tr><td colspan="9" class="text-center text-muted py-4">No records</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+{% comment %} upload Modal {% endcomment %}
+<div class="modal fade" id="uploadModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <form class="modal-content" id="uploadForm" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="modal-header">
+        <h5 class="modal-title">Add / Upload Document</h5>
+      </div>
+
+      <div class="modal-body row g-2">
+
+        <!-- Client -->
+        <div class="col-md-6">
+          <label class="form-label">Client</label>
+          <select class="form-select" name="client_id" required>
+            <option value="">Select Client</option>
+            {% for c in clients %}
+              <option value="{{c.id}}">{{c.client_name}}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Category -->
+        <div class="col-md-6">
+          <label class="form-label">Category Type</label>
+          <select class="form-select" name="category_id" id="category_id" required>
+            <option value="">Select Category</option>
+            {% for cat in categories %}
+              <option value="{{cat.id}}"
+              data-annual="{{ cat.annual_allowed|yesno:'1,0' }}"
+              data-event="{{ cat.event_allowed|yesno:'1,0' }}"
+              data-continue="{{ cat.continue_till_closed|yesno:'1,0' }}">
+                {{cat.category_type}}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Category Name (Client-wise) -->
+        <div class="col-md-6">
+          <label class="form-label">Category Name</label>
+          <div class="input-group">
+            <select class="form-select" name="category_name_id" id="category_name_id">
+              <option value="">Select Name</option>
+            </select>
+            <button type="button"
+                    class="btn btn-outline-secondary"
+                    onclick="openAddCategoryNameModal()">
+              +
+            </button>
+          </div>
+        </div>
+
+        <!-- Sub Document -->
+        <div class="col-md-6">
+          <label class="form-label">Sub Document</label>
+          <select class="form-select" name="subtype_id" id="subtype_id">
+            <option value="">Optional</option>
+          </select>
+        </div>
+
+        <!-- Doc Kind -->
+        <div class="col-md-6">
+          <label class="form-label">Document Type</label>
+          <input type="hidden" name="doc_kind" id="doc_kind_hidden">
+          <select class="form-select"  id="doc_kind" required>
+            <option value="">Select</option>
+            <option value="ANNUAL">Annual</option>
+            <option value="EVENT">Event</option>
+          </select>
+        </div>
+
+        <!-- Financial Year -->
+        <div class="col-md-4">
+          <label class="form-label">Financial Year</label>
+          <select class="form-select" name="financial_year" id="financial_year"></select>
+        </div>
+
+   
+        <!-- Status -->
+        <div class="col-md-4">
+          <label class="form-label">Received Status</label>
+          <select class="form-select" name="status" id="received_status">
+            <option value="PENDING">Pending</option>
+            <option value="RECEIVED">Received</option>
+            <option value="NA">Not Applicable</option>
+          </select>
+        </div>
+
+        <!-- ✅ Data Entry Status -->
+        <div class="col-md-4">
+          <label class="form-label">Data Entry Status</label>
+          <select class="form-select" name="data_entry_status">
+            <option value="PENDING">Pending</option>
+            <option value="DONE">Done</option>
+            <option value="HOLD">Hold</option>
+            <option value="DONE_NO_RECEIVE">Done without Received</option>
+          </select>
+        </div>
+
+        <!-- Remarks -->
+        <div class="col-md-8">
+          <label class="form-label">Remarks</label>
+          <textarea class="form-control" name="remarks" rows="2"></textarea>
+        </div>
+
+        <div class="col-md-12" id="existingFilesBox" style="display:none;">
+          <label class="form-label">Existing Files</label>
+          <ul class="list-group" id="existingFilesList"></ul>
+        </div>
+
+        <!-- File -->
+        <div class="col-md-12">
+          <label class="form-label">Upload File</label>
+          <input type="file" class="form-control" name="file">
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        {% comment %} <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button> {% endcomment %}
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-success" type="submit">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% comment %} opne file modal {% endcomment %}
+<div class="modal fade" id="filesModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Attached Files</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>File Name</th>
+              <th>Uploaded On</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="filesModalBody"></tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function getCurrentFY() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth() + 1; // Jan = 1
+
+    // FY starts on April 1
+    if (month >= 4) {
+      return `${year}_${String(year + 1).slice(-2)}`;
+    } else {
+      return `${year - 1}_${String(year).slice(-2)}`;
+    }
+  }
+</script>
+{% comment %} Highlight row when i clicked {% endcomment %}
+<script>
+let selectedRow = null;
+
+// ✅ Row click highlight (works for both server-rendered & ajax-rendered rows)
+document.getElementById("dashboardBody").addEventListener("click", function(e) {
+
+  // if clicked on a button/link inside row, still allow row selection
+  const row = e.target.closest("tr");
+  if (!row) return;
+
+  // remove old highlight
+  if (selectedRow) selectedRow.classList.remove("row-selected");
+
+  // add new highlight
+  row.classList.add("row-selected");
+  selectedRow = row;
+});
+</script>
+
+<script>
+  const uploadModal = new bootstrap.Modal(
+  document.getElementById("uploadModal")
+);
+
+function openUploadModal() {
+  uploadModal.show();
+
+  // ✅ Auto-select current FY (ADD mode only)
+   const form = document.getElementById("uploadForm");
+
+  // ✅ ADD MODE ONLY
+  if (!form.dataset.editId) {
+    const fySelect = document.getElementById("financial_year");
+    if (fySelect) {
+      fySelect.value = getCurrentFY();
+    }
+  }
+}
+
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("open") === "upload") {
+        setTimeout(() => {
+            openUploadModal();
+        }, 300);
+    }
+});
+</script>
+
+{% comment %} fy dropdown {% endcomment %}
+<script>
+ function populateFYDropdown(selectId, selectedFY = "") {
+        const fySelect = document.getElementById(selectId);
+        if (!fySelect) return;
+
+        fySelect.innerHTML = "";
+
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth() + 1;
+
+        let currentFY;
+        if (month >= 4) {
+            currentFY = `${year}_${String(year + 1).slice(-2)}`;
+        } else {
+            currentFY = `${year - 1}_${String(year).slice(-2)}`;
+        }
+
+        const baseYear = parseInt(currentFY.split("_")[0]);
+
+        // Optional default option
+        if (selectId === "filter_fy") {
+            const allOpt = document.createElement("option");
+            allOpt.value = "";
+            allOpt.textContent = "All FY";
+            fySelect.appendChild(allOpt);
+        }
+
+        for (let y = baseYear - 5; y <= baseYear + 3; y++) {
+            const fy = `${y}_${String(y + 1).slice(-2)}`;
+            const opt = document.createElement("option");
+            opt.value = fy;
+            opt.textContent = fy;
+
+            if (fy === selectedFY || (!selectedFY && fy === currentFY && selectId === "financial_year")) {
+                opt.selected = true;
+            }
+
+            fySelect.appendChild(opt);
+        }
+    }
+
+
+      document.addEventListener("DOMContentLoaded", () => {
+      populateFYDropdown("financial_year");
+      populateFYDropdown("filter_fy", "{{ fy }}");
+
+      const fyFilter = document.getElementById("filter_fy");
+
+      // ✅ FORCE FY if empty
+     /* if (!fyFilter.value) {
+        fyFilter.value = getCurrentFY();
+      }*/
+
+      if (!fyFilter.value && "{{ fy }}") {
+        fyFilter.value = "{{ fy }}";
+      }
+
+      loadDashboard();   // ✅ now FY is always present
+    });
+</script>
+
+
+<script>
+document.getElementById("uploadForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
+
+
+
+  // 🔥 FORCE doc_kind value (disabled fields are not submitted)
+  const dk = document.getElementById("doc_kind");
+  const dkHidden = document.getElementById("doc_kind_hidden");
+  if (dk && dkHidden) {
+    dkHidden.value = dk.value;
+  }
+
+  const form = this;
+
+  // 🔹 Read Data Entry Status
+  const dataEntryStatus = form.querySelector("select[name='data_entry_status']").value;
+
+  // 🔹 Check new upload file
+  const fileInput = form.querySelector("input[name='file']");
+  const hasNewFile = fileInput && fileInput.files.length > 0;
+
+  // 🔹 Check existing files (edit mode)
+  const existingFilesList = document.getElementById("existingFilesList");
+  const hasExistingFiles =
+    existingFilesList &&
+    existingFilesList.children.length > 0 &&
+    document.getElementById("existingFilesBox").style.display !== "none";
+
+  // 🔥 CONFIRMATION RULE
+  if (
+    dataEntryStatus === "DONE" &&
+    !hasNewFile &&
+    !hasExistingFiles
+  ) {
+    const ok = confirm(
+      "⚠️ Data Entry is marked as DONE but no attachment is added.\n\nDo you still want to save?"
+    );
+    if (!ok) return; // ⛔ stop submit
+  }
+
+  // -----------------------------
+  // Proceed with normal save
+  // -----------------------------
+  const fd = new FormData(form);
+
+  if (form.dataset.editId) {
+    fd.append("item_id", form.dataset.editId);
+  }
+
+    // ⭐⭐ ADD THESE LINES HERE (EXACT LOCATION)
+  if (form.dataset.oldFy) {
+    fd.append("old_fy", form.dataset.oldFy);
+  }
+
+  const res = await fetch("{% url 'api_upload_doc' %}", {
+    method: "POST",
+    body: fd,
+    headers: { "X-Requested-With": "XMLHttpRequest" }
+  });
+
+  const data = await res.json();
+
+  if (!data.ok) {
+    alert(data.error || "Upload failed");
+    return;
+  }
+
+  if (data.financial_year) {
+    document.getElementById("filter_fy").value = data.financial_year;
+  }
+
+  alert("✅ Document saved");
+
+  const newFY = document.getElementById("financial_year").value;
+  const fyFilter = document.getElementById("filter_fy");
+
+  // 🔥 CRITICAL: switch dashboard FY to updated FY
+  if (fyFilter && newFY) {
+    fyFilter.value = newFY;
+  }
+
+  form.reset();
+  delete form.dataset.editId;
+  delete form.dataset.oldFy;
+
+  uploadModal.hide();
+  //window.location.reload();
+  loadDashboard();
+});
+
+</script>
+<script>
+document.getElementById("doc_kind").addEventListener("change", function () {
+  const fy = document.getElementById("financial_year");
+  //const ev = document.querySelector("input[name='event_name']");
+
+  if (this.value === "ANNUAL") {
+    fy.disabled = false;
+    fy.required = true;
+
+    ev.disabled = true;
+    ev.required = false;
+    ev.value = "";
+  }
+
+  if (this.value === "EVENT") {
+    fy.disabled = false;      // ✅ KEEP ENABLED
+    fy.required = true;      // ✅ MUST SELECT FY
+
+    ev.disabled = false;
+    ev.required = true;      // ✅ EVENT NAME REQUIRED
+  }
+});
+</script>
+
+{% comment %} filteration {% endcomment %}
+<script>
+let searchTimer = null;
+
+function collectFilters() {
+  return {
+    client_id: document.querySelector("select[name='client_id']").value,
+    //fy: document.querySelector("select[name='fy']").value,
+    fy: document.getElementById("filter_fy").value,
+    category_id: document.querySelector("select[name='category_id']").value,
+    status: document.querySelector("select[name='status']").value,
+    search: document.querySelector("input[name='search']").value.trim()
+  };
+}
+
+function renderRows(items) {
+  const tbody = document.getElementById("dashboardBody");
+  tbody.innerHTML = "";
+
+  if (!items.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="9" class="text-center text-muted py-4">No records</td>
+      </tr>`;
+    return;
+  }
+
+  items.forEach(it => {
+    tbody.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${it.client}</td>
+        <td>${it.category_type}</td>
+        <td>${it.category_name}</td>
+        <td>${it.subtype || "-"}</td>
+        <td>${it.financial_year || "-"}</td>
+        
+        <td>
+          <span class="badge ${
+            it.status === "RECEIVED" ? "bg-success" :
+            it.status === "PENDING" ? "bg-warning text-dark" :
+            "bg-secondary"
+          }">${it.status}</span>
+        </td>
+        <td>
+          <span class="badge ${
+            it.data_entry_status === 'DONE' ? 'bg-success' :
+            it.data_entry_status === 'HOLD' ? 'bg-warning text-dark' :
+            it.data_entry_status === 'DONE_NO_RECEIVE' ? 'bg-info text-dark' :
+            'bg-secondary'
+          }">
+            ${it.data_entry_status}
+          </span>
+        </td>
+        <td class="text-center">
+            ${
+              it.file_count
+                ? `<a href="javascript:void(0)"
+                      class="text-decoration-none"
+                      onclick="openFilesModal(${it.id}, '${it.financial_year}')">
+                    ${it.file_count} file(s)
+                  </a>`
+                : "-"
+            }
+        </td>
+        <td class="text-nowrap">
+          <button type="button"
+                  class="btn btn-sm btn-outline-danger ms-1"
+                  onclick="deleteDocItem(${it.id}, '${it.financial_year}')">
+            Delete
+          </button>
+        </td>
+      </tr>
+    `);
+  });
+}
+
+async function loadDashboard() {
+  const filters = collectFilters();
+  console.log("🔥 AJAX filters:", filters);
+  const params = new URLSearchParams(collectFilters()).toString();
+  const res = await fetch(`{% url 'api_dashboard_rows' %}?${params}`);
+
+  const data = await res.json();
+
+  if (data.ok) {
+    renderRows(data.items);
+  }
+}
+
+/* Dropdown change */
+document.querySelectorAll(
+  "select[name='client_id'], #filter_fy , select[name='category_id'], select[name='status']" 
+).forEach(el => el.addEventListener("change", loadDashboard));
+
+/* Search debounce */
+document.querySelector("input[name='search']").addEventListener("input", () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(loadDashboard, 400);
+});
+</script>
+
+
+<script>
+const filesModal = new bootstrap.Modal(
+  document.getElementById("filesModal")
+);
+
+async function openFilesModal(itemId,fy) {
+  
+  if (!fy || fy === "undefined") {
+    alert("FY missing. Cannot load files.");
+    return;
+  }
+  const res = await fetch(`/api/doc-files/?item_id=${itemId}&fy=${fy}`);
+  const data = await res.json();
+
+  if (!data.ok) {
+    alert(data.error || "Failed to load files");
+    return;
+  }
+
+  const body = document.getElementById("filesModalBody");
+  body.innerHTML = "";
+
+  if (!data.files.length) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="3" class="text-center text-muted">No files found</td>
+      </tr>
+    `;
+  }
+  
+  data.files.forEach(f => {
+    body.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${f.name}</td>
+        <td>${f.uploaded}</td>
+        <td>
+          <a href="${f.url}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+          <a href="${f.url}" download class="btn btn-sm btn-outline-secondary">Download</a>
+        </td>
+      </tr>
+    `);
+  });
+
+  filesModal.show();
+}
+</script>
+{% comment %} update modal {% endcomment %}
+<script>
+const uploadModalEl = document.getElementById("uploadModal");
+
+uploadModalEl.addEventListener("hidden.bs.modal", function () {
+
+  // 🔥 reset category names
+  document.getElementById("category_name_id").innerHTML =
+    `<option value="">Select Name</option>`;
+
+  const form = document.getElementById("uploadForm");
+
+  // 🔁 Reset form fields
+  form.reset();
+
+  // ❌ Remove edit mode
+  delete form.dataset.editId;
+
+  // ❌ Hide existing files
+  const box = document.getElementById("existingFilesBox");
+  const list = document.getElementById("existingFilesList");
+
+  if (box) box.style.display = "none";
+  if (list) list.innerHTML = "";
+
+  // 🔁 Reset sub-doc dropdown
+  const subSel = document.getElementById("subtype_id");
+  if (subSel) subSel.innerHTML = `<option value="">Optional</option>`;
+
+  // ✅ AUTO-SELECT CURRENT FY (🔥 ADD THIS HERE)
+  const fySelect = document.getElementById("financial_year");
+  if (fySelect) {
+    fySelect.value = getCurrentFY();
+  }
+});
+</script>
+
+{% comment %} Edit document {% endcomment %}
+<script>
+
+
+{% comment %} async function editDocItem(id, fy) {
+
+  // 🔒 SAFETY: FY must be present
+  if (!fy || fy === "undefined") {
+    alert("FY missing. Please reload dashboard.");
+    console.error("❌ editDocItem called without FY", id, fy);
+    return;
+  } {% endcomment %}
+
+  // 🔹 Fetch document data
+  const res = await fetch(`/api/doc-item/?id=${id}&fy=${fy}`);
+  const data = await res.json();
+
+  if (!data.ok) {
+    alert(data.error || "Failed to load record");
+    return;
+  }
+
+  const it = data.item;
+  const form = document.getElementById("uploadForm");
+
+  // =====================================================
+  // 🔁 EDIT MODE FLAGS (CRITICAL)
+  // =====================================================
+  form.dataset.editId = it.id;                 // current item
+  form.dataset.oldFy  = it.financial_year;     // for FY migration
+
+  // =====================================================
+  // ✅ CLIENT
+  // =====================================================
+  const clientSel = form.querySelector("select[name='client_id']");
+  clientSel.value = String(it.client_id);
+
+  // =====================================================
+  // ✅ CATEGORY (FORCES DEPENDENT LOGIC)
+  // =====================================================
+  const catSel = form.querySelector("select[name='category_id']");
+  catSel.value = String(it.category_id);
+
+  // 🔁 Trigger category change (loads doc_kind logic, subtypes, names)
+//  catSel.dispatchEvent(new Event("change"));
+
+  // Load subtypes only once with selected value
+  await loadSubtypes(it.category_id, it.subtype_id);
+
+
+  // =====================================================
+  // ⏳ SUB TYPES (WAIT UNTIL LOADED)
+  // =====================================================
+  await loadSubtypes(it.category_id, it.subtype_id);
+
+  // =====================================================
+  // ✅ DOCUMENT TYPE (🔥 MOST IMPORTANT FIX)
+  // =====================================================
+  // Disabled selects do NOT submit → always set hidden input
+  document.getElementById("doc_kind_hidden").value = it.doc_kind;
+  document.getElementById("doc_kind").value = it.doc_kind;
+
+  // =====================================================
+  // ✅ FY
+  // =====================================================
+  form.querySelector("select[name='financial_year']").value = it.financial_year;
+
+  // =====================================================
+  // ✅ STATUS FIELDS
+  // =====================================================
+  form.querySelector("select[name='status']").value = it.status;
+  form.querySelector("select[name='data_entry_status']").value = it.data_entry_status;
+
+  // =====================================================
+  // ✅ REMARKS
+  // =====================================================
+  form.querySelector("textarea[name='remarks']").value = it.remarks || "";
+
+  // =====================================================
+  // 📎 EXISTING FILES
+  // =====================================================
+  const box  = document.getElementById("existingFilesBox");
+  const list = document.getElementById("existingFilesList");
+
+  list.innerHTML = "";
+
+  if (it.files && it.files.length) {
+    it.files.forEach(f => {
+      list.insertAdjacentHTML("beforeend", `
+        <li class="list-group-item d-flex justify-content-between align-items-center"
+            id="file-row-${f.id}">
+          <span class="text-truncate">${f.name}</span>
+
+          <div class="btn-group btn-group-sm">
+            <a href="${f.url}" target="_blank"
+               class="btn btn-outline-primary">View</a>
+
+            <button type="button"
+                    class="btn btn-outline-danger"
+                    onclick="deleteExistingFile(${f.id}, '${it.financial_year}')">
+              Delete
+            </button>
+          </div>
+        </li>
+      `);
+    });
+
+    box.style.display = "block";
+  } else {
+    box.style.display = "none";
+  }
+
+  // =====================================================
+  // ✅ CATEGORY NAME (CLIENT-WISE)
+  // =====================================================
+  await loadCategoryNames();
+  document.getElementById("category_name_id").value = it.category_name_id || "";
+
+  // =====================================================
+  // 🚀 SHOW MODAL
+  // =====================================================
+  uploadModal.show();
+}
+
+
+
+async function loadSubtypes(catId, selectedId = null) {
+  const subSel = document.getElementById("subtype_id");
+  subSel.innerHTML = `<option value="">Optional</option>`;
+
+  if (!catId) return;
+
+  const res = await fetch(`/api/subtypes/?category_id=${catId}`);
+  const data = await res.json();
+
+  if (!data.ok) return;
+
+  data.subtypes.forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s.id;
+    opt.textContent = s.name;
+    if (String(s.id) === String(selectedId)) opt.selected = true;
+    subSel.appendChild(opt);
+  });
+}
+
+</script>
+{% comment %} delete document {% endcomment %}
+<script>
+{% comment %} async function deleteDocItem(id,fy) {
+  
+  if (!fy || fy === "undefined") {
+    alert("FY missing. Cannot delete.");
+    return;
+  }
+  if (!confirm("Are you sure you want to delete this document?")) return;
+
+  const fd = new FormData();
+  fd.append("id", id);
+   //fd.append("fy", fy);
+  // fd.append("fy", document.getElementById("financial_year").value);
+  fd.append("fy", fy);
+
+  fd.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+
+  const res = await fetch("{% url 'api_delete_doc_item' %}", {
+
+    method: "POST",
+    body: fd
+  });
+
+  const data = await res.json();
+  if (data.ok) {
+    alert("Deleted successfully");
+    //window.location.reload();
+    loadDashboard();
+  }else{
+    alert(data.error || "delete failed")
+  }
+} {% endcomment %}
+
+async function deleteDocItem(id, fy) {
+
+  if (!fy || fy === "undefined") {
+    alert("FY missing. Cannot delete.");
+    return;
+  }
+
+  if (!confirm("Are you sure you want to delete this document?")) return;
+
+  const fd = new FormData();
+  fd.append("id", id);
+  fd.append("fy", fy);
+  fd.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+
+  const res = await fetch("{% url 'api_delete_doc_item' %}", {
+    method: "POST",
+    body: fd
+  });
+
+  const data = await res.json();
+
+  if (data.ok) {
+    alert("Deleted successfully");
+
+    // ✅ FORCE FY in filter before reload
+    const fyFilter = document.getElementById("filter_fy");
+    if (fyFilter) fyFilter.value = fy;
+
+    loadDashboard();   // ✅ now reloads same DB
+  }
+   else {
+    alert(data.error || "Delete failed");
+  }
+}
+
+</script>
+
+{% comment %} delete existing file in edit mode {% endcomment %}
+<script>
+{% comment %} async function deleteExistingFile(fileId) {
+  if (!confirm("Delete this file permanently?")) return;
+
+  const fd = new FormData();
+  fd.append("file_id", fileId);
+  fd.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+
+  const res = await fetch("{% url 'api_delete_doc_file' %}", {
+    method: "POST",
+    body: fd
+  });
+
+  const data = await res.json();
+  if (!data.ok) {
+    alert(data.error || "Failed to delete file");
+    return;
+  }
+
+  // 🔥 remove from modal
+  const row = document.getElementById(`file-row-${fileId}`);
+  if (row) row.remove();
+
+  const list = document.getElementById("existingFilesList");
+  if (!list.children.length) {
+    document.getElementById("existingFilesBox").style.display = "none";
+  }
+
+  // 🔥 refresh dashboard counts (optional)
+  loadDashboard();
+} {% endcomment %}
+async function deleteExistingFile(fileId, fy) {
+  if (!confirm("Delete this file permanently?")) return;
+
+  const fd = new FormData();
+  fd.append("file_id", fileId);
+  fd.append("fy", fy);
+  fd.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+
+  const res = await fetch("{% url 'api_delete_doc_file' %}", {
+    method: "POST",
+    body: fd
+  });
+
+  const data = await res.json();
+  if (!data.ok) {
+    alert(data.error || "Failed to delete file");
+    return;
+  }
+
+  document.getElementById(`file-row-${fileId}`)?.remove();
+  loadDashboard();
+}
+
+</script>
+
+{% comment %} upload modal {% endcomment %}
+<script>
+  document.getElementById("category_id").addEventListener("change", function () {
+    const opt = this.selectedOptions[0];
+    if (!opt) return;
+
+    const annual = opt.dataset.annual === "1";
+    const event  = opt.dataset.event === "1";
+
+    const docKind = document.getElementById("doc_kind");
+    const docKindHidden = document.getElementById("doc_kind_hidden");
+
+    docKind.disabled = true;   //ALWAYS ENABLE
+    docKind.value = "";
+
+    if (annual && !event) {
+      docKind.value = "ANNUAL";
+    } 
+    else if (event && !annual) {
+      docKind.value = "EVENT";
+    }
+
+    // 🔒 Prevent user changing visually (optional UX)
+  // docKind.readOnly = true;
+    docKindHidden.value = docKind.value;
+
+    // Trigger dependent logic
+    docKind.dispatchEvent(new Event("change"));
+    loadCategoryNames();
+    loadSubtypes(this.value);
+  });
+</script>
+
+
+
+{% comment %} <script>
+  function hasAnyAttachment() {
+    const fileInput = document.querySelector("#uploadForm input[name='file']");
+    const hasNewFile = fileInput && fileInput.files.length > 0;
+
+    const existingBox = document.getElementById("existingFilesBox");
+    const existingList = document.getElementById("existingFilesList");
+    const hasExistingFiles =
+      existingBox &&
+      existingBox.style.display !== "none" &&
+      existingList &&
+      existingList.children.length > 0;
+
+    return hasNewFile || hasExistingFiles;
+  }
+
+  function enforceReceivedRule() {
+    const statusSelect = document.getElementById("received_status");
+    if (!statusSelect) return;
+
+    const receivedOption = statusSelect.querySelector("option[value='RECEIVED']");
+    if (!receivedOption) return;
+
+    const allowed = hasAnyAttachment();
+
+    // Enable / disable RECEIVED option
+    receivedOption.disabled = !allowed;
+
+    // If user already selected RECEIVED but no attachment → revert
+    if (!allowed && statusSelect.value === "RECEIVED") {
+      statusSelect.value = "PENDING";
+      alert("⚠️ You cannot mark as RECEIVED without uploading an attachment.");
+    }
+  }
+
+  /* 🔁 Watch file input */
+  document
+    .querySelector("#uploadForm input[name='file']")
+    .addEventListener("change", enforceReceivedRule);
+
+  /* 🔁 When modal opens (ADD / EDIT) */
+  document.getElementById("uploadModal")
+    .addEventListener("shown.bs.modal", enforceReceivedRule);
+
+  /* 🔁 When existing file deleted */
+  async function deleteExistingFile(fileId) {
+    if (!confirm("Delete this file permanently?")) return;
+
+    const fd = new FormData();
+    fd.append("file_id", fileId);
+    fd.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+
+    const res = await fetch("{% url 'api_delete_doc_file' %}", {
+      method: "POST",
+      body: fd
+    });
+
+    const data = await res.json();
+    if (!data.ok) {
+      alert(data.error || "Failed to delete file");
+      return;
+    }
+
+    const row = document.getElementById(`file-row-${fileId}`);
+    if (row) row.remove();
+
+    const list = document.getElementById("existingFilesList");
+    if (!list.children.length) {
+      document.getElementById("existingFilesBox").style.display = "none";
+    }
+
+    enforceReceivedRule(); // 🔥 IMPORTANT
+    loadDashboard();
+  }
+</script> {% endcomment %}
+
+<script>
+function hasAnyAttachment() {
+  const fileInput = document.querySelector("#uploadForm input[name='file']");
+  const hasNewFile = fileInput && fileInput.files.length > 0;
+
+  const existingBox = document.getElementById("existingFilesBox");
+  const existingList = document.getElementById("existingFilesList");
+  const hasExistingFiles =
+    existingBox &&
+    existingBox.style.display !== "none" &&
+    existingList &&
+    existingList.children.length > 0;
+
+  return hasNewFile || hasExistingFiles;
+}
+
+function enforceReceivedRule() {
+  const statusSelect = document.getElementById("received_status");
+  if (!statusSelect) return;
+
+  const receivedOption = statusSelect.querySelector("option[value='RECEIVED']");
+  if (!receivedOption) return;
+
+  const allowed = hasAnyAttachment();
+
+  // 🔒 Enable / disable RECEIVED
+  receivedOption.disabled = !allowed;
+
+  // 🔥 AUTO SWITCH
+ /* if (allowed) {
+    statusSelect.value = "RECEIVED";
+  } else if (statusSelect.value === "RECEIVED") {
+    statusSelect.value = "PENDING";
+  }*/
+  if (!allowed && statusSelect.value === "RECEIVED") {
+    statusSelect.value = "PENDING";
+    alert("⚠️ You cannot mark as RECEIVED without uploading an attachment.");
+  }
+}
+
+/* 🔁 File selected */
+document
+  .querySelector("#uploadForm input[name='file']")
+  .addEventListener("change", enforceReceivedRule);
+
+/* 🔁 Modal open (ADD / EDIT) */
+document.getElementById("uploadModal")
+  .addEventListener("shown.bs.modal", enforceReceivedRule);
+
+/* 🔁 Delete existing file */
+async function deleteExistingFile(fileId, fy) {
+  if (!fy || fy === "undefined") {
+    alert("FY missing. Cannot delete file.");
+    return;
+  }
+
+  if (!confirm("Delete this file permanently?")) return;
+
+  const fd = new FormData();
+  fd.append("file_id", fileId);
+  fd.append("fy", fy);
+  fd.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+
+  const res = await fetch("{% url 'api_delete_doc_file' %}", {
+    method: "POST",
+    body: fd
+  });
+
+  const data = await res.json();
+
+  if (!data.ok) {
+    alert(data.error || "Failed to delete file");
+    return;
+  }
+
+  // remove from UI
+  const row = document.getElementById(`file-row-${fileId}`);
+  if (row) row.remove();
+
+  loadDashboard();
+}
+
+</script>
+
+<!-- ===================== Add Category Name Modal ===================== -->
+<div class="modal fade" id="categoryNameModal" tabindex="-1">
+  <div class="modal-dialog">
+    <form class="modal-content" id="categoryNameForm">
+      {% csrf_token %}
+      <div class="modal-header">
+        <h5 class="modal-title">Add Category Name</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <input type="hidden" name="client_id" id="cn_client_id">
+        <input type="hidden" name="category_id" id="cn_category_id">
+
+        <label class="form-label">Name</label>
+        <input class="form-control"
+               name="name"
+               placeholder="e.g. Rajendra Prasad"
+               required>
+        <label class="form-label">
+          Passwords (optional)
+          <small class="text-muted">(comma separated)</small>
+        </label>
+        <input type="text"
+              class="form-control"
+              name="passwords"
+              placeholder="e.g. pass123, bank@2024">
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-success" type="submit">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+const categoryNameModal = new bootstrap.Modal(
+  document.getElementById("categoryNameModal")
+);
+
+async function loadCategoryNames() {
+  const form = document.getElementById("uploadForm");   // ✅ modal form
+  const clientId = form.querySelector("select[name='client_id']").value;
+  const categoryId = form.querySelector("#category_id").value;
+
+  const sel = document.getElementById("category_name_id");
+  sel.innerHTML = `<option value="">Select Name</option>`;
+
+  if (!clientId || !categoryId) return;
+
+  const res = await fetch(
+    `/api/client-category-names/?client_id=${clientId}&category_id=${categoryId}`
+  );
+  const data = await res.json();
+
+  if (!data.ok) return;
+
+  data.items.forEach(x => {
+    const opt = document.createElement("option");
+    opt.value = x.id;
+    opt.textContent = x.name;
+    sel.appendChild(opt);
+  });
+}
+
+function openAddCategoryNameModal() {
+  const form = document.getElementById("uploadForm");   // ✅ modal form
+
+  const clientId = form.querySelector("select[name='client_id']").value;
+  const categoryId = form.querySelector("#category_id").value;
+
+  if (!clientId || !categoryId) {
+    alert("Please select Client and Category first");
+    return;
+  }
+
+  document.getElementById("cn_client_id").value = clientId;
+  document.getElementById("cn_category_id").value = categoryId;
+
+  categoryNameModal.show();
+}
+// submit modal
+document.getElementById("categoryNameForm").addEventListener("submit", async e => {
+  e.preventDefault();
+
+  const fd = new FormData(e.target);
+  const res = await fetch("{% url 'api_create_category_name' %}", {
+    method: "POST",
+    body: fd
+  });
+
+  const data = await res.json();
+  if (!data.ok) {
+    alert(data.error);
+    return;
+  }
+
+  categoryNameModal.hide();
+
+  // reload dropdown & auto-select
+  await loadCategoryNames();
+  document.getElementById("category_name_id").value = data.id;
+});
+</script>
+<script>
+const uploadForm = document.getElementById("uploadForm");
+
+// 🔥 Clear category names when client changes
+uploadForm.querySelector("select[name='client_id']")
+  .addEventListener("change", () => {
+    const sel = document.getElementById("category_name_id");
+    sel.innerHTML = `<option value="">Select Name</option>`;
+
+    // 🔥 reload if category already selected
+    const categoryId = document.getElementById("category_id").value;
+    if (categoryId) {
+      loadCategoryNames();
+    }
+  });
+</script>
+<script>
+async function loadSubtypes(catId, selectedId = null) {
+  const subSel = document.getElementById("subtype_id");
+  subSel.innerHTML = `<option value="">Optional</option>`;
+
+  if (!catId) return;
+
+  const res = await fetch(`/api/subtypes/?category_id=${catId}`);
+  const data = await res.json();
+
+  if (!data.ok) return;
+
+  data.subtypes.forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s.id;
+    opt.textContent = s.name;
+    if (selectedId && String(s.id) === String(selectedId)) {
+      opt.selected = true;
+    }
+    subSel.appendChild(opt);
+  });
+}
+</script>
+
+</body>
+</html>

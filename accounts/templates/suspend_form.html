@@ -1,0 +1,1013 @@
+{% load static %}
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ title }}</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+    />
+    <style>
+      :root {
+        --primary-color: #4e73df;
+        --secondary-color: #f8f9fc;
+        --accent-color: #2e59d9;
+      }
+
+      body {
+        background-color: #f8f9fa;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        padding: 10px;
+      }
+
+      .user-form-container {
+        max-width: 800px;
+        margin: 6px auto;
+      }
+
+      .form-card {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        overflow: hidden;
+      }
+
+      .form-card .card-header {
+        background-color: var(--primary-color);
+        color: white;
+        border-bottom: none;
+        padding: 0.30rem 0.60rem;
+      }
+
+      .form-card .card-header h3 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.05rem;
+      }
+
+      .form-card .card-body {
+        padding: 1rem;
+        background-color: white;
+      }
+
+      .form-label {
+        font-weight: 600;
+        color: #5a5c69;
+        margin-bottom: 0.25rem;
+        font-size: 0.9rem;
+      }
+
+      .form-control,
+      .form-select {
+        border-radius: 0.3rem;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #d1d3e2;
+        font-size: 0.9rem;
+        height: auto;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+      }
+
+      .btn {
+        border-radius: 0.3rem;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+
+      .btn-success {
+        background-color: #1cc88a;
+        border-color: #1cc88a;
+      }
+
+      .btn-success:hover {
+        background-color: #17a673;
+        border-color: #169b6b;
+      }
+
+      .btn-outline-secondary {
+        color: #6e707e;
+        border-color: #d1d3e2;
+      }
+
+      .btn-outline-secondary:hover {
+        background-color: #dddfeb;
+        border-color: #d1d3e2;
+      }
+
+      .btn-outline-danger {
+        color: #e74a3b;
+        border-color: #e74a3b;
+      }
+
+      .btn-outline-danger:hover {
+        background-color: #e74a3b;
+        color: white;
+      }
+
+      .invalid-feedback {
+        font-size: 0.8rem;
+        color: #e74a3b;
+        margin-top: 0.2rem;
+      }
+
+      .was-validated .form-control:invalid,
+      .was-validated .form-control:invalid {
+        border-color: #e74a3b;
+      }
+
+      .was-validated .form-control:invalid:focus,
+      .was-validated .form-control:invalid:focus {
+        box-shadow: 0 0 0 0.2rem rgba(231, 74, 59, 0.25);
+      }
+
+      .section-divider {
+        border-top: 1px solid #e3e6f0;
+        margin: 0.2rem 0;
+      }
+
+      .form-section-title {
+        color: var(--primary-color);
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        font-size: 1rem;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .user-form-container {
+          margin: 5px auto;
+        }
+
+        .form-card .card-body {
+          padding: 0.20rem;
+        }
+
+        .row {
+          margin-left: -5px;
+          margin-right: -5px;
+        }
+
+        [class*="col-"] {
+          padding-left: 5px;
+          padding-right: 5px;
+        }
+      }
+
+      /* Highlight active option */
+        .dropdown-option.active-option {
+        background-color: #007bff;
+        color: #fff;
+        }
+        /* Base dropdown container */
+    .dropdown-options {
+      max-height: 220px;          /* limit height */
+      overflow-y: auto;           /* scroll if too long */
+      background: #fff;           /* white background */
+      border: 1px solid #ccc;     /* light border */
+      border-radius: 4px;         /* slight rounded corners */
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* subtle shadow */
+      padding: 0;                 /* no extra padding */
+      z-index: 1000;              /* always on top */
+    }
+
+    /* Each option */
+    .dropdown-option {
+      padding: 8px 12px;
+      font-size: 14px;
+      color: #333;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+      white-space: nowrap;        /* keep names in one line */
+      overflow: hidden;           /* hide overflow */
+      text-overflow: ellipsis;    /* show "..." if too long */
+    }
+
+    /* Last option no border */
+    .dropdown-option:last-child {
+      border-bottom: none;
+    }
+
+    /* Hover effect */
+    .dropdown-option:hover {
+      background: #f0f4ff;        /* light blue on hover */
+      color: #000;
+    }
+
+    /* Active (keyboard highlight) */
+    .dropdown-option.active-option {
+      background: #007bff;
+      color: #fff;
+    }
+
+         
+    .page-close-btn {
+        position: fixed;
+        top: 12px;
+        right: 16px;
+        z-index: 1050; /* above cards & forms, below modals */
+
+        width: 34px;
+        height: 34px;
+        border: none;
+        border-radius: 6px;
+
+        background: #dc3545;
+        color: #fff;
+        font-size: 20px;
+        font-weight: bold;
+        line-height: 1;
+        cursor: pointer;
+      }
+
+      .page-close-btn:hover {
+        background: #bb2d3b;
+      }
+    </style>
+  </head>
+  <body>
+     <button type="button"
+            class="page-close-btn"
+            title="Go to Home"
+            onclick="window.location.href='{% url 'home' %}'">
+      &times;
+    </button>
+    <div class="user-form-container">
+        <div class="form-card card shadow">
+            <div class="card-header">
+                  <h3 class="mb-0">
+                    {% if is_modify_mode %}
+                        Modify Tax Suspension
+                    {% else %}
+                       Add Tax Suspension Form
+                    {% endif %}
+                </h3>
+                {% comment %} <h3 class="mb-0">Tax Suspension Form</h3> {% endcomment %}
+            </div>
+            {% comment %} <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Entity Selection Section -->
+                    <h5 class="form-section-title">Entity Selection</h5>
+                    <div class="row">
+
+                       <!-- GROUP -->
+                        <div class="col-md-4">
+                            <label class="form-label">Group</label>
+                            <div class="custom-dropdown position-relative">
+                            <input type="text" id="id_group_input" class="form-control"
+                                placeholder="Select or search group…" autocomplete="off">
+                            <input type="hidden" name="group_id" id="id_group_hidden">
+
+                            <div class="dropdown-options border position-absolute w-100 bg-white"
+                                id="id_group_options"
+                                style="max-height: 200px; overflow-y: auto; display: none; z-index: 1000;">
+                                {% for g in groups %}
+                                <div class="dropdown-option px-2 py-1" data-id="{{ g.id }}">
+                                    {{ g.group_name }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            </div>
+                        </div>
+                          <!-- CLIENT -->
+                        <div class="col-md-4">
+                            <label class="form-label">Client</label>
+                            <div class="custom-dropdown position-relative">
+                            <input type="text" id="id_client_input" class="form-control"
+                                placeholder="Select or search client…" autocomplete="off">
+                            <input type="hidden" name="client_id" id="id_client_hidden">
+
+                            <div class="dropdown-options border position-absolute w-100 bg-white"
+                                id="id_client_options"
+                                style="max-height: 200px; overflow-y: auto; display: none; z-index: 1000;">
+                                <!-- Will be dynamically loaded after group selection -->
+                            </div>
+                            </div>
+                        </div>
+                        <!-- ACCOUNT -->
+                        <div class="col-md-4">
+                            <label class="form-label">Account</label>
+                            <div class="custom-dropdown position-relative">
+                            <input type="text" id="id_account_input" class="form-control"
+                                placeholder="Select or search account…" autocomplete="off">
+                            <input type="hidden" name="account_id" id="id_account_hidden">
+
+                            <div class="dropdown-options border position-absolute w-100 bg-white"
+                                id="id_account_options"
+                                style="max-height: 200px; overflow-y: auto; display: none; z-index: 1000;">
+                                <!-- Will be dynamically loaded after client selection -->
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Tax Type Selection -->
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <label for="tax-type" class="form-label">Select Tax Type *</label>
+                            <select class="form-select" id="tax-type" name="tax_type" required>
+                                <option value="">-- Select Tax Type --</option>
+                                <option value="GST">GST</option>
+                                <option value="TDS">TDS</option>
+                                <option value="Income">Income Tax</option>
+                                <option value="TCS">TCS</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Please select a tax type.
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="action-type" class="form-label">Action *</label>
+                            <select class="form-select" id="action-type" name="action" required>
+                                <option value="">-- Select Action --</option>
+                                <option value="suspend">Suspend</option>
+                                <option value="activate">Activate</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Please select an action.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Date Range -->
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <label for="from-date" class="form-label">From Date *</label>
+                            <input type="date" class="form-control" id="from-date" name="from_date" required>
+                            <div class="invalid-feedback">
+                                Please select a from date.
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="to-date" class="form-label">To Date</label>
+                            <input type="date" class="form-control" id="to-date" name="to_date">
+                            <div class="invalid-feedback">
+                                Please select a valid to date.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Remarks -->
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <label for="remarks" class="form-label">Remarks</label>
+                            <textarea class="form-control" id="remarks" name="remarks" rows="2"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="section-divider"></div>
+
+                    <!-- Form Actions -->
+                    <div class="d-flex justify-content-end gap-2 mt-1">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle me-1"></i>
+                            Submit
+                        </button>
+                        <button type="reset" class="btn btn-outline-secondary">
+                            <i class="bi bi-eraser me-1"></i>Clear
+                        </button>
+                        <a href="{% url 'home' %}" class="btn btn-outline-danger">
+                            <i class="bi bi-x-circle me-1"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div> {% endcomment %}
+
+            <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Add a hidden field for modify mode -->
+                    {% if is_modify_mode %}
+                        <input type="hidden" name="suspension_id" value="{{ suspension.id }}">
+                    {% endif %}
+                    
+                    <!-- Entity Selection Section -->
+                 <!-- Entity Selection Section -->
+                    <h5 class="form-section-title">Entity Selection</h5>
+                    <div class="row">
+                        <!-- GROUP -->
+                        <div class="col-md-4">
+                            <label class="form-label">Group</label>
+                            <div class="custom-dropdown position-relative">
+                                <input type="text" id="id_group_input" class="form-control"
+                                    placeholder="Select or search group…" autocomplete="off"
+                                    {% if suspension and suspension.group %}value="{{ suspension.group.group_name }}"{% endif %}>
+                                <input type="hidden" name="group_id" id="id_group_hidden"
+                                    {% if suspension and suspension.group %}value="{{ suspension.group.id }}"{% endif %}>
+
+                                <div class="dropdown-options border position-absolute w-100 bg-white"
+                                    id="id_group_options"
+                                    style="max-height: 200px; overflow-y: auto; display: none; z-index: 1000;">
+                                    {% for g in groups %}
+                                    <div class="dropdown-option px-2 py-1" data-id="{{ g.id }}">
+                                        {{ g.group_name }}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <!-- CLIENT -->
+                        <div class="col-md-4">
+                            <label class="form-label">Client</label>
+                            <div class="custom-dropdown position-relative">
+                                <input type="text" id="id_client_input" class="form-control"
+                                    placeholder="Select or search client…" autocomplete="off"
+                                    {% if suspension and suspension.client %}value="{{ suspension.client.client_name }}"{% endif %}>
+                                <input type="hidden" name="client_id" id="id_client_hidden"
+                                    {% if suspension and suspension.client %}value="{{ suspension.client.id }}"{% endif %}>
+
+                                <div class="dropdown-options border position-absolute w-100 bg-white"
+                                    id="id_client_options"
+                                    style="max-height: 200px; overflow-y: auto; display: none; z-index: 1000;">
+                                    {% if suspension and suspension.client %}
+                                    <div class="dropdown-option px-2 py-1" data-id="{{ suspension.client.id }}">
+                                        {{ suspension.client.client_name }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <!-- ACCOUNT -->
+                        {% comment %} <div class="col-md-4">
+                            <label class="form-label">Account</label>
+                            <div class="custom-dropdown position-relative">
+                                <input type="text" id="id_account_input" class="form-control"
+                                    placeholder="Select or search account…" autocomplete="off"
+                                    {% if suspension and suspension.account %}value="{{ suspension.account.account }}"{% endif %}>
+                                <input type="hidden" name="account_id" id="id_account_hidden"
+                                    {% if suspension and suspension.account %}value="{{ suspension.account.id }}"{% endif %}>
+
+                                <div class="dropdown-options border position-absolute w-100 bg-white"
+                                    id="id_account_options"
+                                    style="max-height: 200px; overflow-y: auto; display: none; z-index: 1000;">
+                                    {% if suspension and suspension.account %}
+                                    <div class="dropdown-option px-2 py-1" data-id="{{ suspension.account.id }}">
+                                        {{ suspension.account.account }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div> {% endcomment %}
+                        <!-- ACCOUNT -->
+                        <div class="col-md-4">
+                            <label class="form-label">Account</label>
+                            <div class="custom-dropdown position-relative">
+                                <input type="text" id="id_account_input" class="form-control"
+                                    placeholder="Select or search account…" autocomplete="off"
+                                    value="{% if suspension.account %}{{ suspension.account.account }}{% elif form.initial.account_name %}{{ form.initial.account_name }}{% endif %}">
+                                <input type="hidden" name="account_id" id="id_account_hidden"
+                                    value="{% if suspension.account %}{{ suspension.account.account_id }}{% elif form.initial.account_id %}{{ form.initial.account_id }}{% endif %}">
+
+                                <div class="dropdown-options border position-absolute w-100 bg-white"
+                                    id="id_account_options"
+                                    style="max-height: 200px; overflow-y: auto; display: none; z-index: 1000;">
+                                    {% if suspension.account %}
+                                    <div class="dropdown-option px-2 py-1" data-id="{{ suspension.account.account_id }}">
+                                        {{ suspension.account.account }}
+                                    </div>
+                                    {% elif form.initial.account_id %}
+                                    <div class="dropdown-option px-2 py-1" data-id="{{ form.initial.account_id }}">
+                                        {{ form.initial.account_name }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Tax Type Selection -->
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <label for="tax-type" class="form-label">Select Tax Type *</label>
+                            <select class="form-select" id="tax-type" name="tax_type" required>
+                                <option value="">-- Select Tax Type --</option>
+                                <option value="GST" {% if suspension.tax_type == "GST" %}selected{% endif %}>GST</option>
+                                <option value="TDS" {% if suspension.tax_type == "TDS" %}selected{% endif %}>TDS</option>
+                                <option value="Income" {% if suspension.tax_type == "Income" %}selected{% endif %}>Income Tax</option>
+                                <option value="TCS" {% if suspension.tax_type == "TCS" %}selected{% endif %}>TCS</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Please select a tax type.
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="action-type" class="form-label">Action *</label>
+                            <select class="form-select" id="action-type" name="action" required>
+                                <option value="">-- Select Action --</option>
+                                <option value="suspend" {% if suspension.is_active %}selected{% endif %}>Suspend</option>
+                                <option value="activate" {% if not suspension.is_active %}selected{% endif %}>Activate</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Please select an action.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Date Range -->
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <label for="from-date" class="form-label">From Date *</label>
+                            <input type="date" class="form-control" id="from-date" name="from_date" 
+                                value="{{ form.initial.from_date }}" required>
+                            <div class="invalid-feedback">
+                                Please select a from date.
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="to-date" class="form-label">To Date</label>
+                            <input type="date" class="form-control" id="to-date" name="to_date"
+                                value="{{ form.initial.to_date }}">
+                            <div class="invalid-feedback">
+                                Please select a valid to date.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Remarks -->
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <label for="remarks" class="form-label">Remarks</label>
+                            <textarea class="form-control" id="remarks" name="remarks" rows="2">{% if suspension %}{{ suspension.remarks }}{% endif %}</textarea>
+                        </div>
+                    </div>
+                                        <!-- ... -->
+                                        
+                                        <!-- Update the submit button text for modify mode -->
+                                        <div class="d-flex justify-content-end gap-2 mt-1">
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="bi bi-check-circle me-1"></i>
+                                                {% if is_modify_mode %}Update{% else %}Submit{% endif %}
+                                            </button>
+                                            <button type="reset" class="btn btn-outline-secondary">
+                                                <i class="bi bi-eraser me-1"></i>Clear
+                                            </button>
+                                            <a href="{% url 'suspend_list' %}" class="btn btn-outline-danger">
+                                                <i class="bi bi-x-circle me-1"></i>Cancel
+                                            </a>
+                                        </div>
+                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if messages %} 
+                        {% for message in messages %}
+                        <div class="toast-container position-fixed top-0 end-0 p-3">
+                            <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                                <div class="toast-header">
+                                    <strong class="me-auto">Notification</strong>
+                                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                                </div>
+                                <div class="toast-body">
+                                    {{ message }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %} 
+                        {% endif %}
+
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+        (function () {
+            "use strict";
+            window.addEventListener("load", function () {
+                // Bootstrap validation
+                var forms = document.getElementsByClassName("needs-validation");
+                Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener("submit", function (event) {
+                        // Validate that at least one entity is selected
+                        /*const clientSelect = document.getElementById('client-select');
+                        const groupSelect = document.getElementById('group-select');
+                        const accountSelect = document.getElementById('account-select');*/
+                        //document.getElementById('client-select')  → document.getElementById('id_client_input')
+                        //document.getElementById('group-select')   → document.getElementById('id_group_input')
+                        //document.getElementById('account-select') → document.getElementById('id_account_input')
+                        document.getElementById('id_client_input')  → document.getElementById('id_client_input')
+                        document.getElementById('id_group_input')   → document.getElementById('id_group_input')
+                        document.getElementById('id_account_input') → document.getElementById('id_account_input')
+
+                        
+                        if (!clientSelect.value && !groupSelect.value && !accountSelect.value) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            const alertDiv = document.querySelector('.alert-info');
+                            alertDiv.classList.remove('alert-info');
+                            alertDiv.classList.add('alert-danger');
+                            alertDiv.innerHTML = '<small><i class="bi bi-exclamation-triangle"></i> Please select either a Client, Group, or Account</small>';
+                        }
+                        
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add("was-validated");
+                    });
+
+                    // Clear button logic
+                    var clearBtn = form.querySelector('button[type="reset"]');
+                    if (clearBtn) {
+                        clearBtn.addEventListener("click", function () {
+                            form.classList.remove("was-validated");
+                            form.querySelectorAll(".form-control").forEach(function (input) {
+                                input.classList.remove("is-valid", "is-invalid");
+                            });
+                            // Reset the alert
+                            const alertDiv = document.querySelector('.alert-danger, .alert-info');
+                            if (alertDiv) {
+                                alertDiv.classList.remove('alert-danger');
+                                alertDiv.classList.add('alert-info');
+                                alertDiv.innerHTML = '<small><i class="bi bi-info-circle"></i> Please select either a Client, Group, or Account</small>';
+                            }
+                        });
+                    }
+
+                    // Cancel button logic
+                   // var cancelBtn = form.querySelector(".btn-outline-danger");
+                   var cancelBtn = document.querySelector(".btn-outline-danger");
+
+                    if (cancelBtn) {
+                        cancelBtn.addEventListener("click", function (event) {
+                            event.preventDefault();
+                            if (confirm("Are you sure you want to cancel?")) {
+                                window.location.href = "/";
+                            }
+                        });
+                    }
+                });
+                
+                // Date validation
+                document.getElementById('to-date').addEventListener('change', function() {
+                    const fromDate = new Date(document.getElementById('from-date').value);
+                    const toDate = new Date(this.value);
+                    
+                    if (fromDate && toDate && toDate < fromDate) {
+                        this.setCustomValidity('To date must be after from date');
+                        this.classList.add('is-invalid');
+                    } else {
+                        this.setCustomValidity('');
+                        this.classList.remove('is-invalid');
+                    }
+                });
+                
+                // Ensure only one entity is selected at a time
+                function handleEntitySelection(changedSelect) {
+                    //const selects = ['client-select', 'group-select', 'account-select'];
+                    const selects = ['id_client_input', 'id_group_input', 'id_account_input'];
+                    selects.forEach(selectId => {
+                        if (selectId !== changedSelect.id && changedSelect.value) {
+                            document.getElementById(selectId).value = '';
+                        }
+                    });
+                }
+                
+                document.getElementById('client-select').addEventListener('change', function() {
+                    handleEntitySelection(this);
+                });
+                
+                document.getElementById('group-select').addEventListener('change', function() {
+                    handleEntitySelection(this);
+                });
+                
+                document.getElementById('account-select').addEventListener('change', function() {
+                    handleEntitySelection(this);
+                });
+            });
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    const inputs = Array.from(
+                        document.querySelectorAll('input:not([readonly]), select, button, textarea')
+                    );
+                    const index = inputs.indexOf(document.activeElement);
+                    if (index !== -1 && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                        event.preventDefault();
+                    }
+                }
+            });
+        })();
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    // ✅ Common searchable dropdown with keyboard + auto-select support
+    function setupSearchableDropdown(inputId, dropdownId, hiddenId, onSelectCallback, nextInputId = null) {
+        const input = document.getElementById(inputId);
+        const dropdown = document.getElementById(dropdownId);
+        const hidden = document.getElementById(hiddenId);
+        let currentFocus = -1;
+       // ✅ Open dropdown only on CLICK/FOCUS
+        input.addEventListener("focus", function () {
+            dropdown.style.display = "block";  // show list on focus
+        });
+
+        input.addEventListener("click", function () {
+            dropdown.style.display = "block";  // also show on click
+        });
+
+        // Filter as user types
+        input.addEventListener("input", function () {
+            const filter = this.value.toLowerCase();
+            const options = dropdown.querySelectorAll(".dropdown-option");
+
+            dropdown.style.display = "block";
+            let visible = 0;
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                const match = text.includes(filter);
+                option.style.display = match ? "block" : "none";
+                if (match) visible++;
+            });
+
+            currentFocus = visible > 0 ? 0 : -1;
+            highlightOption(dropdown.querySelectorAll(".dropdown-option:not([style*='display: none'])"));
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", function (e) {
+            if (!dropdown.contains(e.target) && e.target !== input) {
+                dropdown.style.display = "none";
+            }
+        });
+
+        // Keyboard navigation
+        input.addEventListener("keydown", function (e) {
+            let options = dropdown.querySelectorAll(".dropdown-option:not([style*='display: none'])");
+
+            if (e.key === "ArrowDown") {
+                currentFocus++;
+                highlightOption(options);
+                e.preventDefault();
+            } else if (e.key === "ArrowUp") {
+                currentFocus--;
+                highlightOption(options);
+                e.preventDefault();
+            } else if (e.key === "Enter") {
+                e.preventDefault();
+                if (currentFocus >= 0 && options[currentFocus]) {
+                    options[currentFocus].click(); // select
+                }
+            }
+        });
+
+        function highlightOption(options) {
+            if (!options.length) return;
+            if (currentFocus >= options.length) currentFocus = 0;
+            if (currentFocus < 0) currentFocus = options.length - 1;
+            options.forEach(opt => opt.classList.remove("active-option"));
+            if (options[currentFocus]) options[currentFocus].classList.add("active-option");
+        }
+
+        // Click selection
+        dropdown.addEventListener("click", function (e) {
+            const option = e.target.closest(".dropdown-option");
+            if (!option || option.classList.contains("disabled")) return;
+
+            input.value = option.textContent.trim();
+            hidden.value = option.dataset.id;
+            dropdown.style.display = "none";
+
+            if (onSelectCallback) onSelectCallback(option.dataset.id);
+
+            // ✅ Move focus to next input automatically
+            if (nextInputId) {
+                setTimeout(() => document.getElementById(nextInputId)?.focus(), 50);
+            }
+        });
+
+        // Helper: Auto-select first option programmatically
+    }
+
+    // ✅ Group → Load Clients → Auto-select FIRST client
+    setupSearchableDropdown("id_group_input", "id_group_options", "id_group_hidden", function (selectedGroupId) {
+        console.log("✅ Group selected:", selectedGroupId);
+
+        // Clear old client/account
+        document.getElementById("id_client_input").value = "";
+        document.getElementById("id_client_hidden").value = "";
+        document.getElementById("id_client_options").innerHTML = "";
+
+        document.getElementById("id_account_input").value = "";
+        document.getElementById("id_account_hidden").value = "";
+        document.getElementById("id_account_options").innerHTML = "";
+
+        // Fetch clients for this group
+        //fetch(`/ajax/clients/?group_id=${selectedGroupId}`)
+        let clientUrl = selectedGroupId ? `/ajax/clients/?group_id=${selectedGroupId}` : `/ajax/clients/`;
+        fetch(clientUrl)
+
+            .then(res => res.json())
+            .then(data => {
+                console.log("✅ Clients received:", data);
+                const clientDropdown = document.getElementById("id_client_options");
+                clientDropdown.innerHTML = "";
+
+                if (!data || data.length === 0) {
+                    clientDropdown.innerHTML = `<div class="dropdown-option disabled">No clients found</div>`;
+                    return;
+                }
+
+                // Populate clients
+                data.forEach(c => {
+                    let div = document.createElement("div");
+                    div.classList.add("dropdown-option");
+                    div.dataset.id = c.client_id;
+                    //div.dataset.id = c.id;
+                    div.textContent = `${c.client_name} (${c.client_id})`;
+                    clientDropdown.appendChild(div);
+                });
+
+                // ✅ Auto-select first client → will trigger client onSelect → load accounts
+                clientDropdown.style.display = "block";
+                document.getElementById("id_client_input").focus();
+            });
+    }, "id_client_input");
+
+    // ✅ Client → Load Accounts → Auto-select FIRST account
+    setupSearchableDropdown("id_client_input", "id_client_options", "id_client_hidden", function (selectedClientId) {
+        console.log("✅ Client selected:", selectedClientId);
+
+        // Clear old accounts
+        document.getElementById("id_account_input").value = "";
+        document.getElementById("id_account_hidden").value = "";
+        document.getElementById("id_account_options").innerHTML = "";
+
+        // Fetch accounts for this client
+      //  fetch(`/ajax/accounts/?client_id=${selectedClientId}`)
+
+            let accountUrl = selectedClientId ? `/ajax/accounts/?client_id=${selectedClientId}` : `/ajax/accounts/`;
+            fetch(accountUrl)
+
+            .then(res => res.json())
+            .then(data => {
+                console.log("✅ Accounts received:", data);
+                const accountDropdown = document.getElementById("id_account_options");
+                accountDropdown.innerHTML = "";
+
+                if (!data || data.length === 0) {
+                    accountDropdown.innerHTML = `<div class="dropdown-option disabled">No accounts found</div>`;
+                    return;
+                }
+
+                // Populate accounts
+                data.forEach(a => {
+                    let div = document.createElement("div");
+                    div.classList.add("dropdown-option");
+                    div.dataset.id = a.account_id;
+                    div.textContent = `${a.account} (${a.account_id})`;
+                    accountDropdown.appendChild(div);
+                });
+                // ✅ Show account dropdown so user can choose manually
+                accountDropdown.style.display = "block";
+                document.getElementById("id_account_input").focus();
+            });
+    }, "id_account_input");
+
+    // ✅ Account (final dropdown, no fetch)
+    setupSearchableDropdown("id_account_input", "id_account_options", "id_account_hidden");
+
+    // ✅ If no group is selected on page load, fetch all clients
+    const initialGroup = document.getElementById("id_group_hidden").value;
+    if (!initialGroup) {
+        fetch("/ajax/clients/")
+            .then(res => res.json())
+            .then(data => {
+                console.log("✅ Initial Clients received (no group selected):", data);
+                const clientDropdown = document.getElementById("id_client_options");
+                clientDropdown.innerHTML = "";
+
+                if (!data || data.length === 0) {
+                    clientDropdown.innerHTML = `<div class="dropdown-option disabled">No clients found</div>`;
+                    return;
+                }
+
+                data.forEach(c => {
+                    let div = document.createElement("div");
+                    div.classList.add("dropdown-option");
+                    div.dataset.id = c.client_id;
+                    div.textContent = `${c.client_name} (${c.client_id})`;
+                    clientDropdown.appendChild(div);
+                });
+            });
+    }
+
+
+});
+</script>
+{% comment %} for modify mode {% endcomment %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize dropdowns with existing values in modify mode
+    {% if is_modify_mode and suspension %}
+        // Format dates for JavaScript initialization
+        const fromDate = "{{ suspension.from_date|date:'Y-m-d' }}";
+        const toDate = "{{ suspension.to_date|date:'Y-m-d' }}";
+        
+        if (fromDate) {
+            document.getElementById('from-date').value = fromDate;
+        }
+        
+        if (toDate) {
+            document.getElementById('to-date').value = toDate;
+        }
+        
+        // Initialize entity selection
+        {% if suspension.group %}
+            const groupOption = document.createElement('div');
+            groupOption.className = 'dropdown-option px-2 py-1';
+            groupOption.setAttribute('data-id', '{{ suspension.group.id }}');
+            groupOption.textContent = '{{ suspension.group.group_name }}';
+            document.getElementById('id_group_options').appendChild(groupOption);
+            groupOption.click();
+        {% elif suspension.client %}
+            const clientOption = document.createElement('div');
+            clientOption.className = 'dropdown-option px-2 py-1';
+            clientOption.setAttribute('data-id', '{{ suspension.client.id }}');
+            clientOption.textContent = '{{ suspension.client.client_name }}';
+            document.getElementById('id_client_options').appendChild(clientOption);
+            clientOption.click();
+       {% elif suspension.account %}
+            // Set Account Option
+            const accountOption = document.createElement('div');
+            accountOption.className = 'dropdown-option px-2 py-1';
+            accountOption.setAttribute('data-id', '{{ suspension.account.id }}');
+            accountOption.textContent = '{{ suspension.account.account }}';
+            document.getElementById('id_account_options').appendChild(accountOption);
+            accountOption.click();
+
+            // 🔄 Set related Client from account.client if available
+            {% if suspension.account.client %}
+                const clientOption = document.createElement('div');
+                clientOption.className = 'dropdown-option px-2 py-1';
+                clientOption.setAttribute('data-id', '{{ suspension.account.client.id }}');
+                clientOption.textContent = '{{ suspension.account.client.client_name }}';
+                document.getElementById('id_client_options').appendChild(clientOption);
+                clientOption.click();
+            {% endif %}
+
+            // Optionally set group from account.client.group
+            {% if suspension.account.client and suspension.account.client.group %}
+                const groupOption = document.createElement('div');
+                groupOption.className = 'dropdown-option px-2 py-1';
+                groupOption.setAttribute('data-id', '{{ suspension.account.client.group.id }}');
+                groupOption.textContent = '{{ suspension.account.client.group.group_name }}';
+                document.getElementById('id_group_options').appendChild(groupOption);
+                groupOption.click();
+            {% endif %}
+        {% endif %}
+    {% endif %}
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Modify Mode? (you can pass this from Django context)
+    const isModifyMode = {{ is_modify_mode|yesno:"true,false" }};
+
+    if (isModifyMode) {
+        // Prefill account
+        document.getElementById("id_account_input").value = "{{ form.initial.account_name|escapejs }}";
+        document.getElementById("id_account_hidden").value = "{{ form.initial.account_id|escapejs }}";
+
+        // Prefill client
+        document.getElementById("id_client_input").value = "{{ form.initial.client_name|escapejs }}";
+        document.getElementById("id_client_hidden").value = "{{ form.initial.client_id|escapejs }}";
+
+        // Prefill group
+        document.getElementById("id_group_input").value = "{{ form.initial.group_name|escapejs }}";
+        document.getElementById("id_group_hidden").value = "{{ form.initial.group_id|escapejs }}";
+    }
+});
+</script>
+<script>
+document.querySelector('form.needs-validation').addEventListener('submit', function(e) {
+  // If user cleared the text input, clear hidden input too:
+  ['group', 'client', 'account'].forEach(function(prefix) {
+    const textVal = document.getElementById(`id_${prefix}_input`).value.trim();
+    const hidden = document.getElementById(`id_${prefix}_hidden`);
+    if (!textVal) hidden.value = '';
+  });
+});
+</script>
+</body>
+</html>

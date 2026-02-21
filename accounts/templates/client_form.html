@@ -1,0 +1,992 @@
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ title }}</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+    />
+
+            <!-- Include Select2 CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+        <!-- Include jQuery (required for Select2) -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <!-- Include Select2 JS -->
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
+    <style>
+      :root {
+        --primary-color: #4e73df;
+        --secondary-color: #f8f9fc;
+        --accent-color: #2e59d9;
+      }
+
+      body {
+        background-color: #f8f9fa;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        padding: 10px;
+      }
+
+      .client-form-container {
+        max-width: 1200px;
+        margin: 6px auto;
+      }
+
+      .form-card {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        overflow: hidden;
+      }
+
+      .form-card .card-header {
+        background-color: var(--primary-color);
+        color: white;
+        border-bottom: none;
+        padding: 0.30rem 0.60rem;
+      }
+
+      .form-card .card-header h3 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.05rem;
+      }
+
+      .form-card .card-body {
+        padding: 1rem;
+        background-color: white;
+      }
+
+      .form-label {
+        font-weight: 600;
+        color: #5a5c69;
+        margin-bottom: 0.25rem;
+        font-size: 0.9rem;
+      }
+
+      .form-control,
+      .form-select {
+        border-radius: 0.3rem;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #d1d3e2;
+        font-size: 0.9rem;
+        height: auto;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+      }
+
+      .form-check-input {
+        width: 1.1em;
+        height: 1.1em;
+        margin-top: 0.1em;
+      }
+
+      .form-check-label {
+        margin-left: 0.3rem;
+        font-size: 0.9rem;
+      }
+
+      .btn {
+        border-radius: 0.3rem;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+
+      .btn-success {
+        background-color: #1cc88a;
+        border-color: #1cc88a;
+      }
+
+      .btn-success:hover {
+        background-color: #17a673;
+        border-color: #169b6b;
+      }
+
+      .btn-outline-secondary {
+        color: #6e707e;
+        border-color: #d1d3e2;
+      }
+
+      .btn-outline-secondary:hover {
+        background-color: #dddfeb;
+        border-color: #d1d3e2;
+      }
+
+      .btn-outline-danger {
+        color: #e74a3b;
+        border-color: #e74a3b;
+      }
+
+      .btn-outline-danger:hover {
+        background-color: #e74a3b;
+        color: white;
+      }
+
+      .invalid-feedback {
+        font-size: 0.8rem;
+        color: #e74a3b;
+        margin-top: 0.2rem;
+      }
+
+      .was-validated .form-control:invalid,
+      .was-validated .form-control:invalid {
+        border-color: #e74a3b;
+      }
+
+      .was-validated .form-control:invalid:focus,
+      .was-validated .form-control:invalid:focus {
+        box-shadow: 0 0 0 0.2rem rgba(231, 74, 59, 0.25);
+      }
+
+      .section-divider {
+        border-top: 1px solid #e3e6f0;
+        margin: 0.2rem 0;
+      }
+
+      .form-section-title {
+        color: var(--primary-color);
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        font-size: 1rem;
+      }
+
+      /* Client select dropdown styling */
+      .client-select-container {
+        position: relative;
+      }
+
+      /*.client-select-container .search-icon {
+        position: absolute;
+        right: 10px;
+        top: 25%;
+        transform: translateY(-50%);
+        pointer-events: none;
+      }*/
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .client-form-container {
+          margin: 5px auto;
+        }
+
+        .form-card .card-body {
+          padding: 0.20rem;
+        }
+
+        .row {
+          margin-left: -5px;
+          margin-right: -5px;
+        }
+
+        [class*="col-"] {
+          padding-left: 5px;
+          padding-right: 5px;
+        }
+      }
+
+      .was-validated .form-select:invalid {
+    border-color: #e74a3b;
+}
+
+.was-validated .form-select:invalid:focus {
+    box-shadow: 0 0 0 0.2rem rgba(231, 74, 59, 0.25);
+}
+
+
+ .page-close-btn {
+        position: fixed;
+        top: 12px;
+        right: 16px;
+        z-index: 1050; /* above cards & forms, below modals */
+
+        width: 34px;
+        height: 34px;
+        border: none;
+        border-radius: 6px;
+
+        background: #dc3545;
+        color: #fff;
+        font-size: 20px;
+        font-weight: bold;
+        line-height: 1;
+        cursor: pointer;
+      }
+
+      .page-close-btn:hover {
+        background: #bb2d3b;
+      }
+
+    </style>
+  </head>
+  <body>
+    
+       <button type="button"
+            class="page-close-btn"
+            title="Go to Home"
+            onclick="window.location.href='{% url 'home' %}'">
+      &times;
+    </button>
+
+        {% if not is_modify_mode %}
+            <a href="{% url 'client_form' %}?mode=modify"
+            class="btn btn-outline-danger">
+            <i class="bi bi-pencil-square me-1"></i>
+            Modify Client
+            </a>
+        {% endif %}
+
+  <div class="client-form-container">
+    <div class="form-card card shadow">
+        <div class="card-header">
+            <h3 class="mb-0">{{ title }}</h3>
+        </div>
+        <div class="card-body">
+            <!-- ✅ GROUP SUCCESS ALERT -->
+            <div id="groupSuccessAlert" class="alert alert-success alert-dismissible fade" role="alert" style="display:none;">
+                ✅ Group added successfully!
+                <button type="button" class="btn-close" onclick="hideGroupAlert()"></button>
+            </div>
+
+            <!-- Client Selection Form (GET) - Separate from main form -->
+            {% if is_modify_mode %}
+            <form method="get" id="client-select-form" class="mb-2">
+                <input type="hidden" name="mode" value="modify">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-5">
+                        <div class="client-select-container">
+                            <label for="client-select" class="form-label">Select Client *</label>
+                            <select name="client_id" id="client-select" class="form-select-md" 
+                                    onchange="document.getElementById('client-select-form').submit()" style="width: 100%;">
+                                <option value="">-- Select Client --</option>
+                                {% for client in clients %}
+                                <option value="{{ client.client_id  }}" 
+                                        {% if client.client_id  == selected_client_id %}selected{% endif %}>
+                                    {{ client.client_name }} {{ client.client_id }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback">
+                                Please select a client to modify.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            {% endif %}
+
+            <script>
+                    $(document).ready(function() {
+                        $('#client-select').select2({
+                            placeholder: "-- Select Client --",
+                            allowClear: true  // Allows you to clear the selection (backspace)
+                        });
+
+                        // Submit form on selection
+                        $('#client-select').on('change', function() {
+                            $('#client-select-form').submit();
+                        });
+                    });
+                </script>
+
+            <!-- Main Client Form (POST) -->
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <!-- Hidden fields for mode and client_id -->
+                {% if is_modify_mode %}
+                <input type="hidden" name="mode" value="modify">
+                {% comment %} {% if selected_client_id %} {% endcomment %}
+                <input type="hidden" name="client_id" value="{{ selected_client_id }}">
+                {% comment %} {% endif %} {% endcomment %}
+                {% endif %}
+
+                <!-- Client ID Display -->
+                <div class="row">
+                    <div class="col-md-2">
+                        <label class="form-label">Client ID:</label>
+                    </div>
+                    <div class="col-md-4">
+                        {{ form.client_id }}
+                    </div>
+                </div>
+
+                <!-- Basic Information Section -->
+                <h5 class="form-section-title">Basic Information</h5>
+                <div class="row ">
+                    <div class="col-md-4">
+                        <label for="{{ form.client_name.id_for_label }}" class="form-label">Client Name *</label>
+                        {{ form.client_name }}
+                        <div class="invalid-feedback">Please provide a client name.</div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <label for="{{ form.legal_name.id_for_label }}" class="form-label">Legal Name</label>
+                        {{ form.legal_name }}
+                        <div class="invalid-feedback">Please provide a legal name.</div>
+                    </div>
+
+                    {% if group_count == 0 %}
+                        <div class="alert alert-warning p-1">
+                            ⚠ No Groups found. Please 
+                            <a href="{% url 'group_form' %}" class="fw-bold">
+                                Create Group First
+                            </a>
+                        </div>
+                    {% endif %}
+
+                   {% comment %} <div class="col-md-4 mt-1">
+                    <label for="{{ form.group.id_for_label }}" class="form-label">Group Name</label>
+                      {{ form.group }}
+                        <div class="invalid-feedback">Please select a group name.</div>
+                  </div> {% endcomment %}
+                  <div class="col-md-4 mt-1">
+    <label for="{{ form.group.id_for_label }}" class="form-label">
+        Group Name <span class="text-danger">*</span>
+    </label>
+
+    <div class="input-group">
+
+        {{ form.group }}
+
+        <!-- MODAL OPEN BUTTON -->
+        <button type="button"
+                class="btn btn-outline-primary"
+                id="openGroupModal"
+                title="Add Group">
+            <i class="bi bi-plus-lg"></i>
+        </button>
+
+    </div>
+
+    <div class="invalid-feedback">Please select a group name.</div>
+</div>
+
+                
+
+                </div>
+                <div class="section-divider"></div>
+
+                <!-- Contact Information Section -->
+                <h5 class="form-section-title">Contact Information</h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="{{ form.address.id_for_label }}" class="form-label">Address</label>
+                        {{ form.address }}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.mobile_no.id_for_label }}" class="form-label">Mobile No</label>
+                        {{ form.mobile_no }}
+                        <div class="invalid-feedback">Please provide a mobile number.</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.file_no.id_for_label }}" class="form-label">File No.</label>
+                        {{ form.file_no }}
+                    </div>
+                </div>
+
+                <div class="row mb-1">
+                    <div class="col-md-4">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">Email ID </label>
+                        {{ form.email }}
+                        <div class="invalid-feedback">Please provide a valid email address.</div>
+                    </div>
+                      <div class="col-md-4">
+                        <label for="{{ form.dob.id_for_label }}" class="form-label">Date of Birth</label>
+                        {{ form.dob }}
+                    </div>
+                    {% comment %} <div class="col-md-4 mt-1">
+                        <label for="{{ form.suspend_date.id_for_label }}" class="form-label">Suspend Date</label>
+                        {{ form.suspend_date }}
+                        <div class="invalid-feedback">Please provide a suspend date.</div>
+                    </div> {% endcomment %}
+
+                </div>
+
+                <div class="section-divider"></div>
+
+                <!-- Tax Information Section -->
+                <h5 class="form-section-title">Tax Information</h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="{{ form.pan.id_for_label }}" class="form-label">PAN *</label>
+                        {{ form.pan }}
+                        <div class="invalid-feedback">Please provide a valid PAN.</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.gst_no.id_for_label }}" class="form-label">GST No</label>
+                        {{ form.gst_no }}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.busy_code.id_for_label }}" class="form-label">Busy Code</label>
+                        {{ form.busy_code }}
+                    </div>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <!-- Other Information Section -->
+                <h5 class="form-section-title">Other Information</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="{{ form.other_info.id_for_label }}" class="form-label">Other Information</label>
+                        {{ form.other_info }}
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Return Types</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        <div class="form-check form-switch">
+                            {{ form.it_return }}
+                            <label class="form-check-label" for="{{ form.it_return.id_for_label }}">
+                                Income Tax
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            {{ form.gst_return }}
+                            <label class="form-check-label" for="{{ form.gst_return.id_for_label }}">
+                                GST
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            {{ form.tds_return }}
+                            <label class="form-check-label" for="{{ form.tds_return.id_for_label }}">
+                                TDS
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            {{ form.tcs_return }}
+                            <label class="form-check-label" for="{{ form.tcs_return.id_for_label }}">
+                                TCS
+                            </label>
+                        </div>
+                    </div>
+                                            <!-- Replace the return_types checkbox group with individual checkboxes -->
+                        
+                    </div>
+                </div>
+                   <!-- GST Details Toggle Button -->
+            <div class="row mt-3">
+                <div class="col-12">
+                    <button type="button" class="btn btn-sm btn-outline-primary rounded-circle p-0 toggle-gst-details" 
+                            style="width: 25px; height: 25px; line-height: 1;">
+                        <span class="toggle-icon">+</span>
+                    </button>
+                    <span class="ms-2">GST Details</span>
+                </div>
+            </div>
+                <!-- GST Details Section (Conditional) -->
+                <div id="gst-details-section" style="display: none;">
+                    <div class="section-divider"></div>
+                    <h5 class="form-section-title">GST Details</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="{{ form.trade_name.id_for_label }}" class="form-label">Trade Name</label>
+                            {{ form.trade_name }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.gst_scheme.id_for_label }}" class="form-label">GST Scheme</label>
+                            {{ form.gst_scheme }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.period.id_for_label }}" class="form-label">Filing Period</label>
+                            {{ form.period }}
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-4">
+                            <label for="{{ form.reg_date.id_for_label }}" class="form-label">Registration Date</label>
+                            {{ form.reg_date }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.cancel_date.id_for_label }}" class="form-label">Cancellation Date</label>
+                            {{ form.cancel_date }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                            {{ form.status }}
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-4">
+                            <label for="{{ form.user_id.id_for_label }}" class="form-label">GST User ID</label>
+                            {{ form.user_id }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.password.id_for_label }}" class="form-label">GST Password</label>
+                            {{ form.password }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.gst_data.id_for_label }}" class="form-label">Accounting Software</label>
+                            {{ form.gst_data }}
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-4">
+                            <label for="{{ form.sale_define.id_for_label }}" class="form-label">Sales Defined</label>
+                            {{ form.sale_define }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.bank.id_for_label }}" class="form-label">Bank Account</label>
+                            {{ form.bank }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-divider"></div>
+                <!-- Income Tax Details Toggle Button -->
+<div class="row mt-3">
+    <div class="col-12">
+        <button type="button" class="btn btn-sm btn-outline-primary rounded-circle p-0 toggle-it-details" 
+                style="width: 25px; height: 25px; line-height: 1;">
+            <span class="toggle-it-icon">+</span>
+        </button>
+        <span class="ms-2">Income Tax Details</span>
+    </div>
+</div>
+<!-- Income Tax Details Section -->
+<div id="it-details-section" style="display: none;">
+    <div class="section-divider"></div>
+    <h5 class="form-section-title">Income Tax Details</h5>
+    <div class="row">
+        <div class="col-md-4">
+            <label for="{{ form.it_alloted_to.id_for_label }}" class="form-label">Alloted To</label>
+            {{ form.it_alloted_to }}
+        </div>
+        <div class="col-md-4">
+            <label for="{{ form.it_starting_date.id_for_label }}" class="form-label">Starting Date</label>
+            {{ form.it_start_date }}
+        </div>
+        <div class="col-md-4">
+            {% comment %} <label for="{{ form.it_audit.id_for_label }}" class="form-label">Audit Status</label>
+            {{ form.it_audit }} {% endcomment %}
+             <label for="{{ form.audit_status.id_for_label }}" class="form-label">Audit Status</label>
+            {{ form.audit_status }}
+
+            <div class="invalid-feedback">Please select an audit status.</div>
+        </div>
+    </div>
+</div>
+
+
+                <!-- Form Actions -->
+                <div class="d-flex justify-content-end gap-2 mt-1">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle me-1"></i>
+                        {% if is_modify_mode %}Update{% else %}Submit{% endif %}
+                    </button>
+                    <button type="reset" class="btn btn-outline-secondary">
+                        <i class="bi bi-eraser me-1"></i>Clear
+                    </button>
+                    <a href="{{ cancel_url }}" class="btn btn-outline-danger" id="cancelBtn">
+                        <i class="bi bi-x-circle me-1"></i>Cancel
+                    </a>
+
+
+                    {% comment %} <a href="#" class="btn btn-outline-danger">
+                        <i class="bi bi-x-circle me-1"></i>Cancel
+                    </a> {% endcomment %}
+                </div>
+            </form>
+        </div>
+    </div>
+  </div>
+
+
+  {% if is_modify_mode %}
+<!-- 🔐 Modify Password Modal -->
+<div class="modal fade" id="modifyPasswordModal" tabindex="-1" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h5 class="modal-title">Enter Modify Password</h5>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2">
+          <input type="password" id="modifyPasswordInput"
+                 class="form-control form-control-sm"
+                 placeholder="Modify password">
+          <div id="modifyPwdError"
+               class="text-danger small mt-1"
+               style="display:none;">
+            Wrong password. Try again.
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" id="modifyPwdCancel">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-sm btn-primary" id="modifyPwdOk">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+  {% comment %} toggle btn for Income Tax Details {% endcomment %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Income Tax Details Toggle
+    const itToggleBtn = document.querySelector('.toggle-it-details');
+    const itToggleIcon = document.querySelector('.toggle-it-icon');
+    const itSection = document.getElementById('it-details-section');
+
+    if (itToggleBtn && itSection) {
+        itToggleBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (itSection.style.display === 'none') {
+                itSection.style.display = 'block';
+                itToggleIcon.textContent = '-';
+                itToggleBtn.classList.remove('btn-outline-primary');
+                itToggleBtn.classList.add('btn-outline-danger');
+            } else {
+                itSection.style.display = 'none';
+                itToggleIcon.textContent = '+';
+                itToggleBtn.classList.remove('btn-outline-danger');
+                itToggleBtn.classList.add('btn-outline-primary');
+            }
+        });
+
+        // Auto-expand if needed (e.g., form loaded with values)
+        {% if form.instance.it_alloted_to or form.instance.it_starting_date or form.instance.it_audit %}
+        itSection.style.display = 'block';
+        itToggleIcon.textContent = '-';
+        itToggleBtn.classList.remove('btn-outline-primary');
+        itToggleBtn.classList.add('btn-outline-danger');
+        {% endif %}
+    }
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // GST Details Toggle
+    const gstToggleBtn = document.querySelector('.toggle-gst-details');
+    const toggleIcon = document.querySelector('.toggle-icon');
+    const gstSection = document.getElementById('gst-details-section');
+    
+    if (gstToggleBtn && gstSection) {
+        // Prevent event bubbling to avoid triggering other click handlers
+        gstToggleBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent event from reaching parent elements
+            
+            if (gstSection.style.display === 'none') {
+                gstSection.style.display = 'block';
+                toggleIcon.textContent = '-';
+                gstToggleBtn.classList.remove('btn-outline-primary');
+                gstToggleBtn.classList.add('btn-outline-danger');
+            } else {
+                gstSection.style.display = 'none';
+                toggleIcon.textContent = '+';
+                gstToggleBtn.classList.remove('btn-outline-danger');
+                gstToggleBtn.classList.add('btn-outline-primary');
+            }
+        });
+        
+        // Initialize based on GST return status
+        {% if form.instance.gst_return == 'Yes' %}
+        gstSection.style.display = 'block';
+        toggleIcon.textContent = '-';
+        gstToggleBtn.classList.remove('btn-outline-primary');
+        gstToggleBtn.classList.add('btn-outline-danger');
+        {% endif %}
+    }
+  });
+</script>
+
+    {% if messages %} 
+    {% for message in messages %}
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                {{ message }}
+            </div>
+        </div>
+    </div>
+    {% endfor %} 
+    {% endif %}
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function () {
+            "use strict";
+            window.addEventListener("load", function () {
+                // Bootstrap validation
+                var forms = document.getElementsByClassName("needs-validation");
+                Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener("submit", function (event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add("was-validated");
+                    });
+
+                    // Clear button logic
+                    var clearBtn = form.querySelector('button[type="reset"]');
+                    if (clearBtn) {
+                        clearBtn.addEventListener("click", function () {
+                            form.classList.remove("was-validated");
+                            form.querySelectorAll(".form-control").forEach(function (input) {
+                                input.classList.remove("is-valid", "is-invalid");
+                            });
+                        });
+                    }
+
+                });
+            });
+        })();
+    </script>
+    <script>
+      document.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    const inputs = Array.from(
+                        document.querySelectorAll('input:not([readonly]), button')
+                    );
+                    const index = inputs.indexOf(document.activeElement);
+                    if (index !== -1 && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                        event.preventDefault();
+                    }
+                }
+            });
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        {% if is_modify_mode %}
+        // 🔐 Hard-coded modify password
+        const MODIFY_PASSWORD = "Kameet@a1";   // <-- change here if needed
+
+        const modalEl    = document.getElementById('modifyPasswordModal');
+        const pwdInput   = document.getElementById('modifyPasswordInput');
+        const errorLabel = document.getElementById('modifyPwdError');
+        const btnOk      = document.getElementById('modifyPwdOk');
+        const btnCancel  = document.getElementById('modifyPwdCancel');
+
+        if (modalEl && pwdInput && btnOk && btnCancel) {
+            // Show modal immediately when page loads (modify mode)
+            const modal = new bootstrap.Modal(modalEl, {
+                backdrop: 'static',
+                keyboard: false
+            });
+            modal.show();
+            pwdInput.focus();
+
+            btnOk.addEventListener('click', function () {
+                const val = pwdInput.value.trim();
+                if (val === MODIFY_PASSWORD) {
+                    errorLabel.style.display = 'none';
+                    modal.hide();  // allow user to use the form
+                } else {
+                    errorLabel.style.display = 'block';
+                    pwdInput.focus();
+                    pwdInput.select();
+                }
+            });
+
+            // Press Enter inside password field = click OK
+            pwdInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    btnOk.click();
+                }
+            });
+
+            // Cancel → go back to home (or wherever you want)
+            btnCancel.addEventListener('click', function () {
+                window.location.href = "{{ cancel_url }}";
+            });*/
+        }
+        {% endif %}
+    });
+    </script>
+
+
+    {% comment %} group modal {% endcomment %}
+<script>
+document.getElementById("openGroupModal").addEventListener("click", function () {
+
+    const modalEl = document.getElementById("groupModal");
+    const modal = new bootstrap.Modal(modalEl);
+    const body = document.getElementById("groupModalBody");
+
+    body.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary"></div>
+            <p>Loading Group Form...</p>
+        </div>
+    `;
+
+    // ✅ FETCH FORM
+    fetch("{% url 'group_form' %}?popup=1")
+        .then(res => res.text())
+        .then(html => {
+            body.innerHTML = html;
+            bindGroupFormSubmit();   // attach submit handler
+        });
+
+    modal.show();
+});
+</script>
+
+
+<script>
+function bindGroupFormSubmit() {
+
+    const form = document.querySelector("#groupModalBody form");
+    if (!form) return;
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+
+        console.log("Submitting to:", form.action); // Debug safety
+
+        fetch(form.action, {   // Always post to group_form
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+
+            if (data.success) {
+                
+                 // ✅ Show success message
+                showGroupAlert("Group added successfully");
+                // ✅ Reload dropdown with new group selected
+                refreshGroups(data.id);
+
+                // ✅ Close modal
+                bootstrap.Modal.getInstance(
+                    document.getElementById("groupModal")
+                ).hide();
+
+            } else {
+
+                // ❌ Render form with errors returned from backend
+                document.getElementById("groupModalBody").innerHTML = data.html;
+                bindGroupFormSubmit();
+
+            }
+
+        })
+        .catch(err => {
+            alert("Group save failed. See console.");
+            console.error(err);
+        });
+    });
+}
+</script>
+
+
+<script>
+function refreshGroups(selectedId=null) {
+
+    fetch("{% url 'group_list' %}")
+        .then(res => res.json())
+        .then(groups => {
+
+            const select = document.getElementById("id_group");
+            select.innerHTML = '<option value="">-- Select Group --</option>';
+
+            groups.forEach(group => {
+                let opt = document.createElement("option");
+                opt.value = group.id;
+                opt.textContent = group.group_name;
+
+                // ✅ Auto select newly added group
+                if (group.id == selectedId) opt.selected = true;
+
+                select.appendChild(opt);
+            });
+
+        })
+        .catch(err => console.error("Dropdown refresh failed", err));
+}
+</script>
+
+<script>
+function showGroupAlert(message) {
+    const alertBox = document.getElementById("groupSuccessAlert");
+
+    if (!alertBox) return;
+
+    alertBox.innerHTML = `✅ ${message}
+        <button type="button" class="btn-close" onclick="hideGroupAlert()"></button>`;
+
+    alertBox.style.display = "block";
+    alertBox.classList.add("show");
+
+    // Auto hide after 4 seconds
+    setTimeout(() => hideGroupAlert(), 4000);
+}
+
+function hideGroupAlert() {
+    const alertBox = document.getElementById("groupSuccessAlert");
+    if (alertBox) {
+        alertBox.classList.remove("show");
+        alertBox.style.display = "none";
+    }
+}
+</script>
+
+
+    <!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- GROUP MODAL -->
+<!-- GROUP MODAL -->
+<div class="modal fade" id="groupModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <div class="modal-header bg-primary text-white py-2">
+        <h5 class="modal-title">Add Group</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body" id="groupModalBody">
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary"></div>
+            <p class="mt-2">Loading...</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+</body>
+</html>
+
+
+

@@ -1,0 +1,23 @@
+Account Number|Tran Date |  Tran Particular    | Inst Num      |   Dr Tran Amt   |    Cr Tran Amt |      Bal Amt      | Deposit Branch
+-------------- ---------    ---------------      ---------       ---------------   ---------------        --------    | ------- ------
+624605065980|   08-OCT-2024|  B/F                                                                                                 |                 |                |                |        24381.03|                            
+624605065980|   10-Oct-2024|  NEFT-N284243324927649-SAHAJANAND INFRASTRUCTURE-HD FC TO ICICI-50200001460570-HDFC0000001           |                 |            0.00|       100000.00|       124381.03|                  RPC MUMBAI
+624605065980|   11-Oct-2024|  Business Loan XX83021 EMI Saha                                                                      |                 |       121828.00|            0.00|         2553.03|                    BORIVALI
+624605065980|   17-Oct-2024|  RTGS-HDFCR52024101752960416-GPC INFASTRUCTURE-0335 2000005125-HDFC0000240                           |                 |            0.00|      3099608.00|      3102161.03|                   RPC-NASIK
+624605065980|   18-Oct-2024|  CLG/M S  MADHAVLAL     CO/NNS                                                                       |             1422|         4286.00|            0.00|      3097875.03|                RPC - BARODA
+624605065980|   18-Oct-2024|  RTGS*ICICR52024101800476485/BKID0002101/MBH PUMP G UJ PVT LTD                                       |             1425|       424000.00|            0.00|      2673875.03|               AHMEDABAD RPC
+624605065980|   18-Oct-2024|  RTGS*ICICR52024101800476190/UTIB0002865/SHREE BAJR ANG TILES                                        |             1427|       300000.00|            0.00|      2373875.03|               AHMEDABAD RPC
+624605065980|   18-Oct-2024|  RTGS*ICICR52024101800476064/UTIB0000047/NJ ECO BUI LD PVT LTD                                       |             1411|       277000.00|            0.00|      2096875.03|               AHMEDABAD RPC
+624605065980|   18-Oct-2024|  TRF/PATEL TRADERS /ICI                                                                              |             1424|       300000.00|            0.00|      1796875.03|                       BOTAD
+624605065980|   18-Oct-2024|  RTGS*ICICR52024101800489022/HDFC0000251/SAHAJANAND  SERVICES PVT LTD                                |             1429|      1000000.00|            0.00|       796875.03|               AHMEDABAD RPC
+624605065980|   18-Oct-2024|  TRF/ANKIT ENTERPRISE/ICI                                                                            |             1426|       200000.00|            0.00|       596875.03|       BOTAD - STATIONA ROAD
+624605065980|   18-Oct-2024|  TRF/PATEL HARDWARE AND SANATERY/ICI                                                                 |             1423|       100000.00|            0.00|       496875.03|                       BOTAD
+624605065980|   18-Oct-2024|  TRF/KHUSHI TRADING/ICI                                                                              |             1428|       381081.00|            0.00|       115794.03|            SURAT - VIP ROAD
+624605065980|   19-Oct-2024|  NEFT*000153160223/SBIN0060176/MADHAV TRADERS                                                        |             1430|        54695.00|            0.00|        61099.03|               AHMEDABAD RPC
+624605065980|   19-Oct-2024|  NEFT*000153160930/NNSB0128004/MADHAVLAL AND CO                                                      |             1431|        47800.00|            0.00|        13299.03|               AHMEDABAD RPC
+624605065980|   21-Oct-2024|  BIL/INFT/DJP6131540/Bill Payment/  NIKUNJ RAMESHBH                                                  |                 |            0.00|       513000.00|       526299.03|                       SURAT
+624605065980|   21-Oct-2024|  RTGS*ICICR52024102100607538/HDFC0001702/YASHVI COR PORATE                                           |             1432|       500000.00|            0.00|        26299.03|               AHMEDABAD RPC
+624605065980|   21-Oct-2024|  Statement Chg Jul-24+GST                                                                            |                 |           29.50|            0.00|        26269.53|               NARIMAN POINT
+624605065980|   22-Oct-2024|  NEFT-SBIN124296841824-ITDTAX REFUND 2024-25 ACKFS0 907N-/ATTN//INB-00000033273316893-SBIN0000TBU    |                 |            0.00|      2165370.00|      2191639.53|                  RPC MUMBAI
+
+ Closing Balance as on 23-10-2024 06:09:48 is INR.2191639.53 includes Uncleared Funds of INR.0.00

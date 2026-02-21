@@ -1,0 +1,320 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAMEET Accounting - Mail Log Report</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+        }
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            padding: 0;
+            margin: 0;
+        }
+        .report-container {
+            padding: 15px;
+        }
+        .filter-section {
+            background-color: white;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .report-table {
+            background-color: white;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .table thead th {
+            background-color: var(--primary-color);
+            color: white;
+            position: sticky;
+            top: 0;
+            font-weight: 500;
+            font-size: 12px;
+            padding: 8px 6px;
+        }
+        .table tbody td {
+            font-size: 12px;
+            padding: 6px;
+            vertical-align: middle;
+        }
+        .table-responsive {
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+        .badge-status {
+            font-size: 0.75rem;
+            padding: 3px 6px;
+            font-weight: 500;
+        }
+        .badge-has-attachment {
+            background-color: #28a745;
+        }
+        .badge-no-attachment {
+            background-color: #6c757d;
+        }
+        .subject-col {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .filter-row {
+            margin-bottom: 10px;
+        }
+        .filter-label {
+            font-weight: 500;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+        .form-control-sm, .form-select-sm {
+            font-size: 12px;
+            padding: 4px 8px;
+        }
+        .report-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .close-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .filter-item {
+            flex: 1;
+            min-width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="report-title m-0">
+                <i class="bi bi-envelope text-primary me-2"></i>Mail Log Report
+            </h4>
+            <button class="close-btn" onclick="window.location.href='/'">
+                <i class="bi bi-x-lg"></i> Close
+            </button>
+        </div>
+
+
+        <form id="mailFilterForm" class="d-flex flex-column gap-2 mb-2" method="get" action="">
+  <!-- Top row (FY + Search + buttons) -->
+  <div class="d-flex flex-wrap gap-2">
+    <div style="min-width:200px">
+      <div class="filter-label">Fiscal DB</div>
+      <select name="fy" class="form-select form-select-sm">
+        <option value="">All (merge)</option>
+        {% for a in db_aliases %}
+          {% with a|cut:"fy_" as fycode %}
+            <option value="{{ a }}" {% if a == active_fy %}selected{% endif %}>
+              {{ fycode|slice:":4" }}-{{ fycode|slice:"5:" }}
+            </option>
+          {% endwith %}
+        {% endfor %}
+      </select>
+    </div>
+
+    <div style="min-width:250px">
+      <div class="filter-label">Search (subject/sender/receiver)</div>
+      <input name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="Type to search…" />
+    </div>
+
+    <div class="align-self-end">
+      <button class="btn btn-sm btn-primary">Apply</button>
+      <a href="{% url 'mail_log_report' %}" class="btn btn-sm btn-outline-secondary">Reset</a>
+    </div>
+  </div>
+
+  <!-- Status Filter Section (now inside the SAME form) -->
+  <div class="filter-section mt-2">
+    <h6 class="mb-3">Filters</h6>
+    <div class="filter-group">
+      <div class="filter-item">
+        <div class="filter-label">Status</div>
+        <select name="status" class="form-select form-select-sm">
+          <option value="" {% if not status %}selected{% endif %}>All Status</option>
+          <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
+          <option value="done" {% if status == 'done' %}selected{% endif %}>Done</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <div class="filter-label">Flag</div>
+        <select name="flag" class="form-select form-select-sm">
+          <option value="" {% if not flag %}selected{% endif %}>All Flags</option>
+          <option value="mail_not_registered" {% if flag == 'mail_not_registered' %}selected{% endif %}>Mail Not Registered</option>
+          <option value="bank_not_added" {% if flag == 'bank_not_added' %}selected{% endif %}>Bank Not Added</option>
+          <option value="document_not_added" {% if flag == 'document_not_added' %}selected{% endif %}>Document Not Added</option>
+          <option value="done" {% if flag == 'done' %}selected{% endif %}>Done</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <div class="filter-label">Email / Whatsapp Detail</div>
+        <select name="detail" class="form-select form-select-sm">
+          <option value="" {% if not detail %}selected{% endif %}>All</option>
+          <option value="email" {% if detail == 'email' %}selected{% endif %}>Email Only</option>
+          <option value="whatsapp" {% if detail == 'whatsapp' %}selected{% endif %}>WhatsApp Only</option>
+          <option value="both" {% if detail == 'both' %}selected{% endif %}>Both</option>
+        </select>
+      </div>
+
+      <div class="filter-item">
+        <div class="filter-label">List</div>
+        <select name="list" class="form-select form-select-sm">
+          <option value="" {% if not list_sel %}selected{% endif %}>All Lists</option>
+          <option value="group" {% if list_sel == 'group' %}selected{% endif %}>Group List</option>
+          <option value="client" {% if list_sel == 'client' %}selected{% endif %}>Client List</option>
+          <option value="document" {% if list_sel == 'document' %}selected{% endif %}>Document Specify</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+        <!-- Status Filter Section -->
+
+        <!-- Report Table -->
+        <div class="report-table">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle m-0">
+                    <thead>
+                        <tr>
+                            <th width="80">ID</th>
+                            <th>Received Date</th>
+                            <th>Sender</th>
+                            <th>Receiver(s)</th>
+                            <th class="subject-col">Subject</th>
+                            <th>Attachment</th>
+                            <th>Mailbox</th>
+                            <th>Status</th>
+                            <th>Flag</th>
+                            <th>Email Match</th>
+                            <th>Group</th>
+                            <th>Client</th>
+                            <th>Bank Account</th>
+                            <th>Stmt Pw(s)</th>
+                            <th>Message ID</th>
+                            <th>Fetched At</th>
+                            <th width="90">Open</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if rows %}
+                        {% for r in rows %}
+                        <tr>
+                            <td>{{ r.id }}</td>
+                            <td>{% if r.rec_dat %}{{ r.rec_dat|date:"Y-m-d H:i" }}{% else %}&mdash;{% endif %}</td>
+                            <td>{{ r.sender_mail }}</td>
+                            <td>{{ r.receiver_mail }}</td>
+                            <td class="subject-col" title="{{ r.subject }}">{{ r.subject }}</td>
+
+                            <td>
+                            {% if r.attachments and r.attachments|length %}
+                                {% for a in r.attachments %}
+                                {% if a.url %}
+                                    <a href="{{ a.url }}" class="d-block link-primary text-decoration-none" target="_blank">{{ a.name }}</a>
+                                {% else %}
+                                    <span class="d-block">{{ a.name }}</span>
+                                {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <span class="badge badge-no-attachment badge-status">No</span>
+                            {% endif %}
+                            </td>
+
+                            <td>{{ r.mailbox }}</td>
+
+                            <td>
+                            {% if r.status == 'done' %}<span class="badge bg-success">Done</span>
+                            {% else %}<span class="badge bg-warning text-dark">Pending</span>{% endif %}
+                            </td>
+
+                            <td>
+                            {% if r.flag == 'done' %}
+                                <span class="badge bg-success">Done</span>
+                            {% elif r.flag == 'mail_not_registered' %}
+                                <span class="badge bg-warning text-dark">Mail Not Registered</span>
+                            {% elif r.flag == 'bank_not_added' %}
+                                <span class="badge bg-warning text-dark">Bank Not Added</span>
+                            {% elif r.flag == 'document_not_added' %}
+                                <span class="badge bg-warning text-dark">Document Not Added</span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                            </td>
+
+                            <td>
+                            {% if r.email_match == 'Known' %}
+                                <span class="badge bg-success">Known</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Unknown</span>
+                            {% endif %}
+                            </td>
+
+                            <td>{{ r.group_name|default:"—" }}</td>
+                            <td>{{ r.client_name|default:"—" }}</td>
+                            {% comment %} <td><span class="text-muted">—</span></td>  <!-- Bank Account (future) -->
+                            <td><span class="text-muted">—</span></td>  <!-- Stmt Pw(s) (future) --> {% endcomment %}
+                            <td>
+                            {% if r.bank_accounts and r.bank_accounts|length %}
+                              {% for b in r.bank_accounts %}
+                                <div>{{ b }}</div>
+                              {% endfor %}
+                            {% else %}
+                              <span class="text-muted">—</span>
+                            {% endif %}
+                          </td>
+
+                          <td>
+                            {% if r.stmt_pws and r.stmt_pws|length %}
+                              {{ r.stmt_pws|join:", " }}
+                            {% else %}
+                              <span class="text-muted">—</span>
+                            {% endif %}
+                          </td>
+
+                            <td>{{ r.msg_id }}</td>
+                            <td>{% if r.fetched_at %}{{ r.fetched_at|date:"Y-m-d H:i" }}{% else %}&mdash;{% endif %}</td>
+                            <td><span class="text-muted">—</span></td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr><td colspan="17" class="text-center text-muted">No rows found</td></tr>
+                        {% endif %}
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

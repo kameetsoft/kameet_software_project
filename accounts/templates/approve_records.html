@@ -1,0 +1,47 @@
+{% comment %} <h2>Review Records</h2>
+<form method="post" action="{% url 'approve_records' %}">
+  {% csrf_token %}
+  <table border="1">
+    <tr>
+      <th>Sr</th><th>Date</th><th>Security</th><th>Qty</th><th>Sale Price</th>
+      <th>Sales</th><th>Cost</th><th>FMV</th><th>Indexed</th><th>Assest</th><th>Status</th>
+    </tr>
+    {% for row in records %}
+    <tr>
+      <td>{{ row.sr_no }}</td>
+      <td>{{ row.date }}</td>
+      <td>{{ row.security_name }}</td>
+      <td>{{ row.quantity }}</td>
+      <td>{{ row.sale_price }}</td>
+      <td>{{ row.sales_consideration }}</td>
+      <td>{{ row.cost_of_acquisition }}</td>
+      <td>{{ row.fair_market_value }}</td>
+      <td>{{ row.indexed_cost }}</td>
+      <td>{{ row.assest_type }}</td>
+      <td>{{ row.status }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <button type="submit">Approve & Save</button>
+</form> {% endcomment %}
+
+
+<form method="POST" action="{% url 'save_ais_records' %}">
+  {% csrf_token %}
+  <input type="hidden" name="pan" value="{{ pan }}">
+  <table class="table">
+    <thead><tr><th>Code</th><th>Description</th><th>Source</th><th>Count</th><th>Amount</th></tr></thead>
+    <tbody id="reviewTable">
+      {% for row in parsed_data %}
+      <tr>
+        <td><input name="code[]" value="{{ row.code }}"></td>
+        <td><input name="desc[]" value="{{ row.desc }}"></td>
+        <td><input name="source[]" value="{{ row.source }}"></td>
+        <td><input name="count[]" value="{{ row.count }}"></td>
+        <td><input name="amount[]" value="{{ row.amount }}"></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <button type="submit">Save & Submit for Approval</button>
+</form>

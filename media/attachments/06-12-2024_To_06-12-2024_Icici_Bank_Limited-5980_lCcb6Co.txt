@@ -1,0 +1,32 @@
+ICICI Bank account Statement from 06-12-2024 to 06-12-2024. 
+
+
+Account Number|Tran Date |  Tran Particular    | Inst Num      |   Dr Tran Amt   |    Cr Tran Amt |      Bal Amt      | Deposit Branch
+-------------- ---------    ---------------      ---------       ---------------   ---------------        --------    | ------- ------
+624605065980|   22-NOV-2024|  B/F                                                                                                 |                 |                |                |        22474.03|                            
+624605065980|   25-Nov-2024|  MMT/IMPS/433011919811/axisBankGstPehc/PERFIOS SO/I DFC bank                                         |                 |            0.00|            1.00|        22475.03|                SURAT (6246)
+624605065980|   25-Nov-2024|  CAM/13751SRY/CASH DEP-Other/25-11-24/5456                                                           |                 |            0.00|        28000.00|        50475.03|                SURAT (6246)
+624605065980|   25-Nov-2024|  CAM/13751SRY/CASH DEP-Other/25-11-24/5458                                                           |                 |            0.00|        17500.00|        67975.03|                SURAT (6246)
+624605065980|   25-Nov-2024|  CAM/13751SRY/CASH DEP-Other/25-11-24/5460                                                           |                 |            0.00|          500.00|        68475.03|                SURAT (6246)
+624605065980|   25-Nov-2024|  CAM/13751SRY/CASH DEP-Other/25-11-24/5462                                                           |                 |            0.00|         4000.00|        72475.03|                SURAT (6246)
+624605065980|   26-Nov-2024|  NEFT-IDFBH24331030164-MR GOTI SANJAY MAKODBHAI-/AT TN/-00000010079866009-IDFB0010201                |                 |            0.00|       150000.00|       222475.03|                  RPC MUMBAI
+624605065980|   26-Nov-2024|  BY CASH -SURAT - ADAJAN SAHAJANAND INFRAZTRUCTURE                                                   |                 |            0.00|        20000.00|       242475.03|              SURAT - ADAJAN
+624605065980|   26-Nov-2024|  NEFT*000154389247/HDFC0000948/YOGI STEEL                                                            |             1439|       150000.00|            0.00|        92475.03|               AHMEDABAD RPC
+624605065980|   26-Nov-2024|  NEFT*000154390094/SBIN0060019/SATNAM TRADERS                                                        |             1454|        86560.00|            0.00|         5915.03|               AHMEDABAD RPC
+624605065980|   30-Nov-2024|  CMS/ UPSUR00050587409C1323406432SAHAJANAND INF249                                                   |                 |            0.00|      2497661.00|      2503576.03|                SURAT (6246)
+624605065980|   30-Nov-2024|  Statement Chg Sep-24+GST                                                                            |                 |           29.50|            0.00|      2503546.53|               NARIMAN POINT
+624605065980|   03-Dec-2024|  RTGS*ICICR52024120300486898/HDFC0001702/YASHVI COR PORATE                                           |             1460|      2300000.00|            0.00|       203546.53|               AHMEDABAD RPC
+624605065980|   03-Dec-2024|  NEFT*000154631225/BKID0003213/GALLOPS PIPES INDUST RIES                                             |             1461|        17290.00|            0.00|       186256.53|               AHMEDABAD RPC
+624605065980|   03-Dec-2024|  NEFT*000154631282/UTIB0CCH274/ULTRATECH CEMENT                                                      |             1459|       175000.00|            0.00|        11256.53|               AHMEDABAD RPC
+624605065980|   03-Dec-2024|  NEFT-IDFBH24338306123-MR GOTI SANJAY MAKODBHAI-/AT TN/-00000010079866009-IDFB0010201                |                 |            0.00|       200000.00|       211256.53|                  RPC MUMBAI
+624605065980|   03-Dec-2024|  RTGS*ICICR52024120300506063/HDFC0000533/SHREE CHAM UNDA TRADING                                     |             1462|       200000.00|            0.00|        11256.53|               AHMEDABAD RPC
+624605065980|   03-Dec-2024|  RTGS RETURN-ICICR52024120300506063-SHREE CHAMUNDA TRADING-//ACCOUNT CLOSED NARR                     |                 |            0.00|       200000.00|       211256.53|                   RPC-NASIK
+624605065980|   04-Dec-2024|  RTGS*ICICR52024120400582289/UTIB0000047/SHREE CHAM UNDA TRADING                                     |             1463|       200000.00|            0.00|        11256.53|               AHMEDABAD RPC
+624605065980|   06-Dec-2024|  BIL/INFT/DLA6865230/Bill Payment/  NIKUNJ RAMESHBH                                                  |                 |            0.00|      1173730.00|      1184986.53|                       SURAT
+624605065980|   06-Dec-2024|  TRFR TO* PATEL TRADERS                                                                              |             1473|       150000.00|            0.00|      1034986.53|               AHMEDABAD RPC
+624605065980|   06-Dec-2024|  RTGS*ICICR52024120600684038/IDFB0042268/GOTI SANJA Y MAKODBHAI                                      |             1470|       400000.00|            0.00|       634986.53|               AHMEDABAD RPC
+624605065980|   06-Dec-2024|  RTGS*ICICR52024120600684378/HDFC0000251/GOLAKIYA Y ASHVI BHAVESHBHAI                                |             1469|       300000.00|            0.00|       334986.53|               AHMEDABAD RPC
+624605065980|   06-Dec-2024|  RTGS*ICICR52024120600684691/UBIN0911569/RAJESHKUMA R J GOLAKIYA                                     |             1472|       300000.00|            0.00|        34986.53|               AHMEDABAD RPC
+624605065980|   06-Dec-2024|  CMS/ APPL00521910/POONAWALLA FINCORP LIMITED                                                        |                 |            0.00|      3413360.00|      3448346.53|                SURAT (6246)
+
+ Closing Balance as on 07-12-2024 03:43:20 is INR.3448346.53 includes Uncleared Funds of INR.0.00

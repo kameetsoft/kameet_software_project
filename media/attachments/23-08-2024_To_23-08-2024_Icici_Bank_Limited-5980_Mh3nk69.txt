@@ -1,0 +1,26 @@
+ICICI Bank account Statement from 23-08-2024 to 23-08-2024. 
+
+
+Account Number|Tran Date |  Tran Particular    | Inst Num      |   Dr Tran Amt   |    Cr Tran Amt |      Bal Amt      | Deposit Branch
+-------------- ---------    ---------------      ---------       ---------------   ---------------        --------    | ------- ------
+624605065980|   09-AUG-2024|  B/F                                                                                                 |                 |                |                |        43633.21|                            
+624605065980|   12-Aug-2024|  NEFT-N225243203039149-SAHAJANAND INFRASTRUCTURE-HD FC TO ICICI-50200001460570-HDFC0000001           |                 |            0.00|       100000.00|       143633.21|                  RPC MUMBAI
+624605065980|   13-Aug-2024|  UPSURXX83021_PAN_Sahajanand In                                                                      |                 |       122300.00|            0.00|        21333.21|                    BORIVALI
+624605065980|   13-Aug-2024|  Statement Chg May-24+GST                                                                            |                 |           29.50|            0.00|        21303.71|               NARIMAN POINT
+624605065980|   17-Aug-2024|  BIL/INFT/DHL1491482/Bill Payment/  NIKUNJ RAMESHBH                                                  |                 |            0.00|      1725300.00|      1746603.71|                       SURAT
+624605065980|   17-Aug-2024|  CASH PAID*Self 0193 SURAT - ADAJAN CHQ,1327                                                         |             1327|       600000.00|            0.00|      1146603.71|              SURAT - ADAJAN
+624605065980|   17-Aug-2024|  NEFT*000151090357/FDRL0002346/INFINITY SOLAR                                                        |             1326|       150000.00|            0.00|       996603.71|               AHMEDABAD RPC
+624605065980|   17-Aug-2024|  NEFT*000151089987/UTIB0002278/HADIYAL YOGESHBHAI P OPATBHAI                                         |             1329|        99000.00|            0.00|       897603.71|               AHMEDABAD RPC
+624605065980|   17-Aug-2024|  RTGS*ICICR52024081700542377/IDFB0042268/GOTI SANJA Y MAKODBHAI                                      |             1328|       675000.00|            0.00|       222603.71|               AHMEDABAD RPC
+624605065980|   17-Aug-2024|  RTGS*ICICR52024081700543083/UTIB0003420/ETHICS ENT ERPRISE                                          |             1325|       200000.00|            0.00|        22603.71|               AHMEDABAD RPC
+624605065980|   20-Aug-2024|  NEFT-IDFBH24233111892-MR GOTI SANJAY MAKODBHAI-/AT TN/-00000010079866009-IDFB0010201                |                 |            0.00|        50000.00|        72603.71|                  RPC MUMBAI
+624605065980|   20-Aug-2024|  NEFT*000151143197/BARB0DUDHSA/BALAJI SALES CORPORA TION                                             |             1330|        57000.00|            0.00|        15603.71|               AHMEDABAD RPC
+624605065980|   21-Aug-2024|  BIL/INFT/DHP2182839/Bill Payment/  NIKUNJ RAMESHBH                                                  |                 |            0.00|       105724.00|       121327.71|                       SURAT
+624605065980|   21-Aug-2024|  NEFT*000151200504/IDFB0042268/GOTI SANJAY MAKODBHA I                                                |             1331|        40000.00|            0.00|        81327.71|               AHMEDABAD RPC
+624605065980|   21-Aug-2024|  NEFT*000151200652/BKID0003213/GALLOPS PIPES INDUST RIES                                             |             1332|        67400.00|            0.00|        13927.71|               AHMEDABAD RPC
+624605065980|   21-Aug-2024|  UPSURXX83021-BOUNCECHGSAUG24GST                                                                     |                 |           59.00|            0.00|        13868.71|                SURAT (6246)
+624605065980|   23-Aug-2024|  RTGS-HDFCR52024082386437174-SAHAJANAND INFRASTRUCT URE-50200001460570  -HDFC0000240                 |                 |            0.00|       300000.00|       313868.71|                   RPC-NASIK
+624605065980|   23-Aug-2024|  NEFT*000151284669/IDFB0042268/GOTI SANJAY MAKODBHA I                                                |             1336|       175000.00|            0.00|       138868.71|               AHMEDABAD RPC
+624605065980|   23-Aug-2024|  NEFT*000151285064/UTIB0001587/POWER ON ELECTRIC                                                     |             1333|       125000.00|            0.00|        13868.71|               AHMEDABAD RPC
+
+ Closing Balance as on 24-08-2024 04:22:24 is INR.13868.71 includes Uncleared Funds of INR.0.00

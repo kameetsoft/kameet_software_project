@@ -1,0 +1,115 @@
+{% comment %} <h2>Summary Report</h2>
+<p><strong>Total Sale:</strong> ₹{{ total_sale }}</p>
+<p><strong>Total Quantity:</strong> {{ total_qty }}</p>
+<table border="1">
+  <tr>
+    <th>Sr</th><th>Date</th><th>Security</th><th>Qty</th><th>Sale Price</th><th>Sales</th>
+      <th>Assest Type</th><th>Status</th> 
+  </tr>
+  {% for r in records %}
+  <tr>
+    <td>{{ r.sr_no }}</td><td>{{ r.date_of_sale }}</td><td>{{ r.security_name }}</td>
+    <td>{{ r.quantity }}</td><td>{{ r.sale_price }}</td><td>{{ r.sales_consideration }}</td>
+     <td>{{ r.assest_type }}</td> <td>{{ r.status }}</td>  
+  </tr>
+  {% endfor %}
+</table> {% endcomment %}
+
+
+{% comment %} <h2>Summary Report</h2>
+<p><strong>Total Sale:</strong> ₹{{ total_sale }}</p>
+<p><strong>Total Quantity:</strong> {{ total_qty }}</p>
+
+{% for source, records in grouped_records.items %}
+  <h4 style="margin-top: 30px;">📘 {{ source }}</h4>
+  <table border="1" cellpadding="6" cellspacing="0">
+    <thead>
+      <tr>
+        <th>Sr</th><th>Date</th><th>Security</th><th>Qty</th>
+        <th>Sale Price</th><th>Sales</th><th>Asset Type</th><th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for rec in records %}
+        <tr>
+          <td>{{ rec.sr_no }}</td>
+          <td>{{ rec.date_of_sale }}</td>
+          <td>{{ rec.security_name }}</td>
+          <td>{{ rec.quantity }}</td>
+          <td>{{ rec.sale_price }}</td>
+          <td>{{ rec.sales_consideration }}</td>
+          <td>{{ rec.assest_type }}</td>
+          <td>{{ rec.status }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endfor %} {% endcomment %}
+
+{% comment %} 
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Approved AIS Summary Report</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+
+<h1 class="mb-4">Approved AIS Summary Report</h1>
+
+{% for code, records in grouped.items %}
+  <h4 class="mt-4">Information Code: <strong>{{ code }}</strong></h4>
+  <h4 class="mt-4">Section: <strong>{{ code }}</strong> - {{ records.0.upload.description }} ({{ records.0.upload.source }})</h4>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-sm table-striped">
+      <thead class="table-light">
+        <tr>
+          {% for key in records.0.get_data.keys %}
+            <th>{{ key|capfirst|replace:"_", " " }}</th>
+            <th>{{ key }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in records %}
+          <tr>
+            {% for val in r.get_data.values %}
+              <td>{{ val }}</td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endfor %}
+
+</body>
+</html> {% endcomment %}
+
+
+<h2>AIS Summary Report</h2>
+
+{% for section, records in grouped.items %}
+  <h4 style="margin-top:30px">{{ section }}</h4>
+  <table border="1" cellpadding="5" cellspacing="0" width="100%">
+    <thead>
+      <tr>
+        {% for key in records.0.data_json.keys %}
+          <th>{{ key }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for record in records %}
+        <tr>
+          {% for val in record.data_json.values %}
+            <td>{{ val }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% empty %}
+  <p>No approved AIS data found.</p>
+{% endfor %}

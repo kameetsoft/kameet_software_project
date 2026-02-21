@@ -1,0 +1,194 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+  <title>Category Master</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light p-3">
+<button type="button"
+        class="btn btn-danger btn-sm position-fixed"
+        style="top:12px; right:16px; z-index:1050;"
+        title="Go to Home"
+        onclick="window.location.href='{% url 'home' %}'">
+  &times;
+</button>
+
+<div class="container">
+  <div class="d-flex justify-content-between mb-3">
+    <h4>Document Categories</h4>
+    <button class="btn btn-primary" onclick="openCategoryModal()">+ Add Category</button>
+  </div>
+
+  <table class="table table-sm table-bordered bg-white">
+    <thead class="table-dark">
+      <tr>
+        <th>Category</th>
+        <th>Annual</th>
+        <th>Event</th>
+        <th>Continue</th>
+        <th width="140">Action</th>
+      </tr>
+        <!-- 🔍 SEARCH ROW -->
+      <tr class="bg-light">
+        <th>
+          <input type="text" class="form-control form-control-sm column-filter"
+                placeholder="Search Category" data-col="0">
+        </th>
+        <th>
+          <input type="text" class="form-control form-control-sm column-filter"
+                placeholder="Yes / No" data-col="1">
+        </th>
+        <th>
+          <input type="text" class="form-control form-control-sm column-filter"
+                placeholder="Yes / No" data-col="2">
+        </th>
+        <th>
+          <input type="text" class="form-control form-control-sm column-filter"
+                placeholder="Yes / No" data-col="3">
+        </th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in categories %}
+      <tr>
+        <td>{{ c.category_type }}</td>
+        <td>{{ c.annual_allowed|yesno:"Yes,No" }}</td>
+        <td>{{ c.event_allowed|yesno:"Yes,No" }}</td>
+        <td>{{ c.continue_till_closed|yesno:"Yes,No" }}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-primary"
+                  onclick="editCategory({{ c.id }}, '{{ c.category_type }}',
+                  {{ c.annual_allowed|yesno:'true,false' }},
+                  {{ c.event_allowed|yesno:'true,false' }},
+                  {{ c.continue_till_closed|yesno:'true,false' }}
+                  )">
+            Edit
+          </button>
+
+          <button class="btn btn-sm btn-outline-danger"
+                  onclick="deleteCategory({{ c.id }})">
+            Delete
+          </button>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" class="text-center">No categories</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% comment %} modal {% endcomment %}
+<div class="modal fade" id="categoryModal">
+  <div class="modal-dialog">
+    <form class="modal-content" id="categoryForm">
+      {% csrf_token %}
+      <input type="hidden" name="id">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Category</h5>
+      </div>
+
+      <div class="modal-body">
+        <label class="form-label">Category Type</label>
+        <input class="form-control" name="category_type" required>
+
+        <div class="form-check mt-2">
+          <input class="form-check-input" type="checkbox" name="annual_allowed">
+          <label class="form-check-label">Annual</label>
+        </div>
+
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="event_allowed">
+          <label class="form-check-label">Event</label>
+        </div>
+
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="continue_till_closed">
+          <label class="form-check-label">Continue till closed</label>
+        </div>
+
+        {% comment %} <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="is_active" checked>
+          <label class="form-check-label">Active</label>
+        </div> {% endcomment %}
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-success">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+{% comment %} script {% endcomment %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+const categoryModal = new bootstrap.Modal(document.getElementById("categoryModal"));
+
+function openCategoryModal(){
+  document.getElementById("categoryForm").reset();
+  document.querySelector("#categoryForm input[name='id']").value = "";
+  categoryModal.show();
+}
+
+function editCategory(id, type, annual, event, cont){
+  const f = document.getElementById("categoryForm");
+
+  f.querySelector("input[name='id']").value = id;
+  f.querySelector("input[name='category_type']").value = type;
+  f.querySelector("input[name='annual_allowed']").checked = annual;
+  f.querySelector("input[name='event_allowed']").checked = event;
+  f.querySelector("input[name='continue_till_closed']").checked = cont;
+
+  categoryModal.show();
+}
+
+document.getElementById("categoryForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+
+  const res = await fetch("{% url 'api_save_category' %}", { method:"POST", body:fd });
+  const data = await res.json();
+
+  if(!data.ok){ alert(data.error); return; }
+  location.reload();
+});
+
+async function deleteCategory(id){
+  if(!confirm("Delete this category?")) return;
+
+  const fd = new FormData();
+  fd.append("id", id);
+  fd.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+
+  const res = await fetch("{% url 'api_delete_category' %}", { method:"POST", body:fd });
+  const data = await res.json();
+
+  if(!data.ok){ alert(data.error); return; }
+  location.reload();
+}
+</script>
+
+{% comment %} search filteration {% endcomment %}
+<script>
+document.querySelectorAll(".column-filter").forEach(input => {
+  input.addEventListener("keyup", function () {
+    const colIndex = this.dataset.col;
+    const filterValue = this.value.toLowerCase();
+    const rows = document.querySelectorAll("tbody tr");
+
+    rows.forEach(row => {
+      const cellText = row.children[colIndex].innerText.toLowerCase();
+      row.style.display = cellText.includes(filterValue) ? "" : "none";
+    });
+  });
+});
+</script>
+
+</body>
+</html>

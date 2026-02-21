@@ -1,0 +1,16 @@
+ICICI Bank account Statement from 22-12-2024 to 05-01-2025. 
+
+
+Account Number|Tran Date |  Tran Particular    | Inst Num      |   Dr Tran Amt   |    Cr Tran Amt |      Bal Amt      | Deposit Branch
+-------------- ---------    ---------------      ---------       ---------------   ---------------        --------    | ------- ------
+624605065980|   22-DEC-2024|  B/F                                                                                                 |                 |                |                |       786346.53|                            
+624605065980|   23-Dec-2024|  RTGS*ICICR52024122300750671/BKID0002045/SMIT STEEL  TRADERS                                         |             1491|       225000.00|            0.00|       561346.53|               AHMEDABAD RPC
+624605065980|   23-Dec-2024|  RTGS*ICICR52024122300750449/HDFC0000948/YOGI STEEL                                                  |             1489|       200000.00|            0.00|       361346.53|               AHMEDABAD RPC
+624605065980|   23-Dec-2024|  NEFT*000155337336/UTIB0CCH274/ULTRATECH CEMENT                                                      |             1490|       175000.00|            0.00|       186346.53|               AHMEDABAD RPC
+624605065980|   24-Dec-2024|  Statement Chg Oct-24+GST                                                                            |                 |           29.50|            0.00|       186317.03|               NARIMAN POINT
+624605065980|   26-Dec-2024|  NEFT*000155439167/BKID0002045/SAMIT STEEL TRADERS                                                   |             1492|       100000.00|            0.00|        86317.03|            SURAT - VED ROAD
+624605065980|   27-Dec-2024|  NEFT-SBIN524362176744-ITDTAX REFUND 2023-24 ACKFS0 907N-/ATTN//INB-00000033273316893-SBIN0000TBU    |                 |            0.00|       100630.00|       186947.03|                  RPC MUMBAI
+624605065980|   04-Jan-2025|  RTGS-HDFCR52025010477387954-SAHAJANAND INFRASTRUCT URE-50200001460570  -HDFC0000240                 |                 |            0.00|       200000.00|       386947.03|                   RPC-NASIK
+624605065980|   05-Jan-2025|  Business Loan XX87409 EMI Saha                                                                      |                 |       194626.00|            0.00|       192321.03|                  RPC MUMBAI
+
+ Closing Balance as on 06-01-2025 08:50:14 is INR.192321.03 includes Uncleared Funds of INR.0.00

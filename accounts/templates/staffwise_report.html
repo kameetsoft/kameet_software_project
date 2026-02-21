@@ -1,0 +1,438 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staffwise Report</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 8px;
+            color: #333;
+            font-size: 15px;
+            line-height: 1.3;
+        }
+        .report-container {
+            max-width: 100%;
+            margin: 0 auto;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .report-header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 6px 10px;
+        }
+        .report-header h1 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .report-meta {
+            background-color: #f8f9fa;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight:500;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+        }
+        .account-list {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            font-weight:500;
+        }
+        .account-list th {
+            background-color: #34495e;
+            color: white;
+            padding: 6px 8px;
+            text-align: left;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+        }
+        .account-list td {
+            padding: 5px 8px;
+            border-bottom: 1px solid #e0e0e0;
+            vertical-align: top;
+        }
+        .account-list tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .account-list tr:hover {
+            background-color: #eef7fb;
+        }
+        .status-pending {
+            color: #d35400;
+            font-weight: 500;
+            font-size: 10px;
+        }
+        .pan-number {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            font-weight:700;
+            letter-spacing: 0.3px;
+        }
+        .empty-cell {
+            color: #999;
+            font-style: italic;
+        }
+           
+        /* Excel Tabs Styles */
+        .excel-tabs {
+            display: flex;
+            background: #f3f2f1;
+            border-top: 1px solid #d4d4d4;
+            padding: 0 10px;
+            height: 30px;
+            align-items: flex-end;
+            overflow-x: auto;
+        }
+        
+        .excel-tab {
+            padding: 4px 12px;
+            font-size: 12px;
+            color: #333;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-radius: 3px 3px 0 0;
+            background: #e9e9e9;
+            border-bottom: none;
+            white-space: nowrap;
+            height: 26px;
+        }
+        
+        .excel-tab:hover {
+            background: #d9d9d9;
+        }
+        
+        .excel-tab.active {
+            background: white;
+            border-color: #d4d4d4;
+            border-bottom-color: white;
+            position: relative;
+            top: 1px;
+            font-weight: 500;
+        }
+        
+        /* New styles for fixed table height */
+        .table-container {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .fiscal-year-form {
+            padding: 0 10px;
+            margin: 10px 0;
+        }
+
+        input[type="text"] {
+            padding: 4px;
+            border-radius: 4px;
+            border: 1px solid #aaa;
+            margin-right: 5px;
+        }
+        select {
+            padding: 4px;
+            border-radius: 4px;
+        }
+         .search-box {
+            padding: 10px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .search-container {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .search-field {
+            position: relative;
+            min-width: 180px;
+            flex: 1;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        
+        .search-input:focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        
+        .search-input::placeholder {
+            color: #6c757d;
+        }
+        
+        /* Enhanced Dropdown Styles */
+        .dropdown {
+            position: absolute;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-radius: 4px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+            margin-top: 2px;
+        }
+        
+        .dropdown-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #212529;
+            transition: background-color 0.2s;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #16181b;
+        }
+        
+        .dropdown-item.highlighted {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        /* Clear button for search fields */
+        .clear-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            padding: 0;
+            font-size: 14px;
+        }
+        
+        .clear-btn:hover {
+            color: #495057;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .search-field {
+                min-width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <div class="report-header">
+            <h1>ACCOUNT TRADING REPORT - STAFF SUMMARY</h1>
+        </div>
+        <div class="report-meta">
+            <span>Staff: Dimitri</span>
+            <span>Total Records: {{ report_data|length }}</span>
+        </div>
+
+        <form method="get" class="fiscal-year-form">
+            <label for="fy" style="font-size:15px;font-weight:500">Select Financial Year:</label>
+            <select name="fy" id="fy" onchange="this.form.submit()" style="padding: 4px 8px;">
+                {% for fy in fiscal_years %}
+                <option value="{{ fy }}" {% if fy == selected_fy %}selected{% endif %}>{{ fy }}</option>
+                {% endfor %}
+            </select>
+        </form>
+        <div class="search-box" x-data="staffwiseSearch" x-init="init()">
+            <div class="search-container d-flex flex-wrap gap-3 align-items-start">
+
+                <!-- Group -->
+                <div class="search-field">
+                    <input type="text" class="search-input" placeholder="Search Group"
+                        x-model="filters.group"
+                        @input="applyFilters"
+                        @focus="showDropdown('group')"
+                        @blur="hideDropdown('group')"
+                        @keydown.arrow-down.prevent="highlightNext('group')"
+                        @keydown.arrow-up.prevent="highlightPrev('group')"
+                        @keydown.enter.prevent="selectHighlighted('group')">
+                    <template x-if="filters.group">
+                        <button class="clear-btn" @click="filters.group = ''; applyFilters()">×</button>
+                    </template>
+                    <div class="dropdown" x-show="dropdowns.group.length" x-transition>
+                        <template x-for="(item, index) in dropdowns.group" :key="item">
+                            <div class="dropdown-item"
+                                :class="{ 'highlighted': highlightedIndex.group === index }"
+                                @mousedown.prevent="selectSuggestion('group', item)"
+                                @mouseenter="highlightedIndex.group = index"
+                                x-text="item"></div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Stage -->
+                <div class="search-field">
+                    <input type="text" class="form-control" placeholder="Search Stage"
+                        x-model="filters.stage"
+                        @input="applyFilters"
+                        @focus="showDropdown('stage')"
+                        @blur="hideDropdown('stage')"
+                        @keydown.arrow-down.prevent="highlightNext('stage')"
+                        @keydown.arrow-up.prevent="highlightPrev('stage')"
+                        @keydown.enter.prevent="selectHighlighted('stage')">
+                    <template x-if="filters.stage">
+                        <button class="clear-btn" @click="filters.stage = ''; applyFilters()">×</button>
+                    </template>
+                    <div class="dropdown" x-show="dropdowns.stage.length" x-transition>
+                        <template x-for="(item, index) in dropdowns.stage" :key="item">
+                            <div class="dropdown-item"
+                                :class="{ 'highlighted': highlightedIndex.stage === index }"
+                                @mousedown.prevent="selectSuggestion('stage', item)"
+                                @mouseenter="highlightedIndex.stage = index"
+                                x-text="item"></div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table-container">
+            <table class="account-list staff-table">
+                <thead>
+                    <tr>
+                        <th width="22%">Group</th>
+                        <th width="22%">Legal Name</th>
+                        <th width="18%">Firm</th>
+                        <th width="15%">PAN</th>
+                        <th width="13%">Stage</th>
+                        <th width="10%">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in report_data %}
+                    <tr>
+                        <td>{{ row.group }}</td>
+                        <td>{{ row.legal_name }}</td>
+                        <td>{{ row.firm }}</td>
+                        <td class="pan-number">{{ row.pan }}</td>
+                        <td>{{ row.stage }}</td>
+                        <td class="status-{{ row.status|lower }}">{{ row.status }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6">No data available.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+            
+        <!-- Excel Tabs -->
+        <div class="excel-tabs">
+            <div class="excel-tab">Sheet1</div>
+            <div class="excel-tab">Case Updates</div>
+            <div class="excel-tab" onclick="window.location.href='{% url 'group_wise_report' %}'">Group Wise Report</div>
+            <div class="excel-tab" onclick="window.location.href='{% url 'audit_list' %}'">Audit</div>
+            <div class="excel-tab active" onclick="window.location.href='{% url 'staffwise_report' %}'">Staffwise</div>
+            <div class="excel-tab" onclick="window.location.href='{% url 'stagewise_report' %}'">Stagewise</div>
+            <div class="excel-tab">Salaried Case</div>
+            <div class="excel-tab">Return Check</div>
+        </div>
+    </div>
+</body>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('staffwiseSearch', () => ({
+        filters: {
+            group: '',
+            stage: ''
+        },
+        dropdowns: {
+            group: [],
+            stage: []
+        },
+        highlightedIndex: {
+            group: -1,
+            stage: -1
+        },
+        tableRows: [],
+        init() {
+            this.tableRows = Array.from(document.querySelectorAll('.staff-table tbody tr'));
+            this.applyFilters();
+        },
+        applyFilters() {
+            const groupVal = this.filters.group.toLowerCase();
+            const stageVal = this.filters.stage.toLowerCase();
+
+            this.tableRows.forEach(row => {
+                const groupText = row.children[0]?.textContent.toLowerCase();
+                const stageText = row.children[4]?.textContent.toLowerCase();
+                const match = groupText.includes(groupVal) && stageText.includes(stageVal);
+                row.style.display = match ? '' : 'none';
+            });
+        },
+        updateSuggestions(field) {
+            const indexMap = { group: 0, stage: 4 };
+            const index = indexMap[field];
+            const value = this.filters[field].toLowerCase();
+            const suggestions = new Set();
+
+            this.tableRows.forEach(row => {
+                const text = row.children[index]?.textContent.trim();
+                if (text && text.toLowerCase().includes(value)) {
+                    suggestions.add(text);
+                }
+            });
+
+            this.dropdowns[field] = [...suggestions].slice(0, 10);
+            this.highlightedIndex[field] = -1;
+        },
+        selectSuggestion(field, value) {
+            this.filters[field] = value;
+            this.dropdowns[field] = [];
+            this.applyFilters();
+        },
+        showDropdown(field) {
+            this.updateSuggestions(field);
+        },
+        hideDropdownDelayed(field) {
+            setTimeout(() => {
+                this.dropdowns[field] = [];
+                this.highlightedIndex[field] = -1;
+            }, 150);
+        },
+        highlightNext(field) {
+            if (this.dropdowns[field].length > 0) {
+                this.highlightedIndex[field] = 
+                    (this.highlightedIndex[field] + 1) % this.dropdowns[field].length;
+            }
+        },
+        highlightPrev(field) {
+            if (this.dropdowns[field].length > 0) {
+                this.highlightedIndex[field] = 
+                    (this.highlightedIndex[field] - 1 + this.dropdowns[field].length) % this.dropdowns[field].length;
+            }
+        },
+        selectHighlighted(field) {
+            if (this.highlightedIndex[field] >= 0) {
+                const item = this.dropdowns[field][this.highlightedIndex[field]];
+                this.selectSuggestion(field, item);
+            }
+        }
+    }));
+});
+</script>
+
+
+</html>

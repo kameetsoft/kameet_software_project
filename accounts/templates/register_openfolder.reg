@@ -1,0 +1,12 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\openfolder]
+@="URL:Open Folder Protocol"
+"URL Protocol"=""
+
+[HKEY_CLASSES_ROOT\openfolder\shell]
+
+[HKEY_CLASSES_ROOT\openfolder\shell\open]
+
+[HKEY_CLASSES_ROOT\openfolder\shell\open\command]
+@="\"C:\\KameetSoft\\open_folder.bat\" \"%1\""

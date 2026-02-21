@@ -1,0 +1,1842 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAMEET Accounting - Mail Log</title>
+    <!-- jQuery FIRST -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+
+    <!-- ✅ Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- ✅ Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+        }
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            padding: 0;
+            margin: 0;
+        }
+        .table thead th {
+            background-color: var(--primary-color);
+            color: white;
+            position: sticky;
+            top: 0;
+            font-weight: 500;
+        }
+        .table-responsive {
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+             position: relative;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        .btn-action {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+            margin-right: 5px;
+        }
+        .btn-export {
+            background-color: #27ae60;
+            border-color: #27ae60;
+        }
+        .btn-export:hover, 
+        .btn-export:focus, 
+        .btn-export:active {
+            background-color:rgb(42, 136, 81) !important;
+            border-color: rgb(42, 136, 81)  !important;
+            color: white !important;
+            opacity: 1 !important;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        .dataTables_wrapper .dataTables_filter {
+            float: right;
+            text-align: right;
+        }
+        .dataTables_wrapper .dataTables_length {
+            float: left;
+        }
+        .dt-buttons {
+            margin-bottom: 10px;
+        }
+
+        /* ✅ Compact main container */
+        .main-container {
+          padding: 8px !important;
+          margin: 0 !important;
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+
+        /* ✅ Compact table styling for all tables */
+         #mailTable {
+          font-size: 12px;
+          font-weight: 500;
+          width: 100% !important;
+        }
+
+        #mailTable th, #mailTable td {
+          padding: 3px 6px !important;
+          line-height: 1.2 !important;
+          white-space: nowrap;
+        }
+
+        /* ✅ Compact table header */
+        #mailTable thead th {
+          position: sticky;
+          top: 0;
+          z-index: 5; 
+          font-size: 12px;
+          padding: 4px 6px !important;
+          background-color: var(--primary-color);
+          color: #fff;
+          /* optional: nicer look when overlapping */
+          background-clip: padding-box;
+          box-shadow: 0 1px 0 rgba(0,0,0,.06);
+        }
+
+        /* ✅ Compact hover effect */
+        .table-hover tbody tr:hover {
+          background-color: #f7f7f7 !important;
+        }
+
+        /* ✅ Compact DataTables wrapper */
+        .dataTables_wrapper {
+          font-size: 11px !important;
+          margin-top: 5px;
+          margin-bottom: 5px;
+        }
+
+        /* ✅ Compact search & dropdown controls */
+        .dataTables_wrapper .dataTables_filter label,
+        .dataTables_wrapper .dataTables_length label {
+          font-size: 11px !important;
+          margin-bottom: 0 !important;
+        }
+
+        .dataTables_wrapper .dataTables_filter input,
+        .dataTables_wrapper .dataTables_length select {
+          height: 24px !important;
+          font-size: 11px !important;
+          padding: 1px 4px !important;
+        }
+
+        /* ✅ Compact pagination buttons */
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+          padding: 2px 6px !important;
+          font-size: 11px !important;
+        }
+
+        /* ✅ Compact info text */
+        .dataTables_wrapper .dataTables_info {
+          font-size: 11px !important;
+          padding-top: 3px !important;
+        }
+
+        /* ✅ Reduce bottom spacing */
+        .dataTables_wrapper .bottom {
+          padding: 4px 0 !important;
+        }
+
+        /* ✅ Compact export buttons */
+        .dt-buttons .btn {
+          padding: 3px 8px !important;
+          font-size: 11px !important;
+        }
+        
+        .badge-status {
+            font-size: 0.75rem;
+            padding: 3px 6px;
+            font-weight: 500;
+        }
+        .badge-has-attachment {
+            background-color: #28a745;
+        }
+        .badge-no-attachment {
+            background-color: #6c757d;
+        }
+        .close-btn-container {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+
+        .btn-thin {
+        padding: 5px 8px !important;   /* reduce vertical + horizontal padding */
+        font-size: 12px !important;    /* slightly smaller text */
+        line-height: 1.2;
+            width:120px;
+        }
+
+        .close-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .btn-export {
+            background-color: #27ae60;
+            border-color: #27ae60;
+        }
+        .btn-export:hover, 
+        .btn-export:focus, 
+        .btn-export:active {
+            background-color:rgb(42, 136, 81) !important;
+            border-color: rgb(42, 136, 81)  !important;
+            color: white !important;
+            opacity: 1 !important;
+        }
+        
+        .subject-col {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .modal { z-index: 1060; }          /* above everything else */
+        .modal-backdrop { z-index: 1055; } /* just under the modal */
+        .filter-small {
+            width: 160px !important;   /* make narrower */
+            padding: 2px 6px !important;
+            font-size: 13px !important;
+        }
+
+        /* Sky blue selected row */
+        /* Pointer cursor */
+        #mailTable tbody tr {
+            cursor: pointer;
+        }
+
+        /* Sky blue selected row (DataTables-safe) */
+        #mailTable tbody tr.row-selected > td {
+            background-color: #c7e7ffff !important;
+        }
+        /*  loader css */
+        /* Full page loader */
+        .page-loader {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.7);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            transition: opacity 0.2s ease;
+          }
+          .page-loader.d-none {
+              opacity: 0;
+              pointer-events: none;
+          }
+          /* ===== COMPACT PROFESSIONAL LAYOUT FIX ===== */
+
+/* Slim toolbar */
+.toolbar-tight {
+    padding: 4px 8px !important;
+}
+.toolbar-tight h4 {
+    font-size: 16px;
+    margin: 0;
+}
+
+/* Sticky compact filter bar */
+.filter-bar {
+    position: sticky;
+    top: 42px;               /* below toolbar */
+    z-index: 1020;
+    background: #ffffff;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Reduce filter control height */
+.filter-small {
+    height: 26px !important;
+    font-size: 12px !important;
+    padding: 2px 6px !important;
+}
+
+/* Maximize table viewport */
+.table-responsive {
+    height: calc(100vh - 130px);
+    overflow-y: auto;
+}
+
+/* Ultra-compact table rows */
+#mailTable th,
+#mailTable td {
+    padding: 2px 6px !important;
+    line-height: 1.1 !important;
+    font-size: 12px !important;
+}
+
+    </style>
+</head>
+
+
+<body>
+
+  <!-- Loader -->
+  <div id="pageLoader" class="page-loader">
+      <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+      </div>
+      <div class="mt-2 small fw-semibold">Loading mails…</div>
+  </div>
+    {% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            <div>{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="container-fluid p-0">
+        <div class="main-container">
+            <!-- Toolbar -->
+            {% comment %} <div class="d-flex justify-content-between align-items-center mb-2 p-2"> {% endcomment %}
+            <div class="d-flex justify-content-between align-items-center toolbar-tight">
+
+                <h4 class="m-0">
+                    <i class="bi bi-envelope text-primary me-2"></i>Mail Log
+                </h4>
+                <div class="d-flex align-items-center gap-2">
+                    <!-- Trigger button (place in your toolbar/header) -->
+                    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#importModal">
+                      Import to DataEntry
+                    </button>
+
+                    <button class="btn btn-primary btn-thin btn-sm" data-bs-toggle="modal" data-bs-target="#fetchModal">
+                        <i class="bi bi-arrow-repeat"></i> Fetch
+                    </button>
+
+                    <button class="btn btn-export btn-thin btn-sm text-white" onclick="exportToExcel()">
+                        <i class="bi bi-file-excel"></i> Export
+                    </button>
+                    <button class="close-btn me-2 btn-thin" onclick="window.location.href='/'">
+                        <i class="bi bi-x-lg"></i> Close
+                    </button>
+                </div>
+            </div>
+              <div class="filter-bar d-flex align-items-center gap-2 px-2 py-1">
+
+  <!-- Status -->
+  <div class="dropdown">
+    <button class="btn btn-sm btn-outline-secondary dropdown-toggle filter-small"
+            data-bs-toggle="dropdown"
+            id="statusDropdownBtn">
+      Status
+    </button>
+
+    <ul class="dropdown-menu p-2" style="min-width:220px">
+      {% for key, label in status_filters %}
+      <li>
+        <div class="form-check">
+          <input class="form-check-input status-check"
+                 type="checkbox"
+                 value="{{ key }}"
+                 {% if key in selected_statuses %}checked{% endif %}>
+          <label class="form-check-label">{{ label }}</label>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Mailbox -->
+  <select id="mailboxFilter"
+          class="form-select form-select-sm filter-small"
+          onchange="onMailboxChange()">
+    <option value="">Mailbox</option>
+    {% for entry in IMAP_ACCOUNTS %}
+      <option value="{{ entry.0 }}"
+        {% if request.GET.mailbox == entry.0 %}selected{% endif %}>
+        {{ entry.0 }}
+      </option>
+    {% endfor %}
+  </select>
+
+  <!-- FY -->
+  <select id="yearSelector"
+          class="form-select form-select-sm filter-small"
+          onchange="onYearChange()">
+    <option value="">FY</option>
+    {% for year in years %}
+      <option value="{{ year }}"
+        {% if year_selected == year %}selected{% endif %}>
+        {{ year }}
+      </option>
+    {% endfor %}
+  </select>
+
+  <!-- Date filters -->
+  {% comment %} <label>From Date:</label>
+  <input type="date"
+         id="dateFrom"
+         class="form-control form-control-sm filter-small"
+         value="{{ request.GET.date_from|default:'' }}"
+         onchange="onDateChange()">
+         
+  <label>To Date:</label>
+  <input type="date"
+         id="dateTo"
+         class="form-control form-control-sm filter-small"
+         value="{{ request.GET.date_to|default:'' }}"
+         onchange="onDateChange()"> {% endcomment %}
+  <label>From Date:</label>
+  <input type="date"
+         id="dateFrom"
+         class="form-control form-control-sm filter-small"
+         value="{{ request.GET.date_from|default:'' }}"
+        >
+         
+  <label>To Date:</label>
+  <input type="date"
+         id="dateTo"
+         class="form-control form-control-sm filter-small"
+         value="{{ request.GET.date_to|default:'' }}"
+         >
+<button class="btn btn-sm btn-primary ms-2" onclick="applyDateFilter()">
+  Load
+</button>
+
+</div>
+
+              <div class="toast-container position-fixed top-0 end-0 p-3">
+              {% for message in messages %}
+                <div class="toast align-items-center text-bg-warning border-0 mb-2"
+                    role="alert"
+                    data-bs-delay="4000"
+                    data-bs-autohide="true">
+                  <div class="d-flex">
+                    <div class="toast-body">
+                      {{ message }}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                            data-bs-dismiss="toast"></button>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+
+            <script>
+              document.addEventListener("DOMContentLoaded", function () {
+                document.querySelectorAll('.toast').forEach(t => {
+                  new bootstrap.Toast(t).show();
+                });
+              });
+            
+            </script>
+
+
+
+            <!-- Mail Table -->
+            <div class="table-responsive px-2">
+                <table class="table table-bordered table-hover align-middle" id="mailTable">
+                    <thead>
+                        <tr>
+                            <th width="80">ID</th>
+                            <th>Received Date</th>
+                            <th>Sender</th>
+                            <th>Receiver(s)</th>
+                            <th class="subject-col">Subject</th>
+                            <th>Attachment</th>
+                            <th>upload Btn</th>
+                            <th>Mailbox</th>
+                            <th>Status</th>
+                            <th>Email Match</th>
+                            <th>Group</th>
+                            <th>Client</th>
+                            <th>Bank Account</th>
+                            <th>Stmt Pw(s)</th>
+
+                            <th>Message ID</th>
+                            <th>Statement Link</th>
+                            <th>Fetched At</th>
+                            <th width="90">Open</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                           {% for mail in mails %}
+                            <tr>
+                                <td>{{ mail.id }}</td>
+                                <td>{{ mail.rec_dat|date:"Y-m-d H:i" }}</td>
+                                <td>{{ mail.sender_mail }}</td>
+                                <td>{{ mail.receiver_mail|truncatewords:5 }}</td>
+                                <td class="subject-col" title="{{ mail.subject }}">{{ mail.subject|default:"(No Subject)"|truncatechars:50 }}</td>
+                                <td>
+                                  {% if mail.attachments %}
+                                    {% for att in mail.attachments %}
+                                      {% with fname=att.filename|default:"file.pdf" %}
+
+                                        <a href="{% url 'mail_attachment_pdf' mail.id forloop.counter0 fname %}?db={{ db_alias }}"
+                                          class="link-primary text-decoration-none"
+                                          title="{{ fname }}"
+                                          target="_blank" rel="noopener noreferrer">
+                                          {{ fname|truncatechars:40 }}
+                                        </a>
+
+                                         
+                                      {% endwith %}
+                                            {% if not forloop.last %}<br>{% endif %}
+                                      {% endfor %}
+                                  {% else %}
+                                    <span class="badge badge-no-attachment badge-status">No</span>
+                                  {% endif %}
+                                </td>
+                                  <td>
+                                  <button class="btn btn-sm btn-outline-primary"
+                                          onclick="openMailDocModal('{{ mail.id }}')">
+                                    <i class="bi bi-ui-checks"></i> Document Specify
+                                  </button>
+                                </td>
+
+                                <td>{{ mail.mailbox }}</td>
+                                <td>
+                                  {% if mail.bank_status == "Done" %}
+                                    <span class="badge bg-success">{{ mail.bank_status }}</span>
+                                  {% else %}
+                                    <span class="badge bg-danger"> 
+                                      <a href="/account_form/?client_id={{ mail.client.client_id }}"
+                                        class="text-white text-decoration-none">
+                                        {{ mail.bank_status }}
+                                      </a>
+
+                                       {% comment %} <a href="{% url 'account_form' mail.client_id %}" class="text-white text-decoration-none">
+                                      {{ mail.bank_status }}
+                                    </a> {% endcomment %}
+                                  
+                                  </span>
+                                  {% endif %}
+                                </td>
+                            
+
+                                {% comment %} <td>
+                                  {% if mail.bank_status == "Done" %}
+                                    <span class="badge bg-success">{{ mail.bank_status }}</span>
+                                  {% else %}
+                                    <span class="badge bg-danger">
+                                      <a href="javascript:void(0);"
+                                        class="text-white text-decoration-none"
+                                        onclick="openAccountModal('{{ mail.client_id }}')">
+                                        {{ mail.bank_status }}
+                                      </a>
+                                    </span>
+                                  {% endif %}
+                                </td> {% endcomment %}
+
+
+                                <td id="email-cell-{{ mail.id }}">
+                                  {% if mail.email_known %}
+                                    <span class="badge bg-success">Known</span>
+                                    <div class="small text-muted">{{ mail.matched_email }}</div>
+                                  {% else %}
+                                    <a href="#"
+                                      class="badge bg-warning text-dark unknown-email-badge text-decoration-none"
+                                      data-mail-id="{{ mail.id }}"
+                                      data-first-recipient="{{ mail.first_recipient|default:'' }}"
+                                      data-fy="{{ fy|default:'' }}">
+                                      Unknown email
+                                    </a>
+                                    {% if mail.first_recipient %}
+                                      <div class="small text-muted">{{ mail.first_recipient }}</div>
+                                    {% endif %}
+                                  {% endif %}
+                                </td>
+
+                                <td>{{ mail.group_name|default:"—" }}</td>
+                                {% comment %} <td>{{ mail.client_name|default:"—" }}</td> {% endcomment %}
+                                <td>
+                                  {% if mail.candidate_clients %}
+                                    <ul class="mb-0 ps-3">
+                                      {% for c in mail.candidate_clients %}
+                                        <li>{{ c.client_name }}</li>
+                                      {% endfor %}
+                                    </ul>
+                                  {% else %}
+                                    {{ mail.client_name|default:"—" }}
+                                  {% endif %}
+                                </td>
+
+
+
+                                <td>
+                                  {% if mail.accounts %}
+                                    {% for acc in mail.accounts %}
+                                      <div><span class="fw-semibold">{{ acc.bank_name }}</span>: {{ acc.account_no }}</div>
+                                    {% endfor %}
+                                  {% else %}
+                                    <span class="text-muted">—</span>
+                                  {% endif %}
+                                </td>
+                                <td>
+                                  {% if mail.stmt_pw %}
+                                    {{ mail.stmt_pw }}
+                                  {% else %}
+                                    <span class="text-muted">—</span>
+                                  {% endif %}
+                                </td>
+
+                                <td>{{ mail.msg_id|truncatechars:20 }}</td>
+                                {% comment %} <td>{{ mail.statement_link }}</td> {% endcomment %}
+                                <td>
+                                    {% if mail.statement_link %}
+                                        <a href="{{ mail.statement_link }}"
+                                          target="_blank"
+                                          class="text-primary text-decoration-none"
+                                          title="Open statement link">
+                                            {{ mail.statement_link|truncatechars:40 }}
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>{{ mail.fetched_at|date:"Y-m-d H:i" }}</td>
+                                <td>
+                                  {% if mail.open_url %}
+                                    <a href="{{ mail.open_url }}" class="btn btn-sm btn-outline-secondary"
+                                      target="_blank" rel="noopener noreferrer" title="Open in mailbox">
+                                      <i class="bi bi-envelope-open"></i> Open
+                                    </a>
+                                  {% else %}
+                                    <span class="text-muted">—</span>
+                                  {% endif %}
+                                </td>
+
+                            </tr>
+                             {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Fetch Modal -->
+            <div class="modal fade" id="fetchModal" tabindex="-1" aria-labelledby="fetchModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                  <form id="fetchForm">
+                    <div class="modal-header">
+                      <h6 class="modal-title" id="fetchModalLabel">Fetch Mails</h6>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                      <div class="mb-2">
+                        <label class="form-label mb-1">Account</label>
+                        <select class="form-select form-select-sm" name="account" id="fetchAccount">
+                          <option value="ALL">All Accounts</option>
+                          {% for entry in IMAP_ACCOUNTS %}
+                            <option value="{{ entry.0 }}">{{ entry.0 }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <!-- With this: -->
+                      <div class="mb-2">
+                        <label class="form-label mb-1">From date</label>
+                        <input type="date" class="form-control form-control-sm" name="from_date" />
+                      </div>
+                      <div class="mb-2">
+                        <label class="form-label mb-1">To date</label>
+                        <input type="date" class="form-control form-control-sm" name="to_date" />
+                      </div>
+
+                      <!-- Optional fallback if both dates left empty -->
+                      <input type="hidden" name="since_days" value="30" />
+
+                      <div class="mb-2">
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" id="autoFyCheck" name="auto_fy" checked />
+                          <label class="form-check-label" for="autoFyCheck">Auto FY routing</label>
+                        </div>
+                      </div>
+                      <!-- Subject contains -->
+                    <div class="mb-2">
+                      <label class="form-label mb-1">Subject contains</label>
+                      <input type="text" class="form-control form-control-sm" name="subject_contains"
+                            placeholder="e.g. invoice, OTP, statement" />
+                    </div>
+
+                      <div class="mb-2">
+                <label class="form-label mb-1">Receiver (To)</label>
+                <input list="recipientsList" type="email" class="form-control form-control-sm" name="to_email"
+                        placeholder="someone@example.com" />
+                <datalist id="recipientsList">
+                    {% for rec in recipients %}
+                    <option value="{{ rec }}"></option>
+                    {% endfor %}
+                    {% for entry in IMAP_ACCOUNTS %}
+                    <option value="{{ entry.0 }}"></option>
+                    {% endfor %}
+                </datalist>
+                    </div>
+
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-primary btn-sm" id="fetchSubmitBtn">
+                        <span class="spinner-border spinner-border-sm me-1 d-none" id="fetchSpinner"></span>
+                        Fetch
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+
+
+
+
+        </div>
+    </main>
+
+    <!-- ✅ Account Modal -->
+<div class="modal fade" id="accountModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Bank Account</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body" id="accountModalBody" style="min-height:500px">
+        <div class="text-center p-5">
+          <div class="spinner-border"></div>
+          <p>Loading account form...</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+      <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <!-- DataTables Buttons -->
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+{% comment %} <script>
+function openAccountModal(clientId){
+
+    const modalEl = document.getElementById("accountModal");
+    const modalBody = document.getElementById("accountModalBody");
+    const modal = new bootstrap.Modal(modalEl);
+
+    modal.show();
+
+    modalBody.innerHTML = `
+        <div class="text-center p-5">
+          <div class="spinner-border text-primary"></div>
+          <p class="mt-2">Loading...</p>
+        </div>`;
+
+    const url = "/account_form/?client_id=" + clientId;
+
+    fetch(url)
+      .then(res => res.text())
+      .then(html => {
+         console.log("RECEIVED HTML:", html);
+        modalBody.innerHTML = html;
+
+        // ✅ Run AFTER DOM ready
+        setTimeout(() => {
+
+            const clientSelect = document.querySelector("#accountModalBody #id_client");
+            const clientDisplay = document.querySelector("#accountModalBody #client_id_display");
+
+            if (!clientSelect) {
+                console.error("❌ Client dropdown NOT found in modal");
+                return;
+            }
+
+            // ✅ Destroy old Select2 if exists
+            if ($(clientSelect).hasClass("select2-hidden-accessible")) {
+                $(clientSelect).select2("destroy");
+            }
+
+            // ✅ Re-init select2
+            $(clientSelect).select2({ width: "100%" });
+
+            // ✅ Force selection
+            for (let option of clientSelect.options) {
+                if (option.value == clientId) {
+                    option.selected = true;
+                    break;
+                }
+            }
+
+            // ✅ Trigger UI refresh
+            $(clientSelect).trigger("change").trigger("change.select2");
+
+            console.log("✅ Auto-selected client:", clientId);
+
+            // ✅ Update Client ID box
+            if (clientDisplay){
+                clientDisplay.value = clientId;
+            }
+
+            // ✅ Bind change event (manual selection)
+            $(clientSelect).on("change", function(){
+                const v = this.value;
+                document.querySelector("#accountModalBody #client_id_display").value = v;
+                console.log("✅ Client manually changed:", v);
+            });
+
+        }, 800);  // important delay
+
+      })
+      .catch(err => {
+        modalBody.innerHTML =
+            "<div class='alert alert-danger'>Error loading form.</div>";
+        console.error(err);
+      });
+}
+</script>
+ {% endcomment %}
+
+
+{% comment %} filter {% endcomment %}
+
+ <script>
+      {% comment %} function onFilterChange() {
+            document.getElementById("pageLoader").classList.remove("d-none");
+
+          const v = document.getElementById("mailFilter").value;
+          const url = new URL(window.location.href);
+          url.searchParams.set("f", v);
+          window.location.href = url.toString();
+      } {% endcomment %}
+
+      function onMailboxChange() {
+            document.getElementById("pageLoader").classList.remove("d-none");
+
+        const v = document.getElementById("mailboxFilter").value;
+        const url = new URL(window.location.href);
+
+        if (v) url.searchParams.set("mailbox", v);
+        else url.searchParams.delete("mailbox");
+
+        window.location.href = url.toString();
+    }
+
+    </script>
+
+    
+
+    <!-- Custom Scripts -->
+    <script>
+        // Initialize DataTable
+        $(document).ready(function() {
+            $('#mailTable').DataTable({
+                dom: '<"top"Bf>rt<"bottom"lip><"clear">',
+                buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        text: '<i class="bi bi-file-excel"></i> Export to Excel',
+                        className: 'btn btn-export btn-sm',
+                        title: 'Mail_Records_' + new Date().toLocaleDateString().replace(/\//g, '-'),
+                        exportOptions: {
+                            columns: ':visible' // Export all visible columns
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="bi bi-printer"></i> Print',
+                        className: 'btn btn-secondary btn-sm',
+                        title: 'Mail Log',
+                        exportOptions: {
+                            columns: ':visible' // Print all visible columns
+                        }
+                    }
+                ],
+                responsive: true,
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                pageLength: 25,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "Search mails...",
+                    lengthMenu: "Show _MENU_ records per page",
+                    zeroRecords: "No mail records found",
+                    info: "Showing _START_ to _END_ of _TOTAL_ records",
+                    infoEmpty: "No records available",
+                    infoFiltered: "(filtered from _MAX_ total records)",
+                    emptyTable: "No mail records found",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
+                },
+                order: [[1, 'desc']] // Sort by received date descending by default
+            });
+
+
+            /* ✅ ADD THIS BLOCK (ROW HIGHLIGHT) */
+            $('#mailTable tbody').on('click', 'tr', function () {
+                $('#mailTable tbody tr').removeClass('row-selected');
+                $(this).addClass('row-selected');
+            });
+
+            // Style the search box
+            $('.dataTables_filter input').addClass('form-control form-control-sm');
+            $('.dataTables_filter label').contents().filter(function() {
+                return this.nodeType === 3;
+            }).remove();
+            
+            // Style the length menu
+            $('.dataTables_length select').addClass('form-select form-select-sm');
+        });
+        
+        // Export to Excel
+        function exportToExcel() {
+            // Get table data
+            const table = document.getElementById('mailTable');
+            const html = table.outerHTML;
+            
+            // Create download link
+            const url = 'data:application/vnd.ms-excel,' + encodeURIComponent(html);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Mail_Records_' + new Date().toLocaleDateString() + '.xls';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+        
+        {% comment %} function onYearChange() {
+            const v = document.getElementById("yearSelector").value; // e.g. "2025-26"
+            const url = new URL(window.location.href);
+            url.searchParams.set("fy", v);  // IMPORTANT: use 'fy'
+            window.location.href = url.toString();
+            } {% endcomment %}
+    </script>
+
+    {% comment %} ################################333 {% endcomment %}
+    <script>
+  // CSRF helper
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+  const csrftoken = getCookie('csrftoken');
+
+  // Manual fetch submit
+    $("#fetchForm").on("submit", function(e) {
+    e.preventDefault();
+
+    const $btn = $("#fetchSubmitBtn");
+    const $spin = $("#fetchSpinner");
+    $btn.prop("disabled", true);
+    $spin.removeClass("d-none");
+
+    const data = $(this).serialize();
+
+    $.ajax({
+      url: "{% url 'mail_log_fetch' %}",
+      method: "POST",
+      data: data,
+      headers: { "X-CSRFToken": getCookie('csrftoken') },
+      success: function(resp) {
+        $btn.prop("disabled", false);
+        $spin.addClass("d-none");
+
+        const ins = resp.inserted || 0;
+        const upd = resp.updated || 0;
+        const exs = resp.existing || 0;
+        const searched = resp.searched || 0;
+
+        let msg = `Searched: ${searched}\nInserted: ${ins}\nUpdated: ${upd}\nAlready imported: ${exs}`;
+        if (ins === 0 && upd === 0 && exs > 0) {
+          msg = `No new emails found.\n${exs} email(s) were already imported in the selected date range.`;
+        } else if (searched === 0) {
+          msg = "No emails matched your search criteria for the selected range.";
+        }
+        alert(msg);
+
+        // Reload to show new rows
+        window.location.reload();
+      },
+      error: function(xhr) {
+        $btn.prop("disabled", false);
+        $spin.addClass("d-none");
+        alert("Fetch failed: " + (xhr.responseText || xhr.statusText));
+      }
+    });
+  });
+</script>
+
+
+{% comment %} import mail to DataEntry {% endcomment %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // When the button that opens the modal is clicked:
+  document.querySelectorAll('[data-bs-target="#importModal"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      console.log('[IMPORT DEBUG] Opened Import → DataEntry modal');
+    });
+  });
+
+  function getCookie(name) {
+    if (window.getCookie) return window.getCookie(name);
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      for (let cookie of document.cookie.split(';')) {
+        cookie = cookie.trim();
+        if (cookie.startsWith(name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  const form = document.getElementById('importForm');
+  const btn  = document.getElementById('importSubmitBtn');
+  const spn  = document.getElementById('importSpinner');
+
+  if (!form) {
+    console.warn('[IMPORT DEBUG] importForm not found in DOM');
+    return;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    spn.classList.remove('d-none');
+    btn.disabled = true;
+
+    const fd = new FormData(form);
+    const payload = Object.fromEntries(fd.entries());
+
+    // Rename your HTML field names to what the view expects
+    // (you are using this minimal import view)
+    payload.mailbox      = payload.mailbox || document.getElementById('importMailbox')?.value || '';
+    payload.mail_rec_from = payload.mail_rec_from || payload.from_date || '';
+    payload.mail_rec_to   = payload.mail_rec_to   || payload.last_date || '';
+    payload.auto_fy       = document.getElementById('importAutoFY')?.checked ? 'true' : 'false';
+
+    console.log('[IMPORT DEBUG] Submitting payload →', payload);
+
+    try {
+      const res = await fetch('/ajax/import_mail_to_dataentry/', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken') || '',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      console.log('[IMPORT DEBUG] HTTP status:', res.status);
+      const json = await res.json();
+      console.log('[IMPORT DEBUG] Response JSON →', json);
+
+      spn.classList.add('d-none');
+      btn.disabled = false;
+
+      if (!json.ok) {
+        alert('❌ Import failed: ' + (json.error || 'Unknown error'));
+        return;
+      }
+      
+      let lines = [];
+      lines.push(`✅ ${json.inserted} DataEntry imported successfully!`);
+      lines.push(`Scanned: ${json.scanned}, Skipped (no client): ${json.skipped_no_client}, Errors: ${json.errors}`);
+      lines.push(`Total files saved: ${json.total_saved_files || 0}`);
+
+      if (Array.isArray(json.saved_samples) && json.saved_samples.length) {
+        lines.push('');
+        lines.push('Saved file samples:');
+        json.saved_samples.forEach(row => {
+          const head = `DE#${row.de_id} (mail ${row.mail_id || "?"}) → ${row.base_dir || ""}`;
+          if (row.saved && row.saved.length) {
+            lines.push(`  ${head}`);
+            row.saved.slice(0, 3).forEach(p => lines.push(`    - ${p}`)); // show first 3 per DE
+          } else {
+            // No save—show why
+            const attempts = (row.attempted || []).slice(0, 2).map(a =>
+              `${a.exists ? 'EXISTS' : 'MISSING'}: ${a.src || '(no path)'}`
+            );
+            lines.push(`  ${head} (no files saved)`);
+            attempts.forEach(t => lines.push(`    · ${t}`));
+          }
+        });
+      }
+      alert(lines.join('\n'));
+
+      //alert(`✅ ${json.inserted} DataEntry imported successfully!\n(Scanned ${json.scanned}, Skipped ${json.skipped_no_client})`);
+      window.location.reload();
+
+    } catch (err) {
+      spn.classList.add('d-none');
+      btn.disabled = false;
+      console.error('[IMPORT DEBUG] Request error:', err);
+      alert('❌ Request failed: ' + err);
+    }
+  });
+});
+</script>
+
+<script>
+// ---- CSRF helper (Django) ----
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+  return null;
+}
+const CSRF_TOKEN = getCookie('csrftoken');
+
+// ---- URLs ----
+const URL_AJAX_GROUP_CLIENTS = "{% url 'ajax_group_clients' %}";
+const URL_AJAX_ASSOC_EMAIL   = "{% url 'ajax_associate_email' %}";
+
+function applyEntityStateSel() {
+  const v = document.getElementById('ae_entity').value;
+  const grpSel = document.getElementById('ae_group');
+  const cliSel = document.getElementById('ae_client');
+
+  if (v === 'group') {
+    grpSel.disabled = false;
+    cliSel.disabled = true;  cliSel.value = '';
+  } else if (v === 'client') {
+    grpSel.disabled = true;  grpSel.value = '';
+    cliSel.disabled = false;
+  } else { // doc
+    grpSel.disabled = true;  grpSel.value = '';
+    cliSel.disabled = true;  cliSel.value = '';
+  }
+}
+
+// React when the Select changes (event delegation so it works even if modal is added later)
+document.addEventListener('change', function(e){
+  if (e.target && e.target.id === 'ae_entity') applyEntityStateSel();
+});
+
+// ---- Open modal from badge click ----
+document.addEventListener('click', function(e) {
+  const a = e.target.closest('.unknown-email-badge');
+  if (!a) return;
+
+  e.preventDefault();
+  const mailId = a.getAttribute('data-mail-id');
+  const firstRecipient = a.getAttribute('data-first-recipient') || '';
+  const fy = a.getAttribute('data-fy') || '';
+
+  // fill fields
+  document.getElementById('ae_mail_id').value = mailId;
+  document.getElementById('ae_fy').value = fy;
+  document.getElementById('ae_email').value = firstRecipient;
+
+  // default to Client entity in the SELECT, then apply state
+  const entSel = document.getElementById('ae_entity');
+  if (entSel) entSel.value = 'client';
+  applyEntityStateSel();
+
+  // show modal
+  const modalEl = document.getElementById('associateEmailModal');
+  new bootstrap.Modal(modalEl).show();
+});
+
+// ---- When Group changes, fetch clients in that group (use delegation so the listener always exists) ----
+document.addEventListener('change', function(e){
+  if (!(e.target && e.target.id === 'ae_group')) return;
+
+  const gid = e.target.value;
+  const clientSel = document.getElementById('ae_client');
+  if (!clientSel) return;
+
+  if (!gid) {
+    clientSel.innerHTML = '<option value="">-- Select Client --</option>';
+    return;
+  }
+  fetch(`${URL_AJAX_GROUP_CLIENTS}?group_id=${encodeURIComponent(gid)}`, {
+    headers: {"X-Requested-With": "XMLHttpRequest"}
+  })
+  .then(r => r.json())
+  .then(data => {
+    clientSel.innerHTML = '<option value="">-- Select Client --</option>';
+    (data.clients || []).forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.name;
+      clientSel.appendChild(opt);
+    });
+  })
+  .catch(() => {});
+});
+
+// ---- Submit associate form (read entity from SELECT; no #ae_apply_group) ----
+document.addEventListener('submit', function(e){
+  const form = e.target;
+  if (!form || form.id !== 'associateEmailForm') return;
+  e.preventDefault();
+
+  const ent = document.getElementById('ae_entity')?.value;   // <- SELECT, not radios
+  const email = document.getElementById('ae_email').value.trim();
+  const mailId = document.getElementById('ae_mail_id').value;
+  const fy = document.getElementById('ae_fy').value;
+
+  if (!email) { alert('Enter email'); return; }
+
+  const formData = new FormData();
+  formData.append('email', email);
+  formData.append('mail_id', mailId);
+  formData.append('fy', fy);
+
+  if (ent === 'client') {
+    const clientId = document.getElementById('ae_client').value;
+    if (!clientId) { alert('Please select a client.'); return; }
+    formData.append('client_id', clientId);
+    formData.append('apply_to_group', 'false'); // checkbox removed; default false
+  } else if (ent === 'group') {
+    const groupId = document.getElementById('ae_group').value;
+    if (!groupId) { alert('Please select a group.'); return; }
+    //if (!clientId) { alert('Select a client in this group (needed by current API)'); return; }
+    formData.append('group_id', groupId);
+  } else {
+    alert('“Document specify” is not persisted yet. Choose Client or Group.');
+    return;
+  }
+
+  const btn = document.getElementById('ae_submit_btn');
+  const spn = document.getElementById('ae_spinner');
+  if (btn && spn) { btn.disabled = true; spn.classList.remove('d-none'); }
+
+  fetch(URL_AJAX_ASSOC_EMAIL, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': CSRF_TOKEN,
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    body: formData
+  })
+  .then(async r => {
+  const raw = await r.text();          // read raw first
+  let data = null;
+  try { data = JSON.parse(raw); } catch (_) {}
+
+  if (!r.ok || !data?.ok) {
+    console.error('Associate email failed:', r.status, raw);
+    // show something helpful to the user
+    alert((data && data.error) || `HTTP ${r.status}: ${raw.slice(0, 200)}`);
+    throw new Error('stop');           // stop the success path
+  }
+  const mailId = document.getElementById('ae_mail_id').value;
+  const cell = document.getElementById(`email-cell-${mailId}`);
+  if (cell) {
+    cell.innerHTML = `
+      <span class="badge bg-success">Known</span>
+      <div class="small text-muted">${data.email || ''}</div>
+    `;
+  }
+  const bsModal = bootstrap.Modal.getInstance(document.getElementById('associateEmailModal'));
+  if (bsModal) bsModal.hide();
+})
+  .catch(err => alert(err.message || 'Error saving'))
+  .finally(() => { if (btn && spn) { btn.disabled = false; spn.classList.add('d-none'); } });
+});
+</script>
+
+
+{% comment %} date Filteration {% endcomment %}
+<script>
+{% comment %} function buildFilterURL(extraParams = {}) {
+    const params = new URLSearchParams(window.location.search);
+
+    // Status
+    const f = document.getElementById("mailFilter")?.value || "";
+    if (f) params.set("f", f); else params.delete("f");
+
+    // Mailbox
+    const mailbox = document.getElementById("mailboxFilter")?.value || "";
+    if (mailbox) params.set("mailbox", mailbox); else params.delete("mailbox");
+
+    // Year
+    const year = document.getElementById("yearSelector")?.value || "";
+    if (year) params.set("year", year); else params.delete("year");
+
+    // Date filters
+    const dateFrom = document.getElementById("dateFrom")?.value || "";
+    const dateTo   = document.getElementById("dateTo")?.value || "";
+
+    if (dateFrom) params.set("date_from", dateFrom); else params.delete("date_from");
+    if (dateTo)   params.set("date_to", dateTo);   else params.delete("date_to");
+
+    // Apply extra overrides if any
+    for (const k in extraParams) {
+        if (extraParams[k]) params.set(k, extraParams[k]);
+        else params.delete(k);
+    }
+
+    window.location.search = params.toString();
+} {% endcomment %}
+
+function buildFilterURL(extraParams = {}) {
+    const params = new URLSearchParams(window.location.search);
+
+    // Mailbox
+    const mailbox = document.getElementById("mailboxFilter")?.value || "";
+    if (mailbox) params.set("mailbox", mailbox);
+    else params.delete("mailbox");
+
+    // Year
+    const year = document.getElementById("yearSelector")?.value || "";
+    if (year) params.set("fy", year);
+    else params.delete("fy");
+
+    // Date filters
+    /*const dateFrom = document.getElementById("dateFrom")?.value || "";
+    const dateTo   = document.getElementById("dateTo")?.value || "";
+
+    if (dateFrom) params.set("date_from", dateFrom);
+    else params.delete("date_from");
+
+    if (dateTo) params.set("date_to", dateTo);
+    else params.delete("date_to");*/
+
+    window.location.search = params.toString();
+}
+
+function onFilterChange() {
+    buildFilterURL();
+}
+
+function onMailboxChange() {
+    buildFilterURL();
+}
+
+function onYearChange() {
+    buildFilterURL();
+}
+
+{% comment %} function onDateChange() {
+    buildFilterURL();
+} {% endcomment %}
+</script>
+
+
+<!-- Associate Email Modal (drop-in) -->
+<div class="modal fade" id="associateEmailModal" tabindex="-1" aria-labelledby="associateEmailLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <form id="associateEmailForm">
+        <div class="modal-header py-2">
+          <h6 class="modal-title" id="associateEmailLabel">Associate Email</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body py-2">
+          <!-- hidden wiring (optional) -->
+          <input type="hidden" name="mail_id" id="ae_mail_id">
+          <input type="hidden" name="fy" id="ae_fy">
+
+          <!-- Select Entity -->
+          <div class="mb-2">
+            <label class="form-label mb-1">Select Entity</label>
+            <select class="form-select form-select-sm" id="ae_entity">
+              <option value="group">Group</option>
+              <option value="client" selected>Client</option>
+              <option value="doc">Document specify</option>
+            </select>
+          </div>
+
+          <!-- Group dropdown -->
+          <div class="mb-2">
+            <label class="form-label mb-1">Group</label>
+            <select class="form-select form-select-sm" id="ae_group" disabled>
+              <option value="">-- Select Group --</option>
+              {% for g in groups %}
+                <option value="{{ g.id }}">{{ g.group_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Client dropdown -->
+          <div class="mb-2">
+            <label class="form-label mb-1">Client</label>
+            <select class="form-select form-select-sm" id="ae_client">
+              <option value="">-- Select Client --</option>
+              {% for c in clients %}
+                <option value="{{ c.id }}">{{ c.client_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Email -->
+          <div class="mb-2">
+            <label class="form-label mb-1">Email</label>
+            <input type="email" class="form-control form-control-sm" id="ae_email" name="email" placeholder="someone@example.com" required>
+          </div>
+        </div>
+
+        <div class="modal-footer py-2">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary btn-sm" id="ae_submit_btn">
+            <span class="spinner-border spinner-border-sm me-1 d-none" id="ae_spinner"></span>
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+            <!-- Import Modal -->
+            <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                  <form id="importForm">
+                    <div class="modal-header">
+                      <h6 class="modal-title" id="importModalLabel">Import → DataEntry</h6>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                      <!-- Mailbox -->
+                      <div class="mb-2">
+                        <label class="form-label mb-1">Mailbox</label>
+                        <select class="form-select form-select-sm" name="mailbox" id="importMailbox" required>
+                          {% for entry in IMAP_ACCOUNTS %}
+                            <option value="{{ entry.0 }}">{{ entry.0 }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+
+                      <!-- Date range (used for DataEntry.from_date / DataEntry.last_date) -->
+                      <div class="mb-2">
+                        <label class="form-label mb-1">From date</label>
+                        <input type="date" class="form-control form-control-sm" name="from_date" required />
+                      </div>
+                      <div class="mb-2">
+                        <label class="form-label mb-1">Last date</label>
+                        <input type="date" class="form-control form-control-sm" name="last_date" required />
+                      </div>
+
+                      <!-- Mail selection window (which mails to import) -->
+                      {% comment %} <div class="mb-2">
+                        <label class="form-label mb-1">Mail window (received)</label>
+                        <div class="d-flex gap-2">
+                          <input type="date" class="form-control form-control-sm" name="mail_rec_from" />
+                          <input type="date" class="form-control form-control-sm" name="mail_rec_to" />
+                        </div>
+                        <small class="text-muted">Optional: filter which mails to import by received date.</small>
+                      </div> {% endcomment %}
+
+                      <div class="mb-2">
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" id="importAutoFY" name="auto_fy" checked />
+                          <label class="form-check-label" for="importAutoFY">Auto FY routing (by From date)</label>
+                        </div>
+                      </div>
+
+                      <!-- Sensible defaults -->
+                      <div class="mb-2">
+                        <label class="form-label mb-1">Status</label>
+                        <select class="form-select form-select-sm" name="status">
+                          <option value="Hold">Hold</option>
+                          <option value="Done">Done</option>
+                          <option value="Nil">Nil</option>
+                        </select>
+                      </div>
+                      <input type="hidden" name="format" value="Soft Copy" />
+                      <input type="hidden" name="received_by" value="Mail" />
+                    </div>
+
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-success btn-sm" id="importSubmitBtn">
+                        <span class="spinner-border spinner-border-sm me-1 d-none" id="importSpinner"></span>
+                        Import
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+           <script>
+             document.addEventListener("DOMContentLoaded", function () {
+                // Let browser paint loader first
+                setTimeout(() => {
+                    const loader = document.getElementById("pageLoader");
+                    if (loader) loader.classList.add("d-none");
+                }, 300); // 200–400ms is ideal
+            });
+            </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    document.querySelectorAll(".status-check").forEach(cb => {
+        cb.addEventListener("change", function () {
+            document.getElementById("pageLoader")?.classList.remove("d-none");
+
+            const params = new URLSearchParams(window.location.search);
+
+            // Remove old status filters
+            params.delete("f");
+
+            // Add all checked statuses
+            document.querySelectorAll(".status-check:checked").forEach(c => {
+                params.append("f", c.value);
+            });
+
+            window.location.search = params.toString();
+        });
+    });
+
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const btn = document.getElementById("statusDropdownBtn");
+
+    function updateLabel() {
+        const checked = document.querySelectorAll(".status-check:checked");
+        if (!checked.length) {
+            btn.textContent = "-- All Status --";
+            return;
+        }
+        btn.textContent = Array.from(checked)
+            .map(c => c.nextElementSibling.innerText.trim())
+            .join(", ");
+    }
+
+    updateLabel();
+    document.querySelectorAll(".status-check").forEach(cb =>
+        cb.addEventListener("change", updateLabel)
+    );
+});
+</script>
+
+{% comment %} attchment modal {% endcomment %}
+<div class="modal fade" id="mailDocModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <div class="modal-header py-2">
+        <h6 class="modal-title">
+          Document Specification – Mail <span id="md_mail_id"></span>
+        </h6>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-2">
+
+        <!-- Mail Info -->
+        <div class="row small mb-2">
+          <div class="col"><b>From:</b> <span id="md_from"></span></div>
+          <div class="col"><b>Date:</b> <span id="md_date"></span></div>
+          <div class="col"><b>Group:</b> <span id="md_group"></span></div>
+        </div>
+
+        <!-- Attachment Table -->
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered align-middle">
+            <thead class="table-dark">
+              <tr>
+                <th>File</th>
+                <th>Action</th>
+                <th>Client</th>
+                <th>Category</Category>
+                  <th>Document Name</th>
+                <th>Sub Category</th>
+
+                <th>Password</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody id="md_table_body">
+              <!-- rows injected by JS -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <div class="modal-footer py-2">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-success btn-sm" onclick="saveMailDocs()">
+          💾 Save All
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% comment %} attchment (upload document script) {% endcomment %}
+<script>
+function openMailDocModal(mailId) {
+
+  const modalEl = document.getElementById("mailDocModal");
+  const modal = new bootstrap.Modal(modalEl);
+
+  // ✅ OPEN MODAL IMMEDIATELY
+  modal.show();
+
+  // Reset content
+  document.getElementById("md_mail_id").innerText = mailId;
+  document.getElementById("md_from").innerText = "Loading...";
+  document.getElementById("md_date").innerText = "";
+  document.getElementById("md_group").innerText = "";
+
+  const tbody = document.getElementById("md_table_body");
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="8" class="text-center text-muted">
+        <div class="spinner-border spinner-border-sm"></div>
+        Loading attachments...
+      </td>
+    </tr>
+  `;
+
+  // ✅ THEN fetch data
+  fetch(`/ajax/mail/${mailId}/attachments/?fy={{ fy }}`, {
+    headers: { "X-Requested-With": "XMLHttpRequest" }
+  })
+  .then(r => {
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return r.json();
+  })
+  .then(data => {
+
+
+    if (!data.ok) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" class="text-danger text-center">
+            ${data.error || "Failed to load attachments"}
+          </td>
+        </tr>`;
+      return;
+    }
+
+    document.getElementById("md_from").innerText = data.from || "-";
+    document.getElementById("md_date").innerText = data.date || "-";
+    document.getElementById("md_group").innerText = data.group || "-";
+
+    tbody.innerHTML = "";
+
+    if (!data.attachments || !data.attachments.length) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" class="text-center text-muted">
+            No attachments found
+          </td>
+        </tr>`;
+      return;
+    }
+
+    data.attachments.forEach(att => {
+      const tr = document.createElement("tr");
+      tr.dataset.filename = att.filename;
+
+      tr.innerHTML = `
+        <td>${att.filename}</td>
+
+        <td>
+          <select class="form-select form-select-sm">
+            <option value="save">Need to save</option>
+            <option value="skip">Need to avoid</option>
+            <option value="skip">Hold</option>
+          </select>
+        </td>
+
+        <td>
+          <select class="form-select form-select-sm client"  onchange="loadDocNames(this.closest('tr'))">
+            ${data.clients_html}
+          </select>
+        </td>
+
+        <td>
+          <select class="form-select form-select-sm category"
+                onchange="loadDocNames(this.closest('tr')); loadSubTypes(this)">
+          <option value="">-- Select Category --</option>
+          ${data.categories_html}
+          </select>
+        </td>
+
+        <td>
+          <select class="form-select form-select-sm doc-name">
+          <option value="">-- Select Document Name --</option>
+        </select>
+        </td>
+
+        <td>
+         <select class="form-select form-select-sm sub-type">
+          <option value="">-- Select Sub Type --</option>
+        </select>
+
+        </td>
+        <td><input class="form-control form-control-sm password"></td>
+        <td><input class="form-control form-control-sm notes"></td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+  })
+  .catch(err => {
+    console.error("Attachment fetch failed:", err);
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8" class="text-danger text-center">
+          Failed to load attachments
+        </td>
+      </tr>`;
+  });
+}
+</script>
+
+
+{% comment %} send row  as json {% endcomment %}
+<script>
+function saveMailDocs() {
+
+  const rows = [];
+  document.querySelectorAll("#md_table_body tr").forEach(tr => {
+    rows.push({
+      filename: tr.dataset.filename,
+      action: tr.querySelector("select").value,
+      client: tr.querySelector(".client").value,
+      category: tr.querySelector(".category").value,
+      sub_type: tr.querySelector(".sub-type").value,
+      doc_name: tr.querySelector(".doc-name").value,
+      password: tr.querySelector(".password").value,
+      notes: tr.querySelector(".notes").value,
+    });
+  });
+
+  fetch("{% url 'ajax_mail_save_docs' %}", {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken"),
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      mail_id: document.getElementById("md_mail_id").innerText,
+      fy: "{{ fy }}",
+      rows: rows
+    })
+  })
+  .then(r => r.json())
+  .then(res => {
+    alert(`Saved: ${res.saved}, Skipped: ${res.skipped}`);
+    location.reload();
+  });
+}
+</script>
+<script>
+function applyDateFilter() {
+    const df = document.getElementById("dateFrom").value;
+    const dt = document.getElementById("dateTo").value;
+
+    if (!df || !dt) {
+        alert("Please select both From Date and To Date");
+        return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    params.set("date_from", df);
+    params.set("date_to", dt);
+
+    window.location.search = params.toString();
+}
+</script>
+<script>
+function loadSubTypes(categorySelect) {
+
+  const tr = categorySelect.closest("tr");
+  const categoryId = categorySelect.value;
+
+  const subTypeSelect = tr.querySelector(".sub-type");
+  const docNameSelect = tr.querySelector(".doc-name");
+
+  // reset
+  subTypeSelect.innerHTML = `<option value="">-- Select Sub Type --</option>`;
+  docNameSelect.innerHTML = `<option value="">-- Select Document Name --</option>`;
+
+  if (!categoryId) return;
+
+  fetch(`/api/subtypes/?category_id=${categoryId}`, {
+    headers: { "X-Requested-With": "XMLHttpRequest" }
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (!data.ok) return;
+
+    data.subtypes.forEach(s => {
+      subTypeSelect.insertAdjacentHTML(
+        "beforeend",
+        `<option value="${s.id}">${s.name}</option>`
+      );
+    });
+  });
+}
+</script>
+{% comment %} client wise category name {% endcomment %}
+<script>
+function loadDocNames(tr) {
+
+  const clientId = tr.querySelector(".client").value;
+  const categoryId = tr.querySelector(".category").value;
+  const docNameSelect = tr.querySelector(".doc-name");
+
+  docNameSelect.innerHTML = `<option value="">-- Select Document Name --</option>`;
+
+  if (!clientId || !categoryId) return;
+
+  fetch(`/api/client-category-names/?client_id=${clientId}&category_id=${categoryId}`, {
+    headers: { "X-Requested-With": "XMLHttpRequest" }
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (!data.ok) return;
+
+    data.items.forEach(d => {
+      docNameSelect.insertAdjacentHTML(
+        "beforeend",
+        `<option value="${d.id}">${d.name}</option>`
+      );
+    });
+  });
+}
+</script>
+</body>
+</html>

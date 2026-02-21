@@ -1,0 +1,249 @@
+{% comment %} {% extends 'base.html' %} {% endcomment %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">{{ title }}</h3>
+        </div>
+        <div class="card-body">
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <div class="row mb-3">
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">Client ID:</label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" value="{{ client_id }}" disabled>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.client_name.id_for_label }}" class="form-label fw-bold">Client Name</label>
+                        {{ form.client_name }}
+                        <div class="invalid-feedback">
+                            Please provide a client name.
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.legal_name.id_for_label }}" class="form-label fw-bold">Legal Name</label>
+                        {{ form.legal_name }}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="{{ form.group_name.id_for_label }}" class="form-label fw-bold">Group Name</label>
+                        {{ form.group_name }}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="{{ form.address.id_for_label }}" class="form-label fw-bold">Address</label>
+                        {{ form.address }}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="{{ form.other_info.id_for_label }}" class="form-label fw-bold">Other Information</label>
+                        {{ form.other_info }}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="{{ form.pan.id_for_label }}" class="form-label fw-bold">PAN</label>
+                        {{ form.pan }}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.gst_no.id_for_label }}" class="form-label fw-bold">GST No</label>
+                        {{ form.gst_no }}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="{{ form.mobile_no.id_for_label }}" class="form-label fw-bold">Mobile No</label>
+                        {{ form.mobile_no }}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.email.id_for_label }}" class="form-label fw-bold">Email ID</label>
+                        {{ form.email }}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.file_no.id_for_label }}" class="form-label fw-bold">File No.</label>
+                        {{ form.file_no }}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="{{ form.busy_code.id_for_label }}" class="form-label fw-bold">Busy Code</label>
+                        {{ form.busy_code }}
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold">Return Type</label>
+                        <div class="form-check form-check-inline">
+                            {% for checkbox in form.return_types %}
+                            <div class="form-check form-check-inline me-3">
+                                {{ checkbox.tag }}
+                                <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                                    {{ checkbox.choice_label }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="submit" class="btn btn-success px-4">
+                        <i class="bi bi-check-circle me-2"></i>Submit
+                    </button>
+                    <button type="reset" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-eraser me-2"></i>Clear
+                    </button>
+                    <a href="#" class="btn btn-outline-danger px-4">
+                        <i class="bi bi-x-circle me-2"></i>Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        border-radius: 10px;
+        border: none;
+    }
+    
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+        padding: 15px 20px;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 5px;
+        padding: 10px;
+        border: 1px solid #ced4da;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .form-label {
+        margin-bottom: 5px;
+    }
+    
+    .btn {
+        border-radius: 5px;
+        padding: 8px 20px;
+        font-weight: 500;
+    }
+    
+    .invalid-feedback {
+        display: none;
+        color: #dc3545;
+    }
+    
+    .was-validated .form-control:invalid ~ .invalid-feedback,
+    .was-validated .form-control:invalid ~ .invalid-feedback {
+        display: block;
+    }
+    
+    .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+</style>
+{% endblock %}
+
+
+
+
+
+import pandas as pd
+from datetime import datetime
+from accounts.models import AccountBank, Client,UserData ,DataEntry
+
+def parse_date(val):
+    try:
+        return pd.to_datetime(val).date() if pd.notna(val) else None
+    except:
+        return None
+
+def import_data():
+    df = pd.read_excel(r'Z:\Kameet Soft Project\Database\trans_tbl.xlsx')
+
+    for index, row in df.iterrows():
+        client_id = str(row['ClientID']).strip()
+        try:
+            client = Client.objects.get(client_id=client_id)
+        except Client.DoesNotExist:
+            print(f"❌ Client not found: '{client_id}' at row {index + 1}")
+            continue
+
+        acc_id = str(row['AccID']).strip()
+        account = None
+        virtual_account_type = None
+
+        if acc_id in ['1', '2']:
+            virtual_account_type = acc_id
+        else:
+            try:
+                account = AccountBank.objects.get(account_id=acc_id, client=client)
+                # Optional: set virtual_account_type from account name if needed
+                if account.account and 'sales' in account.account.lower():
+                    virtual_account_type = '1'
+                elif account.account and 'purchase' in account.account.lower():
+                    virtual_account_type = '2'
+            except AccountBank.DoesNotExist:
+                print(f"❌ Account not found: {acc_id} for client {client.client_name}")
+                continue
+
+        user = None
+        if pd.notna(row['AllotedTo']):
+            username = str(row['AllotedTo']).strip()
+            try:
+                user = UserData.objects.get(username=username)
+            except UserData.DoesNotExist:
+                print(f"❌ User not found: {username}")
+                continue
+
+        try:
+            entry = DataEntry.objects.create(
+                client=client,
+                account=account,
+                virtual_account_type=virtual_account_type,
+                rec_date=parse_date(row['RecDate']),
+                format=row['RecFormat'],
+                received_by=row['RecBy'],
+                from_date=parse_date(row['FromDate']),
+                last_date=parse_date(row['LastDate']),
+                alloted_to=user,
+                alloted_date=parse_date(row['AllotedDate']),
+                done_date=parse_date(row['DoneDate']),
+                query=row.get('Query'),
+                remark=row.get('Remark'),
+                is_nil=bool(row['NIl']) if pd.notna(row['NIl']) else False,
+                status=row['Status'],
+                attach_file=row.get('FileLink') if pd.notna(row.get('FileLink')) else None,
+                msg_id=row.get('MessageID'),
+            )
+            print(f"✅ Imported entry: {entry}")
+        except Exception as e:
+            print(f"❌ Failed to import row {index + 1}: {e}")
+

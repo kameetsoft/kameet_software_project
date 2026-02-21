@@ -1,0 +1,18 @@
+ICICI Bank account Statement from 09-07-2024 to 09-07-2024. 
+
+
+Account Number|Tran Date |  Tran Particular    | Inst Num      |   Dr Tran Amt   |    Cr Tran Amt |      Bal Amt      | Deposit Branch
+-------------- ---------    ---------------      ---------       ---------------   ---------------        --------    | ------- ------
+624605065980|   25-JUN-2024|  B/F                                                                                                 |                 |                |                |        21987.71|                            
+624605065980|   25-Jun-2024|  BY CASH -SURAT - ADAJAN SHAJANANDINFRASTRUCTURE                                                     |                 |            0.00|       150000.00|       171987.71|              SURAT - ADAJAN
+624605065980|   25-Jun-2024|  NEFT*000149282203/SBIN0018810/SHUBHAMBUIL DINGS MA TERIALS                                          |             1384|       120000.00|            0.00|        51987.71|              SURAT - RANDER
+624605065980|   27-Jun-2024|  CAM/01932SRY/CASH DEP-Other/27-06-24/5259                                                           |                 |            0.00|        48500.00|       100487.71|                SURAT (6246)
+624605065980|   27-Jun-2024|  NEFT*000149371351/SBIN0000281/GARG STEEL                                                            |             1386|        30402.00|            0.00|        70085.71|               AHMEDABAD RPC
+624605065980|   29-Jun-2024|  NEFT*000149432673/HDFC0000049/MARUTI SAGAR ENGINEE RING                                             |             1387|        11682.00|            0.00|        58403.71|               AHMEDABAD RPC
+624605065980|   29-Jun-2024|  NEFT*000149432602/CBIN0280573/A ONE PIPE                                                            |             1389|        27500.00|            0.00|        30903.71|               AHMEDABAD RPC
+624605065980|   29-Jun-2024|  Statement Chg Feb-24+GST                                                                            |                 |           29.50|            0.00|        30874.21|               NARIMAN POINT
+624605065980|   04-Jul-2024|  BY CASH -BOTAD                                                                                      |                 |            0.00|       170000.00|       200874.21|                       BOTAD
+624605065980|   04-Jul-2024|  NEFT*000149593662/UTIB0CCH274/ULTRATECH CEMENT                                                      |             1390|       170000.00|            0.00|        30874.21|               AHMEDABAD RPC
+624605065980|   06-Jul-2024|  CASH PAID*Self 1386 SURAT - RANDER CHQ,1391                                                         |             1391|        25000.00|            0.00|         5874.21|              SURAT - RANDER
+
+ Closing Balance as on 10-07-2024 06:14:02 is INR.5874.21 includes Uncleared Funds of INR.0.00

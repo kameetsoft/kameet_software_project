@@ -1,0 +1,21 @@
+ICICI Bank account Statement from 10-05-2024 to 10-05-2024. 
+
+
+Account Number|Tran Date |  Tran Particular    | Inst Num      |   Dr Tran Amt   |    Cr Tran Amt |      Bal Amt      | Deposit Branch
+-------------- ---------    ---------------      ---------       ---------------   ---------------        --------    | ------- ------
+624605065980|   26-APR-2024|  B/F                                                                                                 |                 |                |                |       539511.21|                            
+624605065980|   26-Apr-2024|  TRF/PATEL HARDWARE AND SANATERY/ICI                                                                 |             1296|       400000.00|            0.00|       139511.21|                       BOTAD
+624605065980|   30-Apr-2024|  Statement Chg Jan-24+GST                                                                            |                 |           29.50|            0.00|       139481.71|               NARIMAN POINT
+624605065980|   08-May-2024|  NEFT-IDFBH24129155928-MR GOTI SANJAY MAKODBHAI-/AT TN/-00000010079866009-IDFB0010201                |                 |            0.00|       375000.00|       514481.71|                  RPC MUMBAI
+624605065980|   08-May-2024|  NEFT*000147649103/SBIN0018810/SHUBHAM BUILDING MAT ERIALS                                           |             1089|       150000.00|            0.00|       364481.71|               AHMEDABAD RPC
+624605065980|   08-May-2024|  TRF/PATEL TRADERS/ICI                                                                               |             1090|       250000.00|            0.00|       114481.71|                       BOTAD
+624605065980|   09-May-2024|  NEFT-IDFBH24130416820-MR GOTI SANJAY MAKODBHAI-/AT TN/-00000010079866009-IDFB0010201                |                 |            0.00|       500000.00|       614481.71|                  RPC MUMBAI
+624605065980|   09-May-2024|  NEFT-IDFBH24130416416-MR GOTI SANJAY MAKODBHAI-/AT TN/-00000010079866009-IDFB0010201                |                 |            0.00|        25000.00|       639481.71|                  RPC MUMBAI
+624605065980|   09-May-2024|  RTGS*ICICR52024050900825252/BKID0002045/SMIT STEEL  TRADERS                                         |             1091|       200000.00|            0.00|       439481.71|               AHMEDABAD RPC
+624605065980|   10-May-2024|  Business Loan XX83021 EMI Saha                                                                      |                 |       121828.00|            0.00|       317653.71|                    BORIVALI
+624605065980|   10-May-2024|  NEFT-IDFBH24131559310-MR GOTI SANJAY MAKODBHAI-/AT TN/-00000010079866009-IDFB0010201                |                 |            0.00|        25000.00|       342653.71|                  RPC MUMBAI
+624605065980|   10-May-2024|  NEFT-IDFBH24131584600-MR GOTI SANJAY MAKODBHAI-/AT TN/-00000010079866009-IDFB0010201                |                 |            0.00|       175000.00|       517653.71|                  RPC MUMBAI
+624605065980|   10-May-2024|  TRFR TO* CONFAST CHEMICALS PRIVATE LIMITED                                                          |             1092|       175000.00|            0.00|       342653.71|              SURAT - RANDER
+624605065980|   10-May-2024|  NEFT*000147758372/UTIB0CCH274/ULTRATECH CEMENT                                                      |             1093|       175000.00|            0.00|       167653.71|              SURAT - RANDER
+
+ Closing Balance as on 11-05-2024 11:53:53 is INR.167653.71 includes Uncleared Funds of INR.0.00

@@ -1,0 +1,24 @@
+ICICI Bank account Statement from 07-10-2024 to 07-10-2024. 
+
+
+Account Number|Tran Date |  Tran Particular    | Inst Num      |   Dr Tran Amt   |    Cr Tran Amt |      Bal Amt      | Deposit Branch
+-------------- ---------    ---------------      ---------       ---------------   ---------------        --------    | ------- ------
+624605065980|   23-SEP-2024|  B/F                                                                                                 |                 |                |                |        83614.03|                            
+624605065980|   24-Sep-2024|  NEFT-N268243283451612-JAY BUT BHAVANI ALUMINIUM-RE TURN-99933322211133-HDFC0000001                  |                 |            0.00|       150000.00|       233614.03|                  RPC MUMBAI
+624605065980|   25-Sep-2024|  RTGS-HDFCR52024092596150384-GPC INFASTRUCTURE-0335 2000005125-HDFC0000240                           |                 |            0.00|      5169467.00|      5403081.03|                   RPC-NASIK
+624605065980|   26-Sep-2024|  RTGS*ICICR52024092600212964/UBIN0911569/RAJESHKUMA R J GOLAKIYA                                     |             1418|       500000.00|            0.00|      4903081.03|               AHMEDABAD RPC
+624605065980|   26-Sep-2024|  NEFT*000152380396/HDFC0003101/REGAL ALUMINIUM                                                       |             1409|       150000.00|            0.00|      4753081.03|               AHMEDABAD RPC
+624605065980|   26-Sep-2024|  RTGS*ICICR52024092600213286/HDFC0003948/KRISHNA TR ADING                                            |             1417|      2900000.00|            0.00|      1853081.03|               AHMEDABAD RPC
+624605065980|   26-Sep-2024|  TRF/PATEL TRADERS/ICI                                                                               |             1408|       350000.00|            0.00|      1503081.03|                       BOTAD
+624605065980|   26-Sep-2024|  RTGS*ICICR52024092600214648/HDFC0000948/YOGI STEEL                                                  |             1413|       200000.00|            0.00|      1303081.03|               AHMEDABAD RPC
+624605065980|   26-Sep-2024|  TRF/ ANKIT ENTERPRISE /ICI                                                                          |             1407|       346000.00|            0.00|       957081.03|       BOTAD - STATIONA ROAD
+624605065980|   26-Sep-2024|  NEFT*000152380900/HDFC0000955/SQUARE FEET CERAMIC                                                   |             1415|        75000.00|            0.00|       882081.03|               AHMEDABAD RPC
+624605065980|   26-Sep-2024|  NEFT*000152381445/SBIN0060015/CHAUHAN AJAYSINH BAN ESHANGBHAI                                       |             1410|        99000.00|            0.00|       783081.03|               AHMEDABAD RPC
+624605065980|   26-Sep-2024|  RTGS*ICICR52024092600213927/ESFB0007014/GOHIL PARE SHKUMAR RAJILAL                                  |             1414|       495000.00|            0.00|       288081.03|               AHMEDABAD RPC
+624605065980|   26-Sep-2024|  TRF/PATEL TRADERS/ICI                                                                               |             1412|       150000.00|            0.00|       138081.03|                       BOTAD
+624605065980|   30-Sep-2024|  BY CASH -SURAT - ADAJAN SAHAJANAND INFRASTRUCTURE                                                   |                 |            0.00|       200000.00|       338081.03|              SURAT - ADAJAN
+624605065980|   30-Sep-2024|  NEFT*000152452912/SBIN0005590/AUROMA TRADERS                                                        |             1420|        63700.00|            0.00|       274381.03|               AHMEDABAD RPC
+624605065980|   30-Sep-2024|  RTGS*ICICR52024093000311031/UTIB0000047/NJ ECO BUI LD PVT LTD                                       |             1419|       200000.00|            0.00|        74381.03|               AHMEDABAD RPC
+624605065980|   04-Oct-2024|  NEFT*000152613381/IDFB0042268/GOTI SANJAY MAKODBHA I                                                |             1421|        50000.00|            0.00|        24381.03|               AHMEDABAD RPC
+
+ Closing Balance as on 08-10-2024 05:33:05 is INR.24381.03 includes Uncleared Funds of INR.0.00

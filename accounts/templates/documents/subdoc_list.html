@@ -1,0 +1,169 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Sub-Document List</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<button type="button"
+        class="btn btn-danger btn-sm position-fixed"
+        style="top:12px; right:16px; z-index:1050;"
+        title="Go to Home"
+        onclick="window.location.href='{% url 'home' %}'">
+  &times;
+</button>
+
+<div class="container p-3">
+
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h4>Sub-Document List</h4>
+    <button class="btn btn-primary btn-sm" onclick="openSubModal()">+ Add Sub-Document</button>
+  </div>
+
+  <!-- Filter -->
+  <form class="row g-2 mb-3">
+    <div class="col-md-4">
+      <select name="category_id" class="form-select" onchange="this.form.submit()">
+        <option value="">All Categories</option>
+        {% for c in categories %}
+          <option value="{{c.id}}" {% if selected_category == c.id|stringformat:"s" %}selected{% endif %}>
+            {{c.category_type}}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+  </form>
+
+  <!-- Table -->
+  <div class="table-responsive bg-white border rounded">
+    <table class="table table-sm table-striped mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th>Category</th>
+          <th>Sub-Document</th>
+          <th>Active</th>
+          <th>System</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in subdocs %}
+        <tr>
+          <td>{{ s.category.category_type }}</td>
+          <td>{{ s.name }}</td>
+          <td>
+            {% if s.is_active %}
+              <span class="badge bg-success">Yes</span>
+            {% else %}
+              <span class="badge bg-secondary">No</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if s.is_system %}
+              <span class="badge bg-info">System</span>
+            {% else %}
+              User
+            {% endif %}
+          </td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary"
+                    onclick="editSub({{s.id}}, '{{s.category.id}}', '{{s.name}}', {{s.is_active|yesno:'true,false'}})">
+              Edit
+            </button>
+            <button class="btn btn-sm btn-outline-danger"
+                    onclick="deleteSub({{s.id}})">
+              Delete
+            </button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center text-muted py-3">No sub-documents</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="subModal">
+  <div class="modal-dialog">
+    <form class="modal-content" id="subForm">
+      {% csrf_token %}
+      <input type="hidden" name="id" id="sub_id">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Sub-Document</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <label class="form-label">Category</label>
+        <select class="form-select" name="category_id" required>
+          {% for c in categories %}
+            <option value="{{c.id}}">{{c.category_type}}</option>
+          {% endfor %}
+        </select>
+
+        <label class="form-label mt-2">Sub-Document Name</label>
+        <input class="form-control" name="name" required>
+
+        <div class="form-check mt-2">
+          <input class="form-check-input" type="checkbox" name="is_active" checked>
+          <label class="form-check-label">Active</label>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-success">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const modal = new bootstrap.Modal(document.getElementById("subModal"));
+
+function openSubModal(){
+  document.getElementById("subForm").reset();
+  document.getElementById("sub_id").value = "";
+  modal.show();
+}
+
+function editSub(id, catId, name, active){
+  const f = document.getElementById("subForm");
+  f.sub_id.value = id;
+  f.category_id.value = catId;
+  f.name.value = name;
+  f.is_active.checked = active;
+  modal.show();
+}
+
+document.getElementById("subForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+
+  const res = await fetch("{% url 'api_save_subdoc' %}", { method:"POST", body:fd });
+  const data = await res.json();
+  if(!data.ok){ alert(data.error); return; }
+  location.reload();
+});
+
+async function deleteSub(id){
+  if(!confirm("Delete this sub-document?")) return;
+  const fd = new FormData();
+  fd.append("id", id);
+  fd.append("csrfmiddlewaretoken", "{{csrf_token}}");
+
+  const res = await fetch("{% url 'api_delete_subdoc' %}", { method:"POST", body:fd });
+  const data = await res.json();
+  if(!data.ok){ alert(data.error); return; }
+  location.reload();
+}
+</script>
+
+</body>
+</html>

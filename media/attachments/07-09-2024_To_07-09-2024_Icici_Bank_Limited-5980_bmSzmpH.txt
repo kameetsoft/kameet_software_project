@@ -1,0 +1,10 @@
+ICICI Bank account Statement from 07-09-2024 to 07-09-2024. 
+
+
+Account Number|Tran Date |  Tran Particular    | Inst Num      |   Dr Tran Amt   |    Cr Tran Amt |      Bal Amt      | Deposit Branch
+-------------- ---------    ---------------      ---------       ---------------   ---------------        --------    | ------- ------
+624605065980|   24-AUG-2024|  B/F                                                                                                 |                 |                |                |        13868.71|                            
+624605065980|   28-Aug-2024|  NEFT-IDFBH24241167902-MR GOTI SANJAY MAKODBHAI-/AT TN/-00000010079866009-IDFB0010201                |                 |            0.00|       170000.00|       183868.71|                  RPC MUMBAI
+624605065980|   28-Aug-2024|  NEFT*000151394545/UTIB0CCH274/ULTRATECH CEMENT                                                      |             1337|       177000.00|            0.00|         6868.71|               AHMEDABAD RPC
+
+ Closing Balance as on 08-09-2024 04:56:41 is INR.6868.71 includes Uncleared Funds of INR.0.00

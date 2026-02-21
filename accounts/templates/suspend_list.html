@@ -1,0 +1,424 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAMEET Accounting - Tax Suspension List</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+        }
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            padding: 0;
+            margin: 0;
+        }
+        .table thead th {
+            background-color: var(--primary-color);
+            color: white;
+            position: sticky;
+            top: 0;
+            font-weight: 500;
+        }
+        .table-responsive {
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        .btn-action {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+            margin-right: 5px;
+        }
+        .btn-export {
+            background-color: #27ae60;
+            border-color: #27ae60;
+        }
+        .btn-export:hover, 
+        .btn-export:focus, 
+        .btn-export:active {
+            background-color:rgb(42, 136, 81) !important;
+            border-color: rgb(42, 136, 81)  !important;
+            color: white !important;
+            opacity: 1 !important;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        .dataTables_wrapper .dataTables_filter {
+            float: right;
+            text-align: right;
+        }
+        .dataTables_wrapper .dataTables_length {
+            float: left;
+        }
+        .dt-buttons {
+            margin-bottom: 10px;
+        }
+
+        /* Compact main container */
+        .main-container {
+          padding: 8px !important;
+          margin: 0 !important;
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+
+        /* Compact table styling for all tables */
+         #suspensionTable {
+          font-size: 12px;
+          font-weight: 500;
+        }
+
+        #suspensionTable th, #suspensionTable td {
+          padding: 3px 6px !important;
+          line-height: 1.2 !important;
+          white-space: nowrap;
+        }
+
+        /* Compact table header */
+        #suspensionTable thead th {
+          font-size: 12px;
+          padding: 4px 6px !important;
+        }
+
+        /* Compact hover effect */
+        .table-hover tbody tr:hover {
+          background-color: #f7f7f7 !important;
+        }
+
+        /* Compact DataTables wrapper */
+        .dataTables_wrapper {
+          font-size: 11px !important;
+          margin-top: 5px;
+          margin-bottom: 5px;
+        }
+
+        /* Compact search & dropdown controls */
+        .dataTables_wrapper .dataTables_filter label,
+        .dataTables_wrapper .dataTables_length label {
+          font-size: 11px !important;
+          margin-bottom: 0 !important;
+        }
+
+        .dataTables_wrapper .dataTables_filter input,
+        .dataTables_wrapper .dataTables_length select {
+          height: 24px !important;
+          font-size: 11px !important;
+          padding: 1px 4px !important;
+        }
+
+        /* Compact pagination buttons */
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+          padding: 2px 6px !important;
+          font-size: 11px !important;
+        }
+
+        /* Compact info text */
+        .dataTables_wrapper .dataTables_info {
+          font-size: 11px !important;
+          padding-top: 3px !important;
+        }
+
+        /* Reduce bottom spacing */
+        .dataTables_wrapper .bottom {
+          padding: 4px 0 !important;
+        }
+
+        /* Compact export buttons */
+        .dt-buttons .btn {
+          padding: 3px 8px !important;
+          font-size: 11px !important;
+        }
+        
+        /* Status badge */
+        .badge-active {
+            background-color: #28a745;
+        }
+        .badge-inactive {
+            background-color: #dc3545;
+        }
+        
+       .close-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        /* Toolbar styling */
+        .toolbar-container {
+            position: sticky;
+            top: 0;
+            background-color: white;
+            z-index: 100;
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        /* ===== DataTable Row Selection – Tax Suspension List ===== */
+        #suspensionTable tbody tr.selected-row > td {
+            background-color: #d1e7fd !important;
+        }
+
+        /* Left blue indicator */
+        #suspensionTable tbody tr.selected-row > td:first-child {
+            box-shadow: inset 4px 0 0 #0d6efd;
+        }
+
+        /* Hover should not override selected row */
+        #suspensionTable tbody tr:hover:not(.selected-row) > td {
+            background-color: #f7f7f7 !important;
+        }
+
+        
+    </style>
+</head>
+<body>
+    {% comment %} <!-- Close Button -->
+    <div class="close-btn" onclick="window.location.href='/'">
+        <i class="bi bi-x-lg">Close</i>
+    </div> {% endcomment %}
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Toolbar -->
+        <div class="toolbar-container">
+            <div class="container-fluid">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="m-0 fs-5">
+                        <i class="bi bi-pause-btn text-primary me-2"></i>Tax Suspension List
+                    </h2>
+                      <div>
+                
+                        <button class="btn btn-export btn-sm text-white" onclick="exportToExcel()">
+                            <i class="bi bi-file-excel"></i> Export
+                        </button>
+                        <button class="close-btn me-2" onclick="window.location.href='/'">
+                            <i class="bi bi-x-lg"></i> Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Suspension Table -->
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle" id="suspensionTable">
+                <thead>
+                    <tr>
+                        <th width="80">ID</th>
+                        <th>Tax Type</th>
+                        <th>Entity Type</th>
+                        <th>Entity Name</th>
+                        <th>From Date</th>
+                        <th>To Date</th>
+                        <th> Suspension Status</th>
+                        <th>Created At</th>
+                        <th width="120">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if suspensions %}
+                        {% for suspension in suspensions %}
+                        <tr>
+                            <td>{{ suspension.id }}</td>
+                            <td>{{ suspension.get_tax_type_display }}</td>
+                            <td>
+                                {% if suspension.account %}Account
+                                {% elif suspension.client %}Client
+                                {% elif suspension.group %}Group
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if suspension.account %}{{ suspension.account.account }}
+                                {% elif suspension.client %}{{ suspension.client.client_name }}
+                                {% elif suspension.group %}{{ suspension.group.group_name }}
+                                {% endif %}
+                            </td>
+                            <td>{{ suspension.from_date|date:"d-M-y" }}</td>
+                            <td>{{ suspension.to_date|date:"d-M-y"|default:"-" }}</td>
+                            <td>
+                                <span class="badge {% if suspension.is_active %}badge-active{% else %}badge-inactive{% endif %}">
+                                    {% if suspension.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </td>
+                            <td>{{ suspension.created_at|date:"d-M-y H:i" }}</td>
+                            <td>
+                                <a href="{% url 'suspend_form' suspension.id %}" class="btn btn-primary btn-action" title="Modify">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <button class="btn btn-danger btn-action" title="Delete" onclick="confirmDelete('{{ suspension.id }}')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                      <tr>
+                        <td colspan="9" class="text-center text-muted py-4">
+                            <i class="bi bi-pause-circle display-6 d-block"></i>
+                            <div>No tax suspensions found. Click "Add Suspension" to create one.</div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Confirm Delete</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this tax suspension record?</p>
+                    <p class="text-muted small">This action cannot be undone and will permanently remove this suspension record.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <a href="#" id="deleteConfirmBtn" class="btn btn-danger">Delete Permanently</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <!-- DataTables Buttons -->
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script>
+        // Initialize DataTable
+        $(document).ready(function() {
+            $('#suspensionTable').DataTable({   
+                dom: '<"top"Bf>rt<"bottom"lip><"clear">',
+                buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        text: '<i class="bi bi-file-excel"></i> Export to Excel',
+                        className: 'btn btn-export btn-sm',
+                        title: 'Tax_Suspensions_' + new Date().toLocaleDateString().replace(/\//g, '-'),
+                        exportOptions: {
+                            columns: ':not(:last-child)' // Exclude actions column
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="bi bi-printer"></i> Print',
+                        className: 'btn btn-secondary btn-sm',
+                        title: 'Tax Suspension List',
+                        exportOptions: {
+                            columns: ':not(:last-child)' // Exclude actions column
+                        }
+                    }
+                ],
+                responsive: true,
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                pageLength: 25,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "Search suspensions...",
+                    lengthMenu: "Show _MENU_ records per page",
+                    zeroRecords: "No suspensions found",
+                    info: "Showing _START_ to _END_ of _TOTAL_ records",
+                    infoEmpty: "No suspensions available",
+                    infoFiltered: "(filtered from _MAX_ total records)",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
+                }
+            });
+
+              // ================= ROW SELECTION =================
+                $('#suspensionTable tbody').on('click', 'tr', function () {
+
+                    // ignore empty rows
+                    if ($(this).find('td').length <= 1) return;
+
+                    // remove previous selection (ALL pages/search)
+                    table.rows().nodes().to$().removeClass('selected-row');
+
+                    // add selection
+                    $(this).addClass('selected-row');
+                });
+            
+            // Style the search box
+            $('.dataTables_filter input').addClass('form-control form-control-sm');
+            $('.dataTables_filter label').contents().filter(function() {
+                return this.nodeType === 3;
+            }).remove();
+            
+            // Style the length menu
+            $('.dataTables_length select').addClass('form-select form-select-sm');
+        });
+        
+        // Delete confirmation
+        function confirmDelete(suspensionId) {
+            var deleteBtn = document.getElementById('deleteConfirmBtn');
+            deleteBtn.href = "/tax-suspension/delete/" + suspensionId + "/";
+            var modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+        
+        // Export to Excel
+        function exportToExcel() {
+            // Get table data
+            const table = document.getElementById('suspensionTable');
+            const html = table.outerHTML;
+            
+            // Create download link
+            const url = 'data:application/vnd.ms-excel,' + encodeURIComponent(html);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Tax_Suspensions_' + new Date().toLocaleDateString() + '.xls';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+        
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                const inputs = Array.from(
+                    document.querySelectorAll('input:not([readonly]), button')
+                );
+                const index = inputs.indexOf(document.activeElement);
+                if (index !== -1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                    event.preventDefault();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

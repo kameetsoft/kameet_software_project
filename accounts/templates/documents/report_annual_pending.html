@@ -1,0 +1,212 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Annual Pending Report</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    .close-btn {
+      position: fixed;          /* 🔑 always top-right */
+      top: 12px;
+      right: 16px;
+      z-index: 9999;
+
+      width: 34px;
+      height: 34px;
+      border: none;
+      border-radius: 6px;
+
+      background: #dc3545;      /* bootstrap danger */
+      color: #fff;
+      font-size: 20px;
+      font-weight: bold;
+      line-height: 1;
+
+      cursor: pointer;
+    }
+
+    .close-btn:hover {
+      background: #bb2d3b;
+    }
+
+    /* highlight selected row */
+    tbody tr.row-selected > td {
+      background-color: #d4e2f7 !important;  /* light blue */
+    }
+
+    tbody tr {
+      cursor: pointer;
+    }
+  </style>
+
+
+</head>
+<body class="p-3 bg-light">
+  <button type="button"
+          class="close-btn"
+          title="Go to Home"
+          onclick="window.location.href ='{% url 'home' %}'">
+    &times;
+  </button>
+  <h4>Annual Pending Report</h4>
+
+  <form class="row g-2 mb-3">
+    {% comment %} <div class="col-md-3">
+      <input name="fy" class="form-control" placeholder="FY e.g. 2024_25" value="{{fy}}">
+    </div> {% endcomment %}
+    <div class="col-md-3">
+        <select name="fy" id="filter_fy" class="form-select"></select>
+    </div>
+
+    {% comment %} <div class="col-md-2">
+      <button class="btn btn-dark">Load</button>
+    </div> {% endcomment %}
+  </form>
+
+  <div class="table-responsive bg-white border rounded">
+    <table class="table table-sm table-striped mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th>Client</th><th>PAN</th><th>Category</th><th>Sub-Doc</th><th>Status</th>
+        </tr>
+
+        <!-- 🔍 SEARCH ROW -->
+        <tr class="bg-light">
+          <th>
+            <input class="form-control form-control-sm column-filter"
+                  placeholder="Search Client" data-col="0">
+          </th>
+          <th>
+            <input class="form-control form-control-sm column-filter"
+                  placeholder="Search PAN" data-col="1">
+          </th>
+          <th>
+            <input class="form-control form-control-sm column-filter"
+                  placeholder="Search Category" data-col="2">
+          </th>
+          <th>
+            <input class="form-control form-control-sm column-filter"
+                  placeholder="Search Sub-Doc" data-col="3">
+          </th>
+          <th>
+            <input class="form-control form-control-sm column-filter"
+                  placeholder="Search Status" data-col="4">
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+          <tr>
+            <td>{{r.client__client_name}}</td>
+            <td>{{r.client__pan}}</td>
+            <td>{{r.category__category_type}}</td>
+            <td>{{r.subtype__name|default:"-"}}</td>
+            <td>{{r.status}}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="text-center text-muted py-4">No records</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+
+
+    {% comment %} fy dropdown {% endcomment %}
+<script>
+function populateFYDropdown(selectId, selectedFY = "") {
+    const fySelect = document.getElementById(selectId);
+    if (!fySelect) return;
+
+    fySelect.innerHTML = "";
+
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth() + 1;
+
+    let currentFY;
+    if (month >= 4) {
+        currentFY = `${year}_${String(year + 1).slice(-2)}`;
+    } else {
+        currentFY = `${year - 1}_${String(year).slice(-2)}`;
+    }
+
+    const baseYear = parseInt(currentFY.split("_")[0]);
+
+    for (let y = baseYear - 5; y <= baseYear + 1; y++) {
+        const fy = `${y}_${String(y + 1).slice(-2)}`;
+        const opt = document.createElement("option");
+        opt.value = fy;
+        opt.textContent = fy;
+
+        if (
+            fy === selectedFY ||
+            (!selectedFY && fy === currentFY)
+        ) {
+            opt.selected = true;
+        }
+
+        fySelect.appendChild(opt);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const fyFromServer = "{{ fy }}";
+    const fySelect = document.getElementById("filter_fy");
+
+    populateFYDropdown("filter_fy", fyFromServer);
+
+    // Reload when user changes FY
+    fySelect.addEventListener("change", function () {
+        window.location.href = `?fy=${this.value}`;
+    });
+
+    // Auto-load on first visit
+    if (!fyFromServer) {
+        window.location.href = `?fy=${fySelect.value}`;
+    }
+});
+</script>
+
+{% comment %} search functionality {% endcomment %}
+<script>
+document.querySelectorAll(".column-filter").forEach(input => {
+  input.addEventListener("keyup", function () {
+    const colIndex = parseInt(this.dataset.col);
+    const filterValue = this.value.toLowerCase();
+
+    document.querySelectorAll("tbody tr").forEach(row => {
+      const cell = row.children[colIndex];
+      if (!cell) return;
+
+      const text = cell.innerText.toLowerCase();
+      row.style.display = text.includes(filterValue) ? "" : "none";
+    });
+  });
+});
+</script>
+{% comment %} row selection {% endcomment %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const tbody = document.querySelector("tbody");
+
+  tbody.addEventListener("click", function (e) {
+    const row = e.target.closest("tr");
+    if (!row) return;
+
+    // remove highlight from all rows
+    tbody.querySelectorAll("tr").forEach(r =>
+      r.classList.remove("row-selected")
+    );
+
+    // highlight clicked row
+    row.classList.add("row-selected");
+  });
+
+});
+</script>
+
+</body>
+</html>

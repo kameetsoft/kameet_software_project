@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Event Pending Report</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .close-btn {
+      position: fixed;          /* 🔑 always top-right */
+      top: 12px;
+      right: 16px;
+      z-index: 9999;
+
+      width: 34px;
+      height: 34px;
+      border: none;
+      border-radius: 6px;
+
+      background: #dc3545;      /* bootstrap danger */
+      color: #fff;
+      font-size: 20px;
+      font-weight: bold;
+      line-height: 1;
+
+      cursor: pointer;
+    }
+
+    .close-btn:hover {
+      background: #bb2d3b;
+    }
+
+    tbody tr.row-selected > td {
+      background-color: #d4e2f7 !important;
+    }
+
+    tbody tr {
+      cursor: pointer;
+    }
+  </style>
+
+</head>
+<body class="p-3 bg-light">
+    <button type="button"
+          class="close-btn"
+          title="Go to Home"
+          onclick="window.location.href ='{% url 'home' %}'">
+    &times;
+  </button>
+  <h4>Event Pending Report</h4>
+
+  <div class="table-responsive bg-white border rounded">
+    <form method="get" class="row g-2 mb-3">
+      <div class="col-md-3">
+        <select name="fy" id="filter_fy" class="form-select" required></select>
+      </div>
+    </form>
+
+    <table class="table table-sm table-striped mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th>Client</th>
+          <th>PAN</th>
+          <th>Category</th>
+          <th>Sub-Doc</th>
+          {% comment %} <th>Event</th> {% endcomment %}
+          <th>Status</th>
+        </tr>
+          <!-- 🔍 SEARCH ROW -->
+          <tr class="bg-light">
+            <th><input class="form-control form-control-sm column-filter" data-col="0" placeholder="Search Client"></th>
+            <th><input class="form-control form-control-sm column-filter" data-col="1" placeholder="Search PAN"></th>
+            <th><input class="form-control form-control-sm column-filter" data-col="2" placeholder="Search Category"></th>
+            <th><input class="form-control form-control-sm column-filter" data-col="3" placeholder="Search Sub-Doc"></th>
+            <th><input class="form-control form-control-sm column-filter" data-col="4" placeholder="Search Status"></th>
+          </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+          <tr>
+            <td>{{r.client__client_name}}</td>
+            <td>{{r.client__pan}}</td>
+            <td>{{r.category__category_type}}</td>
+            <td>{{r.subtype__name|default:"-"}}</td>
+            {% comment %} <td>{{r.event_name}}</td> {% endcomment %}
+            <td>{{r.status}}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="text-center text-muted py-4">No records</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <script>
+/* 🔹 FY dropdown logic (unchanged) */
+function populateFYDropdown(selectId, selectedFY = "") {
+    const fySelect = document.getElementById(selectId);
+    if (!fySelect) return;
+
+    fySelect.innerHTML = "";
+
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth() + 1;
+
+    const currentFY = month >= 4
+        ? `${year}_${String(year + 1).slice(-2)}`
+        : `${year - 1}_${String(year).slice(-2)}`;
+
+    const activeFY = selectedFY || currentFY;
+
+    for (let y = year - 5; y <= year + 1; y++) {
+        const fy = `${y}_${String(y + 1).slice(-2)}`;
+        const opt = document.createElement("option");
+        opt.value = fy;
+        opt.textContent = fy;
+        if (fy === activeFY) opt.selected = true;
+        fySelect.appendChild(opt);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const fySelect = document.getElementById("filter_fy");
+    const urlFY = new URLSearchParams(window.location.search).get("fy");
+
+    populateFYDropdown("filter_fy", urlFY);
+
+    if (!urlFY) {
+        window.location.replace(`?fy=${fySelect.value}`);
+    }
+
+    fySelect.addEventListener("change", () => {
+        window.location.href = `?fy=${fySelect.value}`;
+    });
+
+    /* 🔍 column search */
+    document.querySelectorAll(".column-filter").forEach(input => {
+        input.addEventListener("keyup", () => {
+            const col = input.dataset.col;
+            const val = input.value.toLowerCase();
+
+            document.querySelectorAll("tbody tr").forEach(row => {
+                const text = row.children[col]?.innerText.toLowerCase() || "";
+                row.style.display = text.includes(val) ? "" : "none";
+            });
+        });
+    });
+
+    /* ✅ row highlight */
+    const tbody = document.querySelector("tbody");
+    tbody.addEventListener("click", e => {
+        const row = e.target.closest("tr");
+        if (!row) return;
+
+        tbody.querySelectorAll("tr").forEach(r => r.classList.remove("row-selected"));
+        row.classList.add("row-selected");
+    });
+});
+</script>
+
+
+</body>
+</html>

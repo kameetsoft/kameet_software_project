@@ -1,0 +1,41 @@
+ICICI Bank account Statement from 25-07-2024 to 08-08-2024. 
+
+
+Account Number|Tran Date |  Tran Particular    | Inst Num      |   Dr Tran Amt   |    Cr Tran Amt |      Bal Amt      | Deposit Branch
+-------------- ---------    ---------------      ---------       ---------------   ---------------        --------    | ------- ------
+624605065980|   25-JUL-2024|  B/F                                                                                                 |                 |                |                |      2014016.71|                            
+624605065980|   25-Jul-2024|  BIL/INFT/DGT5774834/Bill Payment/  NIKUNJ RAMESHBH                                                  |                 |            0.00|      1000000.00|      3014016.71|                       SURAT
+624605065980|   25-Jul-2024|  BIL/INFT/DGT5773790/Bill Payment/  NIKUNJ RAMESHBH                                                  |                 |            0.00|       500000.00|      3514016.71|                       SURAT
+624605065980|   25-Jul-2024|  BIL/INFT/DGT5775210/Bill Payment/  NIKUNJ RAMESHBH                                                  |                 |            0.00|       400000.00|      3914016.71|                       SURAT
+624605065980|   25-Jul-2024|  RTGS*ICICR52024072500876463/YESB0CMSNOC/HI BOND CE MENT PVT LTD                                     |             1303|       227800.00|            0.00|      3686216.71|               AHMEDABAD RPC
+624605065980|   25-Jul-2024|  RTGS-YESBR12024072500004932-E-COLLECT ACCOUNT FOR SAHAJANAND IN-000187200018251-YESB0000001         |                 |            0.00|       227800.00|      3914016.71|                   RPC-NASIK
+624605065980|   25-Jul-2024|  TRF/PATEL HARDWARE AND SANATARY/ICI                                                                 |             1301|       300000.00|            0.00|      3614016.71|                       BOTAD
+624605065980|   25-Jul-2024|  TRF/PATEL TRADERS/ICI                                                                               |             1098|       300000.00|            0.00|      3314016.71|                       BOTAD
+624605065980|   25-Jul-2024|  Statement Chg Apr-24+GST                                                                            |                 |           29.50|            0.00|      3313987.21|               NARIMAN POINT
+624605065980|   25-Jul-2024|  RTGS*ICICR52024072500888594/IDFB0042268/GOTI SANJA Y MAKODBHAI                                      |             1313|       200000.00|            0.00|      3113987.21|               AHMEDABAD RPC
+624605065980|   25-Jul-2024|  RTGS*ICICR52024072500876622/UCBA0000617/JAY JALARA M INFRASTRUCTURE                                 |             1399|       238000.00|            0.00|      2875987.21|               AHMEDABAD RPC
+624605065980|   25-Jul-2024|  RTGS*ICICR52024072500886719/UTIB0000047/SHREE CHAM UNDA TRADING                                     |             1302|       300000.00|            0.00|      2575987.21|               AHMEDABAD RPC
+624605065980|   25-Jul-2024|  RTGS*ICICR52024072500883242/UTIB0000047/NJ ECO BUI LD PVT LTD                                       |             1306|       400000.00|            0.00|      2175987.21|               AHMEDABAD RPC
+624605065980|   25-Jul-2024|  RTGS*ICICR52024072500883008/BARB0DUDHSA/BALAJI SAL ES CORPORATION                                   |             1312|       250000.00|            0.00|      1925987.21|               AHMEDABAD RPC
+624605065980|   25-Jul-2024|  NEFT*000150314949/BKID0003218/SHIV MARUTI ENTERPRI SE                                               |             1310|       105000.00|            0.00|      1820987.21|               AHMEDABAD RPC
+624605065980|   25-Jul-2024|  RTGS*ICICR52024072500881943/HDFC0000948/YOGI STEEL                                                  |             1309|       200000.00|            0.00|      1620987.21|               AHMEDABAD RPC
+624605065980|   25-Jul-2024|  NEFT*000150314694/HDFC0006781/JAY BUT BHAVANI ALUM INIUM                                            |             1308|       150000.00|            0.00|      1470987.21|               AHMEDABAD RPC
+624605065980|   25-Jul-2024|  NEFT*000150314540/IBKL0001606/MAA ENTERPRISE                                                        |             1307|        98820.00|            0.00|      1372167.21|               AHMEDABAD RPC
+624605065980|   26-Jul-2024|  BIL/INFT/DGU5985466/Bill Payment/  NIKUNJ RAMESHBH                                                  |                 |            0.00|      1200000.00|      2572167.21|                       SURAT
+624605065980|   26-Jul-2024|  RTGS*ICICR52024072600256593/HDFC0000251/JERAMBHAI BHAVANBHAI GOLAKIYA HUF                           |             1317|       500000.00|            0.00|      2072167.21|               AHMEDABAD RPC
+624605065980|   26-Jul-2024|  RTGS*ICICR52024072600257602/HDFC0000251/GOLAKIYA Y ASHVI BHAVESHBHAI                                |             1316|       500000.00|            0.00|      1572167.21|               AHMEDABAD RPC
+624605065980|   26-Jul-2024|  RTGS*ICICR52024072600258043/SGBA0000218/AMRUT TARD ERS NAGNESH                                      |             1314|       266000.00|            0.00|      1306167.21|               AHMEDABAD RPC
+624605065980|   26-Jul-2024|  RTGS*ICICR52024072600258320/YESB0CMSNOC/HI BOND CE MENT PVT LTD                                     |             1315|       227800.00|            0.00|      1078367.21|               AHMEDABAD RPC
+624605065980|   29-Jul-2024|  RTGS*ICICR52024072900321422/IDFB0042268/GOTI SANJA Y MAKODBHAI                                      |             1318|       300000.00|            0.00|       778367.21|               AHMEDABAD RPC
+624605065980|   29-Jul-2024|  RTGS*ICICR52024072900321849/BKID0002705/RAJENDRABH AI LALJIBHAI VAGHANI                             |             1319|       200000.00|            0.00|       578367.21|               AHMEDABAD RPC
+624605065980|   29-Jul-2024|  NEFT*000150410613/BARB0DUDHSA/BALAJI SALES CORPORA TION                                             |             1398|       150000.00|            0.00|       428367.21|               AHMEDABAD RPC
+624605065980|   31-Jul-2024|  NEFT*000150511656/BARB0LIMDIX/DAMOR MAHENDRABHAI M ANSING                                           |             1320|        99000.00|            0.00|       329367.21|               AHMEDABAD RPC
+624605065980|   31-Jul-2024|  NEFT*000150511908/YESB0CMSNOC/HI BOND CEMENT PVT L TD                                               |             1311|       195000.00|            0.00|       134367.21|               AHMEDABAD RPC
+624605065980|   02-Aug-2024|  BY CASH -SURAT - ADAJAN GOPAL                                                                       |                 |            0.00|       250000.00|       384367.21|              SURAT - ADAJAN
+624605065980|   02-Aug-2024|  NEFT*000150578838/UTIB0CCH274/ULTRATECH CEMENT                                                      |             1322|       150000.00|            0.00|       234367.21|               AHMEDABAD RPC
+624605065980|   03-Aug-2024|  CLG/JAY ENTERPRISE/HDF                                                                              |             1321|        20734.00|            0.00|       213633.21|                  RPC MUMBAI
+624605065980|   05-Aug-2024|  NEFT-IDFBH24218663767-MR GOTI SANJAY MAKODBHAI-/AT TN/-00000010079866009-IDFB0010201                |                 |            0.00|        50000.00|       263633.21|                  RPC MUMBAI
+624605065980|   05-Aug-2024|  NEFT*000150658019/SBIN0018810/SHUBHAM BUILDING MAT ERIALS                                           |             1323|       120000.00|            0.00|       143633.21|               AHMEDABAD RPC
+624605065980|   06-Aug-2024|  NEFT*000150698802/UTIB0002865/SHREE BAJRANG TILES                                                   |             1324|       100000.00|            0.00|        43633.21|               AHMEDABAD RPC
+
+ Closing Balance as on 09-08-2024 10:04:30 is INR.43633.21 includes Uncleared Funds of INR.0.00

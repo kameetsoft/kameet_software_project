@@ -1,0 +1,4557 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bank Report – Compact</title>
+
+  <!-- Bootstrap + Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <!-- jQuery (dragtable dep) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!-- dragtable -->
+  <link  href="https://cdnjs.cloudflare.com/ajax/libs/dragtable/2.0.15/dragtable.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dragtable/2.0.15/jquery.dragtable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    /* Add to your stylesheet */
+    [tooltip] {
+      position: relative;
+    }
+
+    [tooltip]::after {
+      content: attr(tooltip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    [tooltip]:hover::after {
+      opacity: 1;
+    }
+          :root { --accent:#f8f9fa; --border:#d0d7de; --highlight:#fff9c4; }
+          body{background:#eaf2fb;font-family:"Segoe UI",system-ui,sans-serif;}
+          .card{border:1px solid var(--border);border-radius:.5rem;margin-bottom:.65rem;}
+          .card-header{background:var(--accent);padding:.4rem .75rem;}
+          .card-header h6{font-size:.9rem;margin:0;}
+          .form-label,legend{font-size:.8rem;font-weight:600;margin-bottom:.25rem;}
+          legend{font-style:italic;padding:0 6px;width:auto;}
+          .form-check-label,.form-select,.form-control{font-size:.8rem;}
+          .card-body{padding:.75rem;}
+          .month-input{width:38px;text-align:center;font-size:.7rem!important;padding:.15rem .25rem;}
+          {% comment %} .table-section{max-height:calc(100vh - 220px);overflow:hidden;} {% endcomment %}
+          .table thead th{position:sticky;top:0;background:var(--accent);z-index:10;font-size:.8rem;}
+          .table tbody .no-data-row td{height:calc(100vh - 100px);vertical-align:middle;color:#6c757d;}
+          .quick-info input,.quick-info select{background:var(--highlight);} 
+          .btn-icon{font-size:.75rem;padding:0 .4rem;}
+          .filter-wrap{display:flex;flex-wrap:wrap;gap:.75rem;}
+          fieldset.filter-box{border:1px solid var(--border);border-radius:.35rem;padding:.25rem .6rem;min-width:200px;white-space:nowrap;background:#fff;}
+          fieldset.filter-box .form-check{display:inline-block;margin-right:.75rem;margin-bottom:.25rem;}
+          .form-check-input{margin-top:0;}
+          #layout{display:flex;min-height:100vh;gap:0;}
+          #mainContent{flex-grow:1;min-width:0;padding:1rem .75rem;}
+          #quickSidebar{width:270px;min-width:220px;max-width:500px;transition:width .2s ease-in-out;}
+          #dragHandle{width:5px;cursor:col-resize;background:#adb5bd33;border-left:1px solid #adb5bd;border-right:1px solid #adb5bd;}
+          #dragHandle:hover{background:#adb5bd66;}
+          .sidebar-hidden #quickSidebar,.sidebar-hidden #dragHandle{display:none;}
+          tr.active-row     { background:#fff9c4 !important; }
+          tr.active-row td  { font-weight:600; }
+
+        /*  =========  BASE  =========  */
+        body{font-family:"Segoe UI",sans-serif;font-size:.875rem;background:#f8f9fa;}
+        select,input,textarea{font-size:.8rem;}
+        .btn-sm{font-size:.75rem;}
+        .btn-icon{padding:0 .4rem;}
+        .form-label,.form-check-label{margin-bottom:.2rem;font-weight:600;font-size:.8rem;}
+        thead th.dragtable-dragging {
+            opacity: .7;                /* nicer feedback */
+            background: #ffe082;        /* optional highlight */
+            z-index: 1000 !important;   /* stays on top of sticky header */
+        }
+
+        /*statement bar*/
+        .stmt-month {
+        width: 45px;
+        padding: 3px 0;
+        font-size: 0.75rem;
+        text-align: center;
+        }
+        .text-purple {
+            color: #6f42c1;   /* Bootstrap purple */
+        }
+
+        /*  =========  SECTION DIVIDERS  =========  */
+        .section-divider{border-top:1px solid #e3e6f0;margin:.2rem 0;}
+
+        /*  =========  TABLE  =========  */
+        .table-section {
+          max-height:470px; /* or 300px – adjust as needed */
+          overflow-y: auto;
+          overflow-x: hidden;
+          position: relative;
+        }   
+        .table thead th {
+          position: sticky;
+          top: 0;
+          background: #e0e0e0;
+          z-index: 500;
+          font-size: .8rem;
+        }
+        .table-section::-webkit-scrollbar {
+          width: 6px;
+        }
+        .table-section::-webkit-scrollbar-thumb {
+          background-color: rgba(0, 0, 0, 0.2);
+          border-radius: 4px;
+        }
+
+      .table td {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        max-width: 180px;
+      }
+
+      .table td:hover {
+        white-space: normal;
+        overflow: visible;
+        word-wrap: break-word;
+        background-color: #fefae0;
+        z-index: 99;
+        position: relative;
+      }
+
+      th {
+        cursor: move;
+      }
+    /*  =========  SIDEBAR  =========  */
+    #layout{display:flex;min-height:100vh;gap:0;}
+    #mainContent{flex-grow:1;min-width:0;padding:0 1rem;}
+    #quickSidebar{width:300px;min-width:240px;max-width:600px;transition:width .2s ease;border-left:2px solid #ced4da;background:#fffbe6;padding:.75rem;}
+    #dragHandle{width:6px;cursor:col-resize;background:#adb5bd33;border-left:1px solid #adb5bd;border-right:1px solid #adb5bd;}
+    #dragHandle:hover{background:#adb5bd66;}
+    .sidebar-hidden #quickSidebar,.sidebar-hidden #dragHandle{display:none;}
+    .entry-field{background:#fffff6;font-size:.75rem;margin-bottom:.4rem;}
+   /* Fix parent container layout */
+      .custom-dropdown {
+          position: relative;
+          z-index: 1;
+          overflow: visible;
+      }
+      /* Fix dropdown visibility */
+
+      .dropdown-options {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          width: 100%;
+          background-color: white;
+          border: 1px solid #ced4da;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          z-index: 9999; /* VERY IMPORTANT */
+          max-height: 200px;
+          overflow-y: auto;
+          display: none;
+      }
+
+      .dropdown-option {
+          padding: 4px 8px;
+          font-size: 0.8rem;
+          line-height: 1.2;
+          cursor: pointer;
+      }
+      .dropdown-portal{
+        position:fixed;
+        background:#fff;
+        border:1px solid #ced4da;
+        box-shadow:0 4px 12px rgba(0,0,0,.15);
+        z-index:99999;
+        max-height:200px;
+        overflow-y:auto;
+
+        /* ↓ adjust these two lines to control width */
+        max-width:350px;        /* stops it going full-page */
+        min-width:200px;        /* optional */
+      }
+      .dropdown-option:hover{background:#f1f1f1;cursor:pointer;}
+
+      .dropdown-item:hover {
+        background-color: #f0f0f0;
+      }
+      .dropdown-option:hover {
+          background-color: #f1f1f1;
+      }
+      .dropdown-option.highlighted {
+      background-color: #0d6efd;
+      color: white;}
+      .highlighted {
+        background-color: #007bff !important;
+        color: white !important;
+      }
+     /* For resizable columns */
+      
+       #reportTable th {
+   white-space: nowrap;
+    overflow: hidden !important;
+    position: relative;
+    }
+    #reportTable {
+      font-size: 13px;
+      
+    }
+    #reportTable th,
+    #reportTable td {
+      padding: 4px 4px;
+      line-height: 1.2;
+    }
+
+    #reportTable .resizer {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 6px;
+      height: 100%;
+      cursor: col-resize;
+      user-select: none;
+      z-index: 10;
+    }
+    #reportTable .resizer:hover {
+      background-color: #adb5bd; /* light gray */
+    }
+    tr.selected td {
+      background-color: #d0ebff !important;
+    }
+    tr.selected {
+      background-color: #fff9c4 !important;  /* light yellow */
+    }
+
+    .missing-entry td {
+      color: red !important;
+      font-weight: 500 !important;
+    }
+
+    /* ✅ For present (received) entries */
+    .present-entry td {
+      color: green !important;
+      font-weight: 500 !important;
+    }
+
+
+    /* Default/black entries need no extra style, but for clarity: */
+    .incomplete-entry td {
+      color: black !important;
+      font-weight: 500 !important;
+    }
+
+    .highlight-row td {
+    background-color: #d0ebff !important;  /* 💡 Light blue highlight */
+    }
+    .highlight-row td:first-child {
+      border-left: 6px solid #ffc107 !important;  /* yellow visual bar */
+    }
+
+    .table-separator-row td {
+      background-color: #f5f5f5;
+      height: 6px;
+      border-top: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+    }
+
+    /*sticky header*/
+
+    #reportTable thead th {
+          position: sticky;
+          top: 0;
+          background-color: #fffcdeff  !important;
+          z-index: 2;
+          font-size: 13px !important;
+          font-weight: 600 !important;
+          color: black !important;
+    }
+
+    #reportTable th.sticky-attachment,
+    #reportTable td.sticky-attachment {
+      position: sticky;
+      right: 0;             /* Stick it to the right edge */
+      background: #fff;     /* Prevent overlap transparency */
+      z-index: 3;           /* Keep it above other cells */
+      box-shadow: -2px 0 4px rgba(0,0,0,0.1); /* Optional shadow */
+      background: #fdf7e3;  /* Light yellow, you can change */
+
+    }
+    .hide-column {
+      display: none;
+    }
+
+
+    /* Segmented look, matching Bootstrap primary blue */
+    .view-toggle .btn{
+      border:1px solid #0d6efd;        /* same blue as your UI */
+      color:#0d6efd;
+      background:#f7faff;              /* subtle tint like your controls */
+      font-weight:600;
+      border-radius:.5rem;
+      padding:.35rem .9rem;
+    }
+    .view-toggle .btn + .btn{ margin-left:4px; }
+
+    /* Active (selected) state = solid primary */
+    .view-toggle .btn.active{
+      background:#0d6efd;
+      color:#fff;
+    }
+
+    /* Hover/focus */
+    .view-toggle .btn:not(.active):hover{
+      background:rgba(13,110,253,.08);
+      color:#0b5ed7;
+    }
+    .view-toggle .btn:focus{
+      box-shadow:0 0 0 .2rem rgba(13,110,253,.25);
+    }
+
+  </style>
+</head>
+<body>
+  <!-- Loader Spinner -->
+  <div id="loaderOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+      background:rgba(255,255,255,0.7); z-index:9999; align-items:center; justify-content:center;">
+    <div class="spinner-border text-primary" role="status" style="width:3rem;height:3rem;">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div> 
+  <!-- Toggle eye button -->
+  <button class="btn btn-sm btn-outline-secondary position-fixed top-0 end-0 m-2" id="toggleSidebar">
+    <i class="fa-solid fa-eye-slash"></i>
+  </button>
+
+  <div id="layout">
+    <!--  =======  MAIN AREA  =======  -->
+    <div id="mainContent">
+      <input type="hidden" name="entry_id" value="{{ entry.id }}">
+      <input type="hidden" id="id_group_hidden" name="group_id" value="{{ group_id }}">
+      <input type="hidden" id="id_client_hidden" name="client_id" value="{{ client_id }}">
+      <input type="hidden" id="id_account_hidden" name="account_id" value="{{ account_id }}">
+      <!-- === FILTER BAR === -->
+      <section class="pt-2">
+        <div class="row g-2 align-items-end">
+          <div class="col-md-3">
+              <label class="form-label">Group</label>
+              <div class="custom-dropdown position-relative">
+                  <!-- Searchable input -->
+                  <input type="text" id="id_group_input" class="form-control" placeholder="Select or search group..." autocomplete="off" required>
+                  <!-- Hidden actual value -->
+                  <input type="hidden" name="group_name" id="id_group_hidden">
+                  
+                  <!-- Dropdown options -->
+                  <div class="dropdown-options border position-absolute w-100 bg-white" id="id_group_options"     style="max-height: 200px; overflow-y: auto; display: none; z-index: 1000;">
+                      {% for group in groups %}
+
+                          <div class="dropdown-option" data-id="{{ group.id }}">{{ group.group_name }}</div>
+
+                      {% endfor %}
+                  </div>
+              </div>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Client</label>
+            <div class="input-group input-group-sm custom-dropdown position-relative">
+
+                <!-- FIXED: Use form-control instead of form-select -->
+                <input type="text" id="id_client_input" class="form-control" placeholder="Select or search client..." autocomplete="off">
+                <input type="hidden" name="client_id" id="id_client_hidden">
+
+                <button class="btn btn-outline-secondary btn-icon" type="button" onclick="openClientForm()">
+                        <i class="fa fa-plus"></i>
+                </button>
+
+                <div class="dropdown-options border position-absolute w-100 bg-white"
+                    id="id_client_options"
+                    style="max-height: 200px; overflow-y: auto; display: none; z-index: 1000;">
+                    {% for client in clients %}
+                        <div class="dropdown-option px-2 py-1" data-id="{{ client.client_id }}"
+                            data-group-id="{{ client.group.id }}"
+                            data-group-name="{{ client.group.group_name }}"
+                            >
+                            {{ client.client_name }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Account</label>
+            <div class="input-group input-group-sm custom-dropdown position-relative">
+                <input type="text" id="id_account_input" class="form-control"
+                      placeholder="Select or search account…" autocomplete="off"
+                      value="{% if is_modify_mode and instance %}{{ instance.account }} ({{ instance.account_id }}){% endif %}">
+
+                <input type="hidden" name="account_id" id="id_account_hidden"
+                      value="{% if is_modify_mode and instance %}{{ instance.account_id }}{% endif %}">
+
+                <button class="btn btn-outline-secondary btn-icon" type="button" onclick="openAccountFormWithClient()">
+                    <i class="fa fa-plus"></i>
+                </button>
+      
+
+                {% comment %} <button class="btn btn-outline-secondary btn-icon" type="button" onclick="openAccountForm()">
+                        <i class="fa fa-plus"></i>
+                </button> {% endcomment %}
+
+                <div class="dropdown-options border position-absolute w-100 bg-white"
+                    id="id_account_options" style="max-height:200px;overflow-y:auto;display:none;">
+                </div>
+            </div>
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label">Emp. Name</label>
+            <div class="custom-dropdown position-relative">
+                <input type="text" id="id_emp_input" class="form-control form-control-sm" placeholder="Select or search employee..." autocomplete="off">
+                <input type="hidden" name="emp" id="id_emp_hidden">
+                <div class="dropdown-options border position-absolute w-100 bg-white" id="id_emp_options" style="max-height: 200px; overflow-y: auto; display: none; z-index: 1000;">
+                    {% for emp in employees %}
+                        <div class="dropdown-option px-2 py-1" data-id="{{ emp.id }}">
+                            {{ emp.username }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+          </div>
+
+          <div class="col-md-1">
+            <label class="form-label">FY</label>
+              <select id="fiscalYearSelect" name="fy" class="form-select">
+                {% for fy in fiscal_years %}
+                  <option value="{{ fy }}">{{ fy }}</option>
+                {% endfor %}
+              </select>
+          </div>
+        </div>
+      </section>
+
+      <hr class="section-divider">
+
+      <!-- === CHECKBOX / RADIO === -->
+      <section>
+          <div class="row g-2">
+          
+              <div class="col-md-3">
+                  <fieldset class="border rounded p-2">
+                      <legend class="float-none w-auto px-1 fs-6 fw-bold mb-0">Account Group</legend>
+                      <div class="d-flex gap-2">
+                          <div class="form-check">
+                              
+                              <input id="accGroup1" class="form-check-input" type="checkbox" name="account_groups[]" value="Bank Accounts" onchange="applyFilters()" checked>
+                                <label class="form-check-label" for="accGroup1">Bank Accounts</label>
+                            </div>
+                          <div class="form-check">
+                        
+                                <input id="accGroup2" class="form-check-input" type="checkbox" name="account_groups[]" value="Credit Card" onchange="applyFilters()">
+                                <label class="form-check-label" for="accGroup2">Credit Card</label>
+                            </div>
+                      </div>
+                      <div class="d-flex gap-2">
+                          <div class="form-check">
+                            <input id="accGroup3" class="form-check-input" type="checkbox" name="account_groups[]" value="Bank O/D Account" onchange="applyFilters()" checked>
+                              <label class="form-check-label" for="accGroup3">Bank O/D Account</label>
+                          </div>
+                          {% comment %} <div class="form-check">
+                            <input id="accGroup3" class="form-check-input" type="checkbox" name="account_groups[]" value="Secured Loans" onchange="applyFilters()">
+                              <label class="form-check-label" for="accGroup3">Secured Loans</label>
+                          </div>
+                          <div class="form-check">
+                            <input id="accGroup4" class="form-check-input" type="checkbox" name="account_groups[]" value="Investments" onchange="applyFilters()">
+                              <label class="form-check-label" for="accGroup4">Investments</label>
+                          </div> {% endcomment %}
+                      </div>
+                  </fieldset>
+              </div>
+              <div class="col-md-2">
+                  <fieldset class="border rounded p-2 ">
+                      <legend class="float-none w-auto px-1 fs-6 fw-bold mb-0">Alloted</legend>
+                      <div class="d-flex gap-3">
+                          <div class="form-check">
+                              <input class="form-check-input" type="radio" name="alloted" id="allAlloted" value="All" checked>
+                              <label class="form-check-label" for="allAlloted">All</label>
+                          </div>
+                          <div class="form-check">
+                              <input class="form-check-input" type="radio" name="alloted" id="allotedOnly" value="Alloted">
+                              <label class="form-check-label" for="allotedOnly">Alloted</label>
+                          </div>
+                      </div>
+                      <div class="form-check">
+                          <input class="form-check-input" type="radio" name="alloted" id="notAlloted" value="Not Alloted">
+                          <label class="form-check-label" for="notAlloted">Not Alloted</label>
+                      </div>
+                  </fieldset>
+              </div>            
+              {% comment %} <div class="col-md-2">
+                  <fieldset class="border rounded p-2 ">
+                      <legend class="float-none w-auto px-1 fs-6 fw-bold mb-0">Status</legend>
+                      <div class="d-flex gap-3">
+                          <div class="form-check">
+                              <input class="form-check-input" type="radio" name="status" id="statusAll" value="All" checked>
+                              <label class="form-check-label" for="statusAll">All</label>
+                          </div>
+                          <div class="form-check">
+                              <input class="form-check-input" type="radio" name="status" id="statusDone" value="Done" > 
+                              <label class="form-check-label" for="statusDone">Done</label>
+                          </div>
+                      </div>
+                      <div class="form-check">
+                          <input class="form-check-input" type="radio" name="status" id="statusPending" value="Pending" >
+                          <label class="form-check-label" for="statusPending">Pending</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="status" id="statusHold"
+                              value="Hold">
+                        <label class="form-check-label" for="statusHold">Hold</label>
+                      </div>
+                  </fieldset>
+              </div> {% endcomment %}
+              <div class="col-md-2">
+                <fieldset class="border rounded p-2 "> 
+                  <legend class="float-none w-auto px-1 fs-6 fw-bold mb-0">Status</legend>
+                    <div class="d-flex gap-3">
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="status" id="statusAll" value="All" >
+                        <label class="form-check-label" for="statusAll">All</label>
+                      </div>
+                      <div class="form-check"> 
+                        <input class="form-check-input" type="radio" name="status" id="statusDone" value="Done" >
+                        <label class="form-check-label" for="statusDone">Done</label>
+                      </div>
+                    </div>
+                    <div class="d-flex gap-3">
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="status" id="statusPending" value="Pending" checked > 
+                        <label class="form-check-label" for="statusPending">Pending</label>
+                      </div>
+                      {% comment %} <div class="form-check">
+                        <input class="form-check-input" type="radio" name="status" id="statusHold" value="Hold" > 
+                        <label class="form-check-label" for="statusHold">Hold</label>
+                      </div>  {% endcomment %}
+                    </div>
+                </fieldset> 
+              </div>
+      
+              <div class="col-md-2">
+                  <fieldset class="border rounded p-2 ">
+                      <legend class="float-none w-auto px-1 fs-6 fw-bold mb-0">Entry Type</legend>
+                      <div class="d-flex gap-3 ">
+                          <div class="form-check">
+                              <input class="form-check-input" type="radio" name="etype" id="etypeAll" value="All" checked>
+                              <label class="form-check-label" for="etypeAll">All</label>
+                          </div>
+                          <div class="form-check">
+                              <input class="form-check-input" type="radio" name="etype" id="etypeImport" value="Import">
+                              <label class="form-check-label" for="etypeImport">Import</label>
+                          </div>
+                      </div>
+                      <div class="form-check">
+                          <input class="form-check-input" type="radio" name="etype" id="etypeManual" value="Manual">
+                          <label class="form-check-label" for="etypeManual">Manual</label>
+                      </div>
+                  </fieldset>
+              </div>
+              <div class="col-md-3">
+                  <fieldset class="border rounded p-2 ">
+                      <legend class="float-none w-auto px-1 fs-6 fw-bold mb-0">Options</legend>
+                      <div class="d-flex gap-3 ">
+                          <div class="form-check">
+                              <input class="form-check-input" type="checkbox" id="busyTranCheckbox" >
+                              <label class="form-check-label" for="busyTranCheckbox">Busy Tran.</label>
+                          </div>
+                          <div class="form-check">
+                              <input class="form-check-input" type="checkbox" id="acstkameetCheckbox">
+                              <label class="form-check-label" for="acstkameetCheckbox">AcstKameet</label>
+                          </div>
+                      </div>
+                    <div class="d-flex gap-3 ">
+                        <div class="form-check">
+                              <input class="form-check-input" type="checkbox" id="estmtCheckbox">
+                              <label class="form-check-label" for="estmtCheckbox">E-Stmt Req.</label>
+                          </div>
+                        <div class="form-check">
+                              <input class="form-check-input" type="checkbox" id="monthroundCheckbox">
+                              <label class="form-check-label" for="monthroundCheckbox">Month Round</label>
+                          </div>
+                          </div>
+                  </fieldset>
+              </div>    
+          </div>
+      </section>
+
+      <!-- === STATEMENT BAR  === -->
+      <section class="d-flex align-items-center flex-wrap gap-1 mt-1">
+        <label class="fw-semibold me-2">Stmt:</label>
+        <div class="d-flex flex-wrap gap-1">
+          {% for m in months %}
+            <button type="button" class="btn btn-outline-primary btn-sm stmt-month">{{ m }}</button>
+          {% endfor %}
+        </div>
+        <label class="fw-semibold ">Entry:</label>
+        <input id="entryCount" type="text"
+              class="form-control form-control-sm text-end"
+              style="width:60px;color:purple;" value="0" readonly>
+
+        <div class="ms-2 d-flex gap-1">
+        <button class="btn btn-sm btn-outline-success" type="button" title="Refresh"><i class="fa fa-rotate"></i></button>
+        <button id="openFolderGlobalBtn" class="btn btn-sm btn-outline-primary" type="button" title="Open Folder">
+          <i class="fa fa-folder-open"></i>
+        </button>
+    
+        <button class="btn btn-sm btn-outline-danger" type="button"><a href="{% url 'data_entry' %}?mode=add" style="text-decoration: none; color: inherit;" >Data Entry</a></button>
+        <label class="fw-bold mb-0" id="pwLabel">PW:0</label>
+        <input type="text" class="form-control form-control-sm text-purple fw-bold" 
+                    id="passwordField"  style="width: 160px;" />
+
+        <button class="btn btn-secondary btn-sm" type="button" id="refreshPwBtn" title="Refresh Password">
+            <i class="fa fa-rotate"></i>
+        </button>
+        <button class="btn btn-danger btn-sm" 
+            type="button" 
+            id="tempRemoveBtn" 
+            title="Remove Selected Rows">
+            <i class="fa fa-minus"></i>
+        </button>
+
+        <button class="btn btn-success btn-sm" id="exportExcelBtn" type="button" title="Export to Excel">
+          <i class="fa fa-file-excel"></i>
+        </button>
+        <button class="btn btn-primary btn-sm" id="exportJpgBtn" title="Export as Image">
+          <i class="fa fa-image"></i> 
+        </button>
+
+        <button class="btn btn-warning pdf-to-excel-btn">
+          📄 PDF → Excel
+        </button>
+
+        <button id="btnGap30" class="btn btn-outline-dark btn-sm" type="button"
+          title="Download gaps (≥30 days)">
+          Download gaps (≥30d)
+        </button>
+        <!-- Close button to go home -->
+        <a href="/" class="btn btn-sm btn-danger" title="Close and Go Home">
+          <i class="fa fa-times"></i>
+        </a>
+        </div>
+        <div class="btn-group mb-2 view-toggle" role="group" aria-label="Report view">
+          <button id="tabDetail"  class="btn btn-sm active">Detailed</button>
+          <button id="tabSummary" class="btn btn-sm">Summary</button>
+        </div>
+        <button type="button"
+                class="btn btn-sm btn-outline-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#pendingDetailModal">
+            Pending Detail
+        </button>
+
+      </section>
+      <hr class="section-divider">
+
+      <section class="card shadow-sm">
+        <div class="table-section" style="height: 75vh;">
+          <div id="tableWrapper" style="overflow: auto; height: 100%;">
+            <div style="min-width: 1300px;">
+
+              <table id="reportTable" class="table table-bordered table-sm mb-0" style="table-layout:fixed; width: 100%;">
+                <thead class="text-center">
+                  {% comment %} <tr onclick="showEntryDetail('{{ entry.id }}')"> {% endcomment %}
+                  <tr>
+                  <th style="width:50px">
+                    <input type="checkbox" id="chkAll"><div class="resizer"></div>
+                  </th>
+                  <th style="width: 150px;">Client&nbsp;Name<div class="resizer"></div></th>
+                  <th style="width: 320px;">Account&nbsp;Name<div class="resizer"></div></th>
+                  <th style="width: 120px;" class="hide-column">Account&nbsp;Group<div class="resizer"></div></th>
+                  <th style="width:95px">Rec.Date<div class="resizer"></div></th>
+                  <th style="width:95px">Format<div class="resizer"></div></th>
+                  <th style="width:90px" class="hide-column">Rece.&nbsp;By<div class="resizer"></div></th>
+                  <th style="width:95px">From&nbsp;Date<div class="resizer"></div></th>
+                  <th style="width:95px">Last&nbsp;Date<div class="resizer"></div></th>
+                  <th style="width:60px">Status<div class="resizer"></div></th>
+                  <th style="width:45px">eSt<div class="resizer"></div></th>
+                  <th style="width:60px">Allot.&nbsp;To<div class="resizer"></div></th>
+                  <th class="sticky-attachment">Attachment</th>
+
+                </tr>
+                <tr>
+                  
+                </tr>
+                </thead>
+                  <tbody id="reportBody">
+                    <tr class="no-data-row">
+                      <td colspan="13" class="text-center">No data available</td>
+                    </tr>
+                  </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+      <hr class="section-divider">
+      <section class="d-flex align-items-start mb-2">
+        <label class="form-label me-2 pt-1" style="min-width: 70px;">Remark</label>
+        <textarea rows="1" class="form-control form-control-sm" style="resize: none;"></textarea>
+      </section>
+    </div><!-- /mainContent -->
+
+    <!--  =======  DRAG HANDLE  =======  -->
+    <div id="dragHandle"></div>
+
+    <!--  =======  QUICK SIDEBAR  =======  -->
+    <div id="quickSidebar">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="fw-semibold"><i class="fa fa-clipboard-list me-1"></i>Quick Info</span>
+      </div>
+
+      <div class="row g-2 align-items-center mb-1">
+        <div class="col-auto">
+          <label class="form-label mb-0" for="reportSelect">Report:</label>
+        </div>
+        <div class="col">
+          <select id="reportSelect" class="form-select form-select-sm">
+              <option value="All">All</option>
+              <option value="Only Received" selected > Only Received</option>
+              <option value="Only Missing">Only Missing</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row g-2 align-items-center mb-1">
+          <div class="col-auto">
+            <label for="fromMonth" class="form-label">From Month</label>
+          </div>
+          <div class="col">
+              <select id="fromMonth" class="form-select form-select-sm">
+                <option value="Apr" selected>Apr</option>
+                <option value="May">May</option>
+                <option value="Jun">Jun</option>
+                <option value="Jul">Jul</option>
+                <option value="Aug">Aug</option>
+                <option value="Sep">Sep</option>
+                <option value="Oct">Oct</option>
+                <option value="Nov">Nov</option>
+                <option value="Dec">Dec</option>
+                <option value="Jan">Jan</option>
+                <option value="Feb">Feb</option>
+                <option value="Mar">Mar</option>
+              </select>
+          </div>
+      </div>
+
+      <div class="row g-2 align-items-center mb-1">
+          <div class="col-auto">
+            <label for="toMonth" class="form-label">To Month</label>
+          </div>
+          <div class="col">
+          <select id="toMonth" class="form-select form-select-sm">
+                <option value="Apr">Apr</option>
+                <option value="May">May</option>
+                <option value="Jun">Jun</option>
+                <option value="Jul">Jul</option>
+                <option value="Aug">Aug</option>
+                <option value="Sep">Sep</option>
+                <option value="Oct">Oct</option>
+                <option value="Nov">Nov</option>
+                <option value="Dec">Dec</option>
+                <option value="Jan">Jan</option>
+                <option value="Feb">Feb</option>
+                <option value="Mar" selected>Mar</option>        
+            </select>
+          </div>
+      </div>
+      <div class="row g-2 align-items-center mb-1">
+          <div class="col-auto">
+              <button id="openMailBtn" class="btn btn-sm btn-outline-primary" type="button">
+                  <i class="bi bi-envelope"></i> Open Mail
+              </button>
+          </div>
+          <div class="col">
+                <input id="mailInput" type="text" class="form-control form-control-sm" placeholder="mail msg id">
+          </div>
+      </div>
+      <fieldset class="border rounded p-2 mb-3">
+          <legend class="float-none w-auto px-1 fs-6 fw-bold mb-0">Busy Entry Status</legend>
+                      <div class="d-flex align-items-center mb-2">
+                          <label class="form-label me-2 mb-0" style="min-width: 90px;">Prev. Year</label>
+                          <input type="text" id="prevYearBusy" class="form-control form-control-sm" placeholder="Prev. Year" readonly>
+                      </div>
+
+                      <div class="d-flex align-items-center mb-2">
+                          <label class="form-label me-2 mb-0" style="min-width: 90px;">Curr. Year</label>
+                          <input type="text" id="currYearBusy" class="form-control form-control-sm" placeholder="Curr. Year" readonly>
+                      </div>
+
+                      <div class="d-flex align-items-center">
+                          <label class="form-label me-2 mb-0" style="min-width: 90px;">Last Date</label>
+                          <input type="text" id="lastDateBusy" class="form-control form-control-sm" placeholder="Last Date" readonly>
+                      </div>
+
+                      <div class="d-flex align-items-center">
+                          <label class="form-label me-2 mb-0" style="min-width: 90px;">Clos. Bal.</label>
+                          <input type="text" class="form-control form-control-sm" id="closingBalanceBusy"  placeholder="Closing Balance" readonly>
+                      </div>
+      </fieldset>
+          {% for key, label in entry_fields %}
+          <div class="d-flex align-items-center mb-2">
+              <label class="form-label me-2 mb-0" style="min-width: 100px;">
+                  {{ label }}
+              </label>
+
+              {#  id = "q" + key  →  qtrans_id, qrec_date, … #}
+              <input id="q{{ key }}" type="text"
+                    class="form-control form-control-sm entry-field"
+                    readonly>
+          </div>
+          {% endfor %} 
+    </div><!-- /quickSidebar -->
+  </div><!-- /layout -->
+  {% if messages %} 
+    {% for message in messages %}
+      <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="toast-header">
+            <strong class="me-auto">Notification</strong>
+              <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+          <div class="toast-body">
+            {{ message }}
+          </div>
+        </div>
+      </div>
+    {% endfor %} 
+  {% endif %}                      
+
+  <!--  =========  JS  =========  -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+{% comment %} avvount form with selected client {% endcomment %}
+{% comment %} <script> {% endcomment %}
+{% comment %} function openAccountFormWithClient() {
+
+    const clientId = document.getElementById("id_client_hidden").value.trim();
+
+    let url = "/account_form/";
+
+    // ✅ If client is selected → send it
+    if (clientId) {
+        url += "?client_id=" + encodeURIComponent(clientId);
+    }
+    window.location.href = url;
+
+    // ✅ Open account form
+    //window.open(url, "_blank");
+}
+</script> {% endcomment %}
+
+<script>
+  function openAccountFormWithClient() {
+
+    const clientId = document.getElementById("id_client_hidden").value.trim();
+    const accountId = document.getElementById("id_account_hidden").value.trim();
+
+    let url = "/account_form/";
+
+    let params = [];
+
+    // ✅ Pass client if selected
+    if (clientId) {
+        params.push("client_id=" + encodeURIComponent(clientId));
+    }
+
+    // ✅ If account selected → open in MODIFY MODE
+    if (accountId) {
+        params.push("account_id=" + encodeURIComponent(accountId));
+        params.push("mode=modify");
+    }
+
+    // ✅ Build final URL
+    if (params.length > 0) {
+        url += "?" + params.join("&");
+    }
+
+    // ✅ Open in same tab
+    window.location.href = url;
+}
+
+</script>
+
+  {% comment %} ACCOUNT OF GROUP {% endcomment %}
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+      const groupHidden   = document.getElementById("id_group_hidden");
+      const clientHidden  = document.getElementById("id_client_hidden");
+      const clientOptions = document.getElementById("id_client_options");
+      const accountInput  = document.getElementById("id_account_input");
+      const accountHidden = document.getElementById("id_account_hidden");
+      const accountOptions = document.getElementById("id_account_options");
+
+      // ----- helper to render account list -----
+      function renderAccounts(accounts) {
+          accountOptions.innerHTML = "";
+          accounts.forEach(a => {
+              const div = document.createElement("div");
+              div.className = "dropdown-option px-2 py-1";
+              div.dataset.id = a.id;
+              div.dataset.accountId = a.account_id;
+              div.textContent = a.account + " (" + a.account_id + ")";
+
+              div.addEventListener("click", function () {
+                  accountInput.value  = this.textContent;
+                  accountHidden.value = this.dataset.accountId;
+                  accountOptions.style.display = "none";
+              });
+
+              accountOptions.appendChild(div);
+          });
+      }
+
+      // ----- helper to load accounts from server -----
+      function loadAccounts(params) {
+          const qs = new URLSearchParams(params).toString();
+          fetch(`/ajax/accounts/?${qs}`)
+              .then(r => r.json())
+              .then(data => {
+                  // in your view we returned a plain list
+                  renderAccounts(data);
+                  accountOptions.style.display = "block";
+              })
+              .catch(err => console.error("accounts error", err));
+      }
+
+      // ----- when GROUP is selected -----
+      document.querySelectorAll("#id_group_options .dropdown-option")
+          .forEach(opt => {
+              opt.addEventListener("click", function () {
+                  const gid = this.dataset.id;
+                  groupHidden.value = gid;
+
+                  // clear client + account when group changes
+                  clientHidden.value = "";
+                  accountHidden.value = "";
+                  accountInput.value = "";
+                  accountOptions.innerHTML = "";
+
+                  // 1) reload clients for this group
+                  fetch(`/ajax/clients/?group_id=${gid}`)
+                      .then(r => r.json())
+                      .then(clients => {
+                          clientOptions.innerHTML = "";
+                          clients.forEach(c => {
+                              const div = document.createElement("div");
+                              div.className = "dropdown-option px-2 py-1";
+                              div.dataset.id = c.client_id;
+                              div.textContent = `${c.client_name} (${c.client_id})`;
+                              clientOptions.appendChild(div);
+
+                              // when client clicked -> load accounts only for that client
+                              div.addEventListener("click", function () {
+                                  clientHidden.value = this.dataset.id;
+                                  loadAccounts({client_id: this.dataset.id});
+                              });
+                          });
+                      });
+
+                  // 2) load ACCOUNTS for whole group (all clients under this group)
+                  loadAccounts({group_id: gid});
+              });
+          });
+
+      // ----- when CLIENT is selected separately (if you already had code) -----
+      document.querySelectorAll("#id_client_options .dropdown-option")
+          .forEach(opt => {
+              opt.addEventListener("click", function () {
+                  const cid = this.dataset.id;
+                  clientHidden.value = cid;
+                  loadAccounts({client_id: cid});
+              });
+          });
+  });
+  </script>
+
+  <script>
+    function openClientForm() {
+        const selectedClientId = document.getElementById('id_client_hidden').value;
+
+        if (selectedClientId) {
+            // Redirect to modify mode with client ID
+            window.location.href = `{% url 'client_form' %}?mode=modify&client_id=` + encodeURIComponent(selectedClientId);
+        } else {
+            // Redirect to add mode
+            window.location.href = `{% url 'client_form' %}?mode=add`;
+        }
+    }
+    function openAccountForm() {
+        const accountId = document.getElementById('id_account_hidden').value;
+        const displayValue = document.getElementById('id_account_input').value;
+
+        console.log("DEBUG accountId:", accountId, "Type:", typeof accountId);
+        console.log("DEBUG displayValue:", displayValue);
+
+        if (accountId && !isNaN(accountId)) {
+            console.log("Modify mode...");
+            window.location.href = `{% url 'account_form' %}?mode=modify&account_id=${accountId}`;
+        } else {
+            console.log("Add mode...");
+            window.location.href = `{% url 'account_form' %}?mode=add`;
+        }
+    }
+
+    // Enhanced dropdown handler
+    document.querySelectorAll('.dropdown-option').forEach(option => {
+        option.addEventListener('click', function() {
+            const accountId = this.getAttribute('data-id');
+            const accountNumber = this.getAttribute('data-account-id');
+            
+            document.getElementById('id_account_hidden').value = accountId;
+            document.getElementById('id_account_input').value = this.textContent.trim();
+            document.getElementById('id_account_options').style.display = 'none';
+            
+            console.log("Selected account:", accountId, "Account number:", accountNumber);
+        });
+    });
+
+    // Initialize form with current selection
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentAccountId = "{{ instance.id|default:'' }}";
+        if (currentAccountId) {
+            document.getElementById('id_account_hidden').value = currentAccountId;
+        }
+    });
+  </script>
+  <script>
+    /*  --- sidebar toggle ---  */
+    const toggleBtn=document.getElementById('toggleSidebar');
+    const closeBtn=document.getElementById('closeSidebar');
+    function toggleSidebar(){document.body.classList.toggle('sidebar-hidden');}
+    toggleBtn.addEventListener('click',toggleSidebar);
+    closeBtn.addEventListener('click',toggleSidebar);
+
+    /*  --- sidebar resize ---  */
+    const dragHandle=document.getElementById('dragHandle');
+    const sidebar=document.getElementById('quickSidebar');
+    const layout=document.getElementById('layout');
+    let isDragging=false;
+    dragHandle.addEventListener('mousedown',()=>{isDragging=true;document.body.style.userSelect='none';});
+    document.addEventListener('mousemove',e=>{
+      if(!isDragging) return;
+      const rect=layout.getBoundingClientRect();
+      let newW=rect.right-e.clientX;
+      newW=Math.min(Math.max(newW,240),600);
+      sidebar.style.width=newW+'px';
+    });
+    document.addEventListener('mouseup',()=>{isDragging=false;document.body.style.userSelect='auto';});
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const input = document.getElementById("id_emp_input");
+        const hiddenInput = document.getElementById("id_emp_hidden");
+        const optionsBox = document.getElementById("id_emp_options");
+
+        input.addEventListener("input", function () {
+            const filter = input.value.toLowerCase();
+          // const options = optionsBox.querySelectorAll(".dropdown-option");
+
+
+            if (!optionsBox) return;
+                const options = optionsBox.querySelectorAll(".dropdown-option");
+
+            optionsBox.style.display = "block";
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                option.style.display = text.includes(filter) ? "block" : "none";
+            });
+        });
+
+        input.addEventListener("focus", function () {
+            optionsBox.style.display = "block";
+        });
+
+        document.addEventListener("click", function (e) {
+            if (!e.target.closest(".custom-dropdown")) {
+                optionsBox.style.display = "none";
+            }
+        });
+
+        optionsBox.querySelectorAll(".dropdown-option").forEach(option => {
+            option.addEventListener("click", function () {
+                input.value = this.textContent.trim();
+                hiddenInput.value = this.dataset.id;
+                optionsBox.style.display = "none";
+            });
+        });
+        document.getElementById("id_client_hidden").addEventListener("change", () => {
+      loadTable({
+        group_id: document.getElementById("id_group_hidden").value,
+        client_id: document.getElementById("id_client_hidden").value
+      });
+      document.querySelectorAll("input, select").forEach(el => {
+      el.addEventListener("change", applyFilters);
+    });
+    });
+
+    document.getElementById("id_account_hidden").addEventListener("change", () => {
+      loadTable({
+        group_id: document.getElementById("id_group_hidden").value,
+        client_id: document.getElementById("id_client_hidden").value,
+        account_id: document.getElementById("id_account_hidden").value
+      });
+    });
+
+    });
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Track the last active filter type
+      let lastActiveFilter = null;
+
+      /* ---------- generic searchable dropdown ---------- */
+      function makeSearchable(cfg) {
+        const input = document.getElementById(cfg.input);
+        const hidden = document.getElementById(cfg.hidden);
+        const box = document.getElementById(cfg.box);
+
+        // filter as you type
+        /*input.addEventListener("input", () => {
+          const txt = input.value.toLowerCase();
+          box.style.display = "block";
+          box.querySelectorAll(".dropdown-option").forEach(opt => {
+            opt.style.display = opt.textContent.toLowerCase().includes(txt) ? "block" : "none";
+          });
+        });*/
+        input.addEventListener("input", () => {
+      const txt = input.value.toLowerCase();
+      box.style.display = "block";
+      box.querySelectorAll(".dropdown-option").forEach(opt => {
+        if (!txt) {
+          opt.style.display = "block";  // show all if input is empty
+        } else {
+          opt.style.display = opt.textContent.toLowerCase().includes(txt) ? "block" : "none";
+        }
+      });
+    });
+
+
+        // show on focus
+        input.addEventListener("focus", () => box.style.display = "block");
+
+        // hide when clicking outside
+        document.addEventListener("click", e => {
+          if (!e.target.closest(".custom-dropdown")) box.style.display = "none";
+        });
+
+        // choose option
+        box.addEventListener("click", e => {
+          const opt = e.target.closest(".dropdown-option");
+          if (!opt) return;
+          input.value = opt.textContent.trim();
+          hidden.value = opt.dataset.id;
+          box.style.display = "none";
+          hidden.dispatchEvent(new Event("change"));
+          cfg.onSelect && cfg.onSelect(opt.dataset.id);
+        });
+      }
+
+      /* ---------- Helper function to get current filters ---------- */
+      function getCurrentFilterParams() {
+        const params = {
+          group_id: document.getElementById("id_group_hidden").value,
+          client_id: document.getElementById("id_client_hidden").value,
+        //  account_id: document.getElementById("id_account_hidden").value,
+        account_id: (() => {
+            const input = document.getElementById("id_account_input").value.trim();
+            const hidden = document.getElementById("id_account_hidden").value;
+            return input ? hidden : ""; // if input is cleared, ignore hidden value
+          })(),
+
+          fy: document.querySelector("select[name='fy']").value,
+          report_type: document.getElementById("reportSelect").value
+        };
+
+        const empInputValue = document.getElementById("id_emp_input").value.trim();
+        if (empInputValue) {
+          params.emp_id = document.getElementById("id_emp_hidden").value;
+        } else {
+          // If the employee input is cleared, ensure emp_id is not passed
+          delete params.emp_id;
+          document.getElementById("id_emp_hidden").value = ""; // Clear the hidden input
+          lastActiveFilter = null; // Reset the active filter
+        }
+        console.log("🚀 Current Filter Params:", params); // Debug: log current params
+
+
+        return params;
+      }
+
+      /* ---------- Group Dropdown ---------- */
+      makeSearchable({
+        input: "id_group_input",
+        hidden: "id_group_hidden",
+        box: "id_group_options",
+        onSelect: gid => {
+          lastActiveFilter = 'group';
+          resetDropdown("id_client_input", "id_client_hidden", "id_client_options");
+          resetDropdown("id_account_input", "id_account_hidden", "id_account_options");
+
+          fetch(`/ajax/clients/?group_id=${gid}`)
+            .then(r => r.json())
+            .then(data => {
+              rebuildOptions("id_client_options", data, "client_id", "client_name");
+              const clientInput = document.getElementById("id_client_input");
+              const clientBox = document.getElementById("id_client_options");
+              clientInput.focus();
+              clientBox.style.display = "block";
+              setTimeout(() => clientInput.select(), 10);
+            });
+
+          loadTable(getCurrentFilterParams());
+        }
+      });
+
+      /* ---------- Client Dropdown ---------- */
+      makeSearchable({
+        input: "id_client_input",
+        hidden: "id_client_hidden",
+        box: "id_client_options",
+        onSelect: (clientId) => {
+          lastActiveFilter = 'client';
+          document.getElementById("id_client_hidden").value = clientId;
+          resetDropdown("id_account_input", "id_account_hidden", "id_account_options");
+
+          fetch(`/ajax/accounts/?client_id=${clientId}`)
+            .then(r => r.json())
+            .then(data => {
+              //rebuildOptions("id_account_options", data, "account_id", "account_name");
+              rebuildOptions("id_account_options", data, "id", "account"); // <-- FIXED KEYS
+              const accountInput = document.getElementById("id_account_input");
+              const accountBox = document.getElementById("id_account_options");
+              accountInput.focus();
+              accountBox.style.display = "block";
+              setTimeout(() => accountInput.select(), 10);
+            });
+
+          loadTable(getCurrentFilterParams());
+        }
+      });
+
+      /* ---------- Account Dropdown ---------- */
+      makeSearchable({
+        input: "id_account_input",
+        hidden: "id_account_hidden",
+        box: "id_account_options",
+        onSelect: (accountId) => {
+          lastActiveFilter = 'account';
+          document.getElementById("id_account_hidden").value = accountId;
+          loadTable(getCurrentFilterParams());
+        }
+      });
+
+      /* ---------- Employee Dropdown ---------- */
+      makeSearchable({
+        input: "id_emp_input",
+        hidden: "id_emp_hidden",
+        box: "id_emp_options",
+        onSelect: (empId) => {
+          lastActiveFilter = 'emp';
+          document.getElementById("id_emp_hidden").value = empId;
+          resetDropdown("id_account_input", "id_account_hidden", "id_account_options");
+          loadTable(getCurrentFilterParams());
+        }
+      });
+    });
+
+    document.getElementById("id_account_input").addEventListener("input", () => {
+      const input = document.getElementById("id_account_input").value.trim();
+      if (!input) {
+        document.getElementById("id_account_hidden").value = "";
+        lastActiveFilter = 'client'; // revert back to client-level filtering
+        loadTable(getCurrentFilterParams()); // reload table with updated filters
+      }
+    });
+
+
+      // Add event listener to reset emp_id when employee input is cleared
+      document.getElementById("id_emp_input").addEventListener("input", () => {
+        const empInputValue = document.getElementById("id_emp_input").value.trim();
+        if (!empInputValue) {
+          // Reset emp_id and lastActiveFilter if the input is cleared
+          document.getElementById("id_emp_hidden").value = "";  // Clear hidden input
+          lastActiveFilter = null;  // Reset active filter
+          loadTable(getCurrentFilterParams());  // Reload the table with updated filters
+        }
+      });
+      
+
+    function resetDropdown(inputId, hiddenId, boxId) {
+        document.getElementById(inputId).value  = "";
+        document.getElementById(hiddenId).value = "";
+        document.getElementById(boxId).innerHTML = "";
+        // Leave options as-is; they’ll be rebuilt if needed
+    }
+    /* ---------- helpers ---------- */
+    function rebuildOptions(boxId, data, idKey, textKey) {
+        const box = document.getElementById(boxId);
+        box.innerHTML = "";          // clear existing
+        data.forEach(row => {
+            const div = document.createElement("div");
+            div.className = "dropdown-option px-2 py-1";
+            div.dataset.id = row[idKey];
+            div.dataset.group = row.account_group || ""; // optional: keep for inspection
+            div.textContent = row[textKey];
+            box.appendChild(div);
+        });
+    }
+
+  </script>
+
+  <script>
+    // Save the original table header once so we can restore it when leaving Summary
+    let ORIGINAL_THEAD_HTML = null;
+  </script>
+
+  <script>
+    /* ------------- main table loader ------------- */
+    function toQueryString(params) {
+      const searchParams = new URLSearchParams();
+
+      for (const key in params) {
+        const val = params[key];
+
+        if (Array.isArray(val)) {
+          // ✅ Proper array format for Django getlist()
+          //val.forEach(v => searchParams.append(`${key}[]`, v));
+            val.forEach(v => searchParams.append(key, v)); // Changed from `${key}[]` to just key
+        } else if (val !== undefined && val !== null && val !== '') {
+          searchParams.append(key, val);
+        }
+      }
+
+      return searchParams.toString();
+    }
+    let selectedFileUrl = null;
+    let selectedEntryId = null;
+
+    function showLoader() {
+      document.getElementById("loaderOverlay").style.display = "flex";
+    }
+
+    function hideLoader() {
+      document.getElementById("loaderOverlay").style.display = "none";
+    } 
+    document.addEventListener("DOMContentLoaded", () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const params = Object.fromEntries(urlParams.entries());
+      if (params.highlight_id) {
+        console.log("✅ Storing highlight_id to session:", highlightId);
+
+        sessionStorage.setItem("highlight_id", params.highlight_id);
+      }
+      // ✅ Load all data with current filters (not just 1 row)
+      //loadTable(params);
+
+      // ✅ Trigger loadTable when Report dropdown changes
+        document.getElementById("reportSelect").addEventListener("change", () => {
+          const currentParams = getCurrentFilterParams();  // ✅ correct filter data
+          loadTable(currentParams);
+        });
+
+    });
+
+    {% comment %} fy auto select {% endcomment %}
+    document.addEventListener("DOMContentLoaded", function () {
+
+  const fySelect = document.getElementById("fiscalYearSelect");
+  if (!fySelect) return;
+
+  // 🔹 Auto-select current FY
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth() + 1;
+
+  let fy;
+  if (month >= 4) {
+    fy = `${year}_${(year + 1).toString().slice(-2)}`;
+  } else {
+    fy = `${year - 1}_${year.toString().slice(-2)}`;
+  }
+
+  for (const option of fySelect.options) {
+    if (option.value === fy) {
+      option.selected = true;
+      break;
+    }
+  }
+
+  console.warn("✅ FY auto-selected:", fySelect.value);
+
+  // 🔹 Now safe to load table
+  const urlParams = new URLSearchParams(window.location.search);
+  const params = Object.fromEntries(urlParams.entries());
+  loadTable(params);
+});
+
+
+    function loadTable(params) {
+      const fySelect = document.getElementById("fiscalYearSelect");
+
+      if (!fySelect || !fySelect.value) {
+        console.warn("⏳ FY not ready — skipping loadTable");
+        return;
+      }
+        console.warn("🔥 loadTable CALLED at", new Date().toLocaleTimeString(),
+             "FY =", fySelect.value);
+
+        // 🔹 make sure we always send the current view
+        params = params || {};
+        if (!params.view) params.view = (typeof currentView !== "undefined" ? currentView : "detail");
+
+        // Add month_round=1 if checkbox is checked
+        const isMonthRound = document.getElementById("monthroundCheckbox").checked;
+        if (isMonthRound) {
+            params.month_round = 1;
+        }
+      // Get current filter state from dropdowns
+        const filters = collectFilters();
+            const finalParams = {
+          ...filters,
+          ...params
+        };
+
+        finalParams.fy = document.getElementById("fiscalYearSelect").value.trim();
+
+        
+
+      console.log("🚀 Final request params:", finalParams);
+      
+      const fullParams = {
+        group_id: document.getElementById("id_group_hidden").value,
+        client_id: document.getElementById("id_client_hidden").value,
+        account_id: document.getElementById("id_account_hidden").value,
+       // fy: document.querySelector("select[name='fy']").value,
+        fy: document.getElementById("fiscalYearSelect").value.trim(),
+
+        report_type: document.getElementById("reportSelect").value,
+        // ...(params || {}) // Override with any specific params passed in
+      };
+      console.log("🔍 Current filter values:", {
+        group: document.getElementById("id_group_hidden").value,
+        client: document.getElementById("id_client_hidden").value,
+        account: document.getElementById("id_account_hidden").value,
+        emp: document.getElementById("id_emp_hidden").value
+      });
+
+      const tbody = document.getElementById("reportBody");
+      const counter = document.getElementById("entryCount");
+      console.log("🚀 loadTable called with params:", params);
+    
+      //  Default status = Pending (because your form pre-selects it)
+      const status = finalParams.status || "Pending";
+
+      //  When no group, no client, no account is selected
+     /* if (!finalParams.group_id &&
+          !finalParams.client_id &&
+          !finalParams.account_id &&
+          !finalParams.entry_id &&
+          !finalParams.highlight_id) {
+
+          if (status === "Pending") {
+              //  Allow fetch — do not block the request
+              console.warn(" No filters selected — Showing ALL Pending entries (Fetch allowed)");
+          } else {
+              // ❌ Block fetch only when status is NOT Pending
+              console.warn(" No group/client/account AND status != Pending — Blocking request");
+              tbody.innerHTML = `
+                  <tr class="no-data-row">
+                      <td colspan="11" class="text-center text-danger">
+                          Please select Group, Client, or Account to view data.
+                      </td>
+                  </tr>`;
+              counter.value = 0;
+              return;   // ❌ Important: Stop execution
+          }
+      }*/
+
+
+      //const qs = toQueryString(fullParams);
+      const qs = toQueryString(finalParams);  // ✅ includes highlight_id, entry_id, etc.
+
+      console.log("📦 Query string being sent:", qs);
+    
+
+
+      console.log("📦 Query string being sent:", qs);
+      showLoader();  // ✅ START LOADER
+      const monthColors = {};
+      // e.g., { Apr: "green", May: "red" }
+      function getCoveredMonths(from, to) {
+        const covered = [];
+        const start = new Date(from.getFullYear(), from.getMonth(), 1);
+        const end = new Date(to.getFullYear(), to.getMonth(), 1);
+
+        while (start <= end) {
+          const m = start.toLocaleString("default", { month: "short" });
+          covered.push(m);
+          start.setMonth(start.getMonth() + 1);
+        }
+        return covered;
+      }
+      fetch(`/ajax/report_rows/?${qs}`)
+        .then(r => {
+              if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+              return r.json();
+          })
+        //.then(rows => {
+      .then(response => {
+          const rows = response.rows || [];
+          const monthStatus = response.month_status || {}; // NEW!
+          console.log("📦 FULL monthStatus from backend:", monthStatus);
+          console.log("📦 All account IDs available:", Object.keys(monthStatus));
+          // ---- SUMMARY RENDERER (early return) ----
+          if (response.summary) {
+            const thead = document.querySelector("#reportTable thead");
+            const tbody = document.getElementById("reportBody");
+            const counter = document.getElementById("entryCount");
+
+            // Save original header once (for switching back to Detailed)
+            if (!ORIGINAL_THEAD_HTML) ORIGINAL_THEAD_HTML = thead.innerHTML;
+
+            // Replace header for Summary view
+            thead.innerHTML = `
+              <tr>
+                <th style="width:50px"><input type="checkbox" id="chkAll"><div class="resizer"></div></th>
+                <th style="width:200px;">Client Name<div class="resizer"></div></th>
+                <th style="width:300px;">Account Name<div class="resizer"></div></th>
+                <th style="width:120px;">format<div class="resizer"></div></th>
+                <th>received<div class="resizer"></div></th>
+                <th>missings<div class="resizer"></div></th>
+              </tr>
+            `;
+
+              // Fill rows
+              tbody.innerHTML = "";
+              (response.summary || []).forEach(row => {
+                tbody.insertAdjacentHTML("beforeend", `
+                  <tr class="align-middle" data-id="${row.account_pk || ''}">
+                    <td class="text-center"><input type="checkbox" class="rowChk"></td>
+                    <td>${row.client}</td>
+                    <td>${row.account}</td>
+                    <td>${row.format || ''}</td>
+                    <td>${row.received || ''}</td>
+                    <td>${row.missings || ''}</td>
+                  </tr>
+                `);
+              });
+
+              counter.value = (response.summary || []).length;
+
+              // You can skip all the Detailed-specific handlers below
+              hideLoader();
+              return; // 🔚 end early for Summary view
+          }
+            // ---- END SUMMARY RENDERER ----
+
+          // const selectedAccountId = document.querySelector("#id_account_hidden option:checked")?.textContent?.trim();
+          const selectedAccountId = document.getElementById("id_account_hidden").value; // ✅ account_id
+          //let selectedAccountId = document.getElementById("id_account_hidden").value;
+          console.log("🎯 Hidden selectedAccountId:", document.getElementById("id_account_hidden").value);
+
+          document.querySelectorAll(".stmt-month").forEach(btn => {
+            const month = btn.textContent.trim();  // e.g. "Apr"
+            // ✅ Lookup color directly by account_id → month
+            const color = monthStatus[selectedAccountId]?.[month];
+            console.log("🎯 Selected account ID:", selectedAccountId, "| Month:", month, "| Color:", color);
+
+            btn.classList.remove("btn-outline-primary", "btn-success", "btn-danger", "btn-warning");
+
+            if (color === "green") {
+              btn.classList.add("btn-success");
+            } else if (color === "red") {
+              btn.classList.add("btn-danger");
+            } else if (color === "yellow") {
+              btn.classList.add("btn-warning");
+            } else {
+              btn.classList.add("btn-outline-primary");
+            }
+          });
+
+
+
+            //console.log("📊 Received rows:", rows);
+                //tbody.innerHTML = "";
+                // 🔹 If we came back from Summary, restore the original header
+          const thead = document.querySelector("#reportTable thead");
+          if (ORIGINAL_THEAD_HTML && thead.innerHTML !== ORIGINAL_THEAD_HTML) {
+                  thead.innerHTML = ORIGINAL_THEAD_HTML;
+          }
+          tbody.innerHTML = "";
+          if (!rows.length) {
+            tbody.innerHTML = `<tr class="no-data-row">
+                                        <td colspan="11" class="text-center">
+                                          No data available
+                                        </td></tr>`;
+                counter.value = 0;
+                return;
+          }
+              
+            // 🔧 Helper: Convert date string to Date object
+          function parseDate(dateStr) {
+                const [d, m, y] = dateStr.split("-").map(Number);
+                return new Date(y, m - 1, d);
+          }
+            //missing entry
+            // 🔧 Generate monthly blocks
+          function getMonthBlocks(fromStr, toStr) {
+                const blocks = [];
+                let current = new Date(fromStr);
+                const end = new Date(toStr);
+
+                while (current <= end) {
+                  const start = new Date(current.getFullYear(), current.getMonth(), 1);
+                  const lastDay = new Date(current.getFullYear(), current.getMonth() + 1, 0);
+                  blocks.push([start, lastDay]);
+                  current.setMonth(current.getMonth() + 1);
+                }
+
+                return blocks;
+          }
+
+            // 🔧 Find missing blocks
+          function mergeMissingBlocks(allBlocks, existingRows) {
+                const realSet = new Set(existingRows.map(r => `${r.from_date} to ${r.last_date}`));
+                const result = [];
+                let tempStart = null;
+
+                for (const [start, end] of allBlocks) {
+                  const key = `${start.toISOString().slice(0, 10)} to ${end.toISOString().slice(0, 10)}`;
+                  const humanKey = `${start.toLocaleDateString("en-GB")} to ${end.toLocaleDateString("en-GB")}`;
+                  const exists = Array.from(realSet).some(r => r.includes(start.toLocaleDateString("en-GB")));
+                  if (!exists) {
+                    if (!tempStart) tempStart = start;
+                  } else {
+                    if (tempStart) {
+                      result.push([tempStart, new Date(start.getTime() - 1)]);
+                      tempStart = null;
+                    }
+                  }
+                }
+
+                if (tempStart) {
+                  result.push([tempStart, allBlocks.at(-1)[1]]);
+                }
+
+                return result;
+          }
+
+            // 🧮 Define full range and check gaps
+          const allBlocks = getMonthBlocks("2025-04-01", "2026-03-31");
+          const missing = mergeMissingBlocks(allBlocks, rows);
+
+          // ✅ Sort by Client → Account → FROM DATE (ascending)
+          rows.sort((a, b) => {
+
+              // 1️⃣ Client compare
+              if (a.client < b.client) return -1;
+              if (a.client > b.client) return 1;
+
+              // 2️⃣ Account compare
+              if (a.account < b.account) return -1;
+              if (a.account > b.account) return 1;
+
+              // 3️⃣ Date compare (From Date ASC)
+              const d1 = parseDate(a.from_date);
+              const d2 = parseDate(b.from_date);
+              return d1 - d2;   // ✅ Smaller date first
+          });
+
+              
+          let prevClient = null;
+          let prevAccount = null;
+
+          // rows.forEach((row) => {
+          rows.forEach((row, index) => {
+                      const currClient = row.client;
+                      const currAccount = row.account;
+
+                      // ✅ Insert separator if client or account changes
+                      if (index > 0 && (currClient !== prevClient || currAccount !== prevAccount)) {
+                        tbody.insertAdjacentHTML("beforeend", `
+                            <tr class="table-separator-row">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                          </tr>
+                        `);
+                      }
+
+                      prevClient = currClient;
+                      prevAccount = currAccount;
+
+                  
+
+                  const fileUrl = row.file_url ? encodeURIComponent(row.file_url) : '';
+                  const fileName = row.file_url ? row.file_url.split(/[\\/]/).pop() : "";
+                // const folderPath = row.file_url ? row.file_url.substring(0, row.file_url.lastIndexOf('\\')) : "";
+                  const hasFile = row.file_path && row.file_name;
+
+                  // 🔹 Detect file extension for icon
+                  // 🔹 Detect file extension → icon + color
+                  let iconClass = "fa-file";
+                  let iconColor = "text-secondary"; // default gray
+
+                  if (row.file_name) {
+                      const ext = row.file_name.split('.').pop().toLowerCase();
+
+                      if (ext === "pdf") {
+                          iconClass = "fa-file-pdf";
+                          iconColor = "text-danger";        // 🔴 red
+                      }
+                      else if (["xls", "xlsx"].includes(ext)) {
+                          iconClass = "fa-file-excel";
+                          iconColor = "text-success";       // 🟢 green
+                      }
+                      else if (ext === "zip") {
+                          iconClass = "fa-file-archive";
+                          iconColor = "text-purple";        // 🟣 custom
+                      }
+                      else if (["html", "htm"].includes(ext)) {
+                          iconClass = "fa-globe";
+                          iconColor = "text-primary";       // 🔵 blue
+                      }
+                  }
+
+
+                  const password = row.password || '';  // Get password from row data
+                  const folderPath = row.folder_path || "";
+                  const relPath = row.file_path || "";  // e.g. fy_2024_25\ADRPC5164B\1901\12.pdf
+                  const fullPath = `Z:\\Kameet Soft Project\\Bank Statement\\${relPath.replace(/\//g, "\\")}`;
+
+                // const fullFolderPath = `Z:\\Kameet Soft Project\\Bank Statement\\${row.file_path.replace(/\//g, "\\").replace(/^.*?(fy_\d{4}_\d{2}\\)/, "$1")}`;
+                  const fullFolderPath = `Z:\\Kameet Soft Project\\Bank Statement\\${folderPath.replace(/\//g, "\\")}`;
+
+                //console.log("✅ Folder path from row:", folderPath);
+                const allotedDt = row.alloted_date || "";
+                const doneDt = row.done_date || "";
+                const queryText = row.query || "";
+
+              
+              let rowClass = "";
+                if (!row.received_date) {
+                  rowClass = "missing-entry";  // 🔴 Missing entry
+                } else if (row.status?.trim().toLowerCase() === "done") {
+                  rowClass = "present-entry";  // ✅ Done
+                } else {
+                  rowClass = "incomplete-entry";  // ⚫ Present but not Done
+                }
+
+                tbody.insertAdjacentHTML("beforeend", `
+                    <tr data-id="${row.id}"
+                      data-fy="${row.fy}" 
+                      data-fullpath="${fullPath}"
+                      data-folderpath="${encodeURIComponent(fullFolderPath)}"
+                      data-client-pk="${row.client_pk || ''}"
+                      data-account-pk="${row.account_pk || ''}"
+                      data-from="${row.from_date || ''}"
+                      data-to="${row.last_date || ''}"
+                      data-alloted-dt="${allotedDt}"
+                      data-done-dt="${doneDt}"
+                      data-accountid="${row.account_id}"
+                      data-query="${queryText}"
+                      data-password="${row.password || ''}" 
+                      data-msg-id="${row.msg_id || ''}" 
+                      class="align-middle ${rowClass}" 
+                      data-busy-code="${row.busy_code || ''}" 
+                      data-busy-acc-code="${row.busyacccode || ''}"
+                      onclick="fetchBusyInfo(this)"
+                        style="cursor:pointer">
+                        <td class="text-center"><input type="checkbox" class="rowChk"></td>
+                        <td>${row.client}</td>
+                        <td>${row.account}</td>
+                        <td class="hide-column">${row.account_group}</td>
+                        <td>${row.received_date}</td>
+                        <td>${row.format}</td>
+                        <td class="hide-column">${row.rece_by}</td>
+                        <td>${row.from_date}</td>
+                        <td>${row.last_date}</td>
+                        <td>${row.status || '-'}</td>
+                        <td>${row.e_stmt}</td>
+                        <td>${row.alloted_to}</td>
+                        <td class="text-center sticky-attachment">
+                                          ${
+                                           hasFile
+                                                ? `
+                                                    <!-- 📎 PDF File Button -->
+                                                    <button class="btn btn-sm btn-outline-warning open-file-btn"
+                                                            data-filepath="${encodeURIComponent(row.file_path)}"
+                                                            data-password="${encodeURIComponent(password)}"
+                                                            data-accountid="${row.account_id}">
+                                                        <i class="fa ${iconClass} ${iconColor}"></i>
+
+
+                                                    </button>
+
+                                                    <!-- Copy URL Button -->
+                                                    <button class="btn btn-sm btn-outline-secondary copy-url-btn"
+                                                            data-copyurl="${fullPath}">
+                                                        <i class="fa fa-copy"></i>
+                                                    </button>
+                                                  `
+                                                : (row.statement_link || "").trim()
+                                                  ? `
+                                                    <!-- 🔗 Link Button -->
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-sm btn-outline-primary open-statement-btn"
+                                                        data-link="${row.statement_link}">
+                                                        <i class="bi bi-envelope-open"></i> Open Statement
+                                                    </button>
+                                                  `
+                                                  : ''
+
+                                        }
+                                    </td>          
+                </tr>`);
+          })
+
+          counter.value = rows.length;
+          
+          
+          // ✅ CHECKBOX → ROW SELECTION LOGIC
+            tbody.querySelectorAll("input.rowChk").forEach(chk => {
+              chk.addEventListener("change", function (e) {
+                e.stopPropagation();
+
+                const row = chk.closest("tr");
+
+                // 🔹 Remove previous selection highlight
+                tbody.querySelectorAll("tr.selected").forEach(r => r.classList.remove("selected"));
+
+                if (chk.checked) {
+                  row.classList.add("selected");
+                }
+              });
+            });
+
+
+
+
+          // 🔗 Attach click handler for Link buttons (Detail view)
+        /*    tbody.querySelectorAll(".open-mail-link-btn").forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+
+                    const msgId = (btn.dataset.msgid || "").trim();  // raw Message-ID
+                    if (!msgId) {
+                        alert("No Message-ID found for this row.");
+                        return;
+                    }
+
+                    // Call Django view → it will talk to Gmail API and redirect to statement link
+                    const url = `/open_mail_extract/?msg_id=${encodeURIComponent(msgId)}`;
+                    console.log("🔗 Opening mail-extract URL:", url);
+                    window.open(url, "_blank");
+                });
+            });*/
+
+
+
+
+
+
+
+          const highlightId = sessionStorage.getItem("highlight_id");
+          console.log("🔍 Retrieved highlight_id from sessionStorage:", highlightId);
+
+          if (highlightId) {
+              const rows = document.querySelectorAll("tr[data-id]");
+              let found = false;
+
+              rows.forEach(row => {
+                console.log("➡️ Checking row with data-id:", row.dataset.id);
+                if (row.dataset.id == highlightId) {
+                  console.log("✅ Match found! Highlighting row:", highlightId);
+                  row.classList.add("highlight-row");
+                  row.scrollIntoView({ behavior: "smooth", block: "center" });
+                  found = true;
+                }
+              });
+
+              if (!found) {
+                console.warn("⚠️ No matching row found for highlight_id:", highlightId);
+              }
+
+              sessionStorage.removeItem("highlight_id");
+          } else {
+              console.warn("❌ No highlight_id found in sessionStorage");
+          }
+
+          // Update your click handler (replace the existing one)
+          tbody.querySelectorAll(".open-file-btn").forEach(btn => {
+              btn.addEventListener("click", async (e) => {
+                  e.stopPropagation();
+                  const filePath = decodeURIComponent(btn.dataset.filepath);
+                  let password = document.getElementById("passwordField")?.value || "";
+
+
+                  const accountId = btn.dataset.accountid;
+
+                  if (!filePath) {
+                      alert("No file available for this row.");
+                      return;
+                  }
+
+                  // Extract fy, pan, filename from filePath
+                  const parts = filePath.split(/[/\\]+/);  // handles both / and \ separators
+                  const filename = parts.at(-1);           // last part = filename
+                  const pan = parts.at(-2);                // second-last = PAN
+                  const fy = parts.find(p => /^fy_\d{4}_\d{2}$/.test(p));  // match fy_2024_25
+
+                  if (!fy || !pan || !filename) {
+                      alert("Invalid file path format.");
+                      return;
+                  }
+
+                  // Show loading state
+                  const originalHtml = btn.innerHTML;
+                  btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+                  btn.disabled = true;
+
+                  try {
+                      if (password) {
+                          try {
+                              await copyToClipboard(password);
+                              btn.title = `Password copied: ${password}`;
+                              setTimeout(() => { btn.title = "Open File"; }, 3000);
+
+                              if (navigator.clipboard?.readText) {
+                                  const clipboardContent = await navigator.clipboard.readText();
+                                  console.log("Clipboard verification:", clipboardContent);
+                              }
+                          } catch (copyError) {
+                              console.error("Copy failed:", copyError);
+                              alert(`Please manually copy this password: ${password}`);
+                          }
+                      }
+
+                      // ✅ Correct URL opening
+                      const url = `/open-bank-pdf/?path=${encodeURIComponent(filePath)}`;
+                      window.open(url, "_blank");
+
+                  } catch (error) {
+                      console.error('Error:', error);
+                      alert(`Error opening file: ${error.message}`);
+                  } finally {
+                      setTimeout(() => {
+                          btn.innerHTML = originalHtml;
+                          btn.disabled = false;
+                      }, 1000);
+                  }
+              });
+          });
+
+
+      
+          document.getElementById("tempRemoveBtn").addEventListener("click", function () {
+            const tbody = document.getElementById("reportBody");
+
+            // ✅ Select ONLY checked rows that are also missing (red) entries
+            const selectedMissingRows = Array.from(
+              tbody.querySelectorAll("tr.missing-entry input.rowChk:checked")
+            );
+            // ✅ Remove only missing rows
+            selectedMissingRows.forEach(chk => {
+              const row = chk.closest("tr");
+              if (row) row.remove();
+            });
+
+            // ✅ Update entry counter
+            const counter = document.getElementById("entryCount");
+            counter.value = tbody.querySelectorAll("tr[data-id]").length;
+          });
+        
+          document.getElementById("refreshPwBtn").addEventListener("click", () => {
+            if (passwordList.length > 1) {
+              currentPasswordIndex = (currentPasswordIndex + 1) % passwordList.length;
+              document.getElementById("passwordField").value = passwordList[currentPasswordIndex];
+            } else if (passwordList.length === 1) {
+              document.getElementById("passwordField").value = passwordList[0];  // Refresh same value
+            } else {
+              document.getElementById("passwordField").value = "";  // No password
+            }
+          });
+
+         
+
+          // Row click handling remains the same
+          let clickTimeout;
+          let selectedFolderPath = "";  // global variable
+
+          tbody.querySelectorAll("tr[data-id]").forEach(tr => {
+            tr.addEventListener("click", (e) => {
+
+
+              //const highlightId = new URLSearchParams(window.location.search).get("highlight_id");
+              if (highlightId) {
+                const targetRow = tbody.querySelector(`tr[data-id="${highlightId}"]`);
+                if (targetRow) {
+                  targetRow.classList.add("selected");
+                  targetRow.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
+              }
+              if (e.target.tagName.toLowerCase() === 'input' || e.target.closest("button")) return;
+              const folderBtn = tr.querySelector(".open-folder-btn");
+              if (folderBtn) {
+                const raw = folderBtn.dataset.folderpath || "";
+                selectedFolderPath = decodeURIComponent(raw).replace(/\\/g, "/");
+                //console.log("✅ Selected folder path:", selectedFolderPath);
+              }
+              // ✅ Get account_id from row
+                const accId = tr.dataset.accountid;
+                console.log("🎯 Clicked row → accountId:", accId);
+
+                // ✅ Always convert to string (JSON keys are strings)
+                const accKey = String(accId);
+
+                  // ✅ Fetch backend colors for this account
+              const accMonths = monthStatus[accKey] || {};
+              console.log("✅ Backend months for this account:", accMonths);
+
+              // ✅ Reset + apply colors
+              document.querySelectorAll(".stmt-month").forEach(btn => {
+                const mon = btn.innerText.trim();  // e.g. "Nov"
+                btn.classList.remove("btn-success", "btn-warning", "btn-danger", "btn-outline-primary");
+
+                const color = accMonths[mon];
+                console.log(`🔹 Month: ${mon}, Backend color:`, color);
+
+                if (color === "green") btn.classList.add("btn-success");
+                else if (color === "yellow") btn.classList.add("btn-warning");
+                else if (color === "red") btn.classList.add("btn-danger");
+                else btn.classList.add("btn-outline-primary");  // no data → default
+              });
+
+
+            // ✅ Mark this row as selected
+            tbody.querySelectorAll("tr.selected").forEach(r => r.classList.remove("selected"));
+            tr.classList.add("selected");
+              // ✅ INSERT HERE:
+              const passwordField = document.getElementById("passwordField");
+              if (passwordField) {
+              // const pw = tr.dataset.password || "";
+              // passwordField.value = pw;
+                const pwRaw = tr.dataset.password || "";
+                passwordList = pwRaw.split(",").map(p => p.trim()).filter(Boolean);  // Split and clean
+                currentPasswordIndex = 0;
+                passwordField.value = passwordList[0] || "";
+
+              }
+              const entryId = tr.dataset.id;
+              const fy = tr.dataset.fy || "";  // read fiscal year from row
+              if (clickTimeout) {
+                clearTimeout(clickTimeout);
+                clickTimeout = null;
+
+                const id = tr.dataset.id || "";
+                const isVirtualMissing = id.startsWith("missing");
+
+                if (isVirtualMissing) {
+                  const clientPk  = tr.dataset.clientPk || "";
+                  const accountPk = tr.dataset.accountPk || "";
+                  const fromDate  = tr.children[7].innerText.trim(); // From Date col
+                  const toDate    = tr.children[8].innerText.trim(); // Last Date col
+                  const fy        = tr.dataset.fy || "";
+
+                  console.log("➡️ Virtual row → add mode with:", { clientPk, accountPk, fromDate, toDate, fy });
+
+                  const url = `/data_entry/?mode=add&prefill=1`
+                    + `&fy=${encodeURIComponent(fy)}`
+                    + `&client_pk=${encodeURIComponent(clientPk)}&client_id=${encodeURIComponent(clientPk)}`
+                    + `&account_pk=${encodeURIComponent(accountPk)}&account_id=${encodeURIComponent(accountPk)}`
+                    + `&from=${encodeURIComponent(fromDate)}&to=${encodeURIComponent(toDate)}`;
+
+                  window.location.href = url;
+                  return;
+                }
+
+                // real row → modify
+                let url = `/data_entry/?mode=modify&entry_id=${id}`;
+                if (tr.dataset.fy) url += `&fy=${tr.dataset.fy}`;
+                window.location.href = url;
+
+              } else {
+                clickTimeout = setTimeout(() => {
+                  showEntry(entryId, fy);   // your single-click preview
+                  clickTimeout = null;
+                }, 250);
+              }
+
+            });
+          });
+
+      
+          function showEntry(entryId, fy) {
+              const row = document.querySelector(`tr[data-id="${entryId}"][data-fy="${fy}"]`);
+              if (!row) return;
+
+              const columns = row.querySelectorAll("td");
+
+              // Match fields defined in `entry_fields`
+              const fieldMap = {
+                "trans_id": entryId,
+                "rec_date": columns[4]?.innerText || "-",
+                "format": columns[5]?.innerText || "-",
+                "rec_by": columns[6]?.innerText || "-",
+                "balance": "-",  // not available in this table — leave blank or fetch via AJAX
+                "alloted_to": columns[11]?.innerText || "-",
+                "alloted_dt": row.dataset.allotedDt || "-",    
+                "done_dt": row.dataset.doneDt || "-",
+                "query": row.dataset.query || "-"
+              };
+              document.getElementById("mailInput").value = row.dataset.msgId || "";
+                  for (const key in fieldMap) {
+                    const value = fieldMap[key];
+
+                      // ✅ For <input> fields like <input id="qrec_date" ...>
+                      const input = document.getElementById(`q${key}`);
+                      if (input) {
+                          input.value = value;
+                      }
+
+                      // ✅ For <span> fields like <span id="rec_date">...</span>
+                      const el = document.getElementById(key);
+                      if (el) {
+                          el.innerText = value;
+                            //el.style.display = "";
+
+                      }
+                  }
+
+          }
+
+          window.history.replaceState({}, document.title, "/reports/");
+
+      })
+      .catch(error => {
+          console.error("const el = document.getEleme❌ Fetch failed:", error);
+          alert("Error loading data. Please try again.");
+      })
+      .finally(() => {
+          hideLoader(); // ✅ Always hide loader
+      });
+    }
+
+
+
+  
+
+      {% comment %} Open folder btn global {% endcomment %}
+        {% comment %} document.getElementById("openFolderGlobalBtn").addEventListener("click", () => {
+            const tbody = document.getElementById("reportBody");
+            const selectedRow = tbody.querySelector("tr.selected");
+          
+              if (!selectedRow) {
+                alert("❌ Please select a row before opening the folder.");
+                return;
+              }
+
+              const folderPath = selectedRow.dataset.folderpath || "";
+
+              if (!folderPath) {
+                alert("❌ No folder path available for this row.");
+                return;
+              }
+
+              const normalized = decodeURIComponent(folderPath).replace(/\\/g, "/");
+              const encoded = encodeURIComponent(normalized);
+
+              const launchURL = `openfolder://${encoded}`;
+              console.log("📂 Opening folder:", launchURL);
+
+              window.location.href = launchURL;
+          }); {% endcomment %}
+
+
+
+    document.getElementById("openFolderGlobalBtn").addEventListener("click", () => {
+        const tbody = document.getElementById("reportBody");
+
+        // 🔹 Checkbox-based selection
+        const checked = Array.from(
+            tbody.querySelectorAll("input.rowChk:checked")
+        );
+
+        let targetRow = null;
+
+        // ❌ More than one checkbox selected
+        if (checked.length > 1) {
+            alert("❌ Please select ONLY ONE checkbox to open folder.");
+            return;
+        }
+
+        // ✅ Exactly one checkbox → use it
+        if (checked.length === 1) {
+            targetRow = checked[0].closest("tr");
+        } 
+        // 🔹 No checkbox → fallback to row-click selection
+        else {
+            targetRow = tbody.querySelector("tr.selected");
+            if (!targetRow) {
+                alert("❌ Please select a row (click row or checkbox) to open folder.");
+                return;
+            }
+        }
+
+        // 🔹 Get folder path
+        const folderPath = targetRow.dataset.folderpath || "";
+        if (!folderPath) {
+            alert("❌ No folder path available for selected row.");
+            return;
+        }
+
+        const normalized = decodeURIComponent(folderPath).replace(/\\/g, "/");
+        const encoded = encodeURIComponent(normalized);
+
+        const launchURL = `openfolder://${encoded}`;
+        console.log("📂 Opening folder:", launchURL);
+
+        window.location.href = launchURL;
+    });
+
+
+    {% comment %} Open statement Link {% endcomment %}
+    document.addEventListener("click", function(e){
+        const btn = e.target.closest(".open-statement-btn");
+        if (!btn) return;
+
+        const raw = btn.dataset.link || "";
+        const url = raw.replace(/&amp;/g, "&");
+
+        window.open(url, "_blank");
+      });
+
+
+      {% comment %} Copy  URL btn  {% endcomment %}
+       document.addEventListener('click', function(e) {
+              const copyBtn = e.target.closest('.copy-url-btn');
+              if (copyBtn) {
+                  const url = copyBtn.getAttribute('data-copyurl');
+                  navigator.clipboard.writeText(url).then(() => {
+                      alert("File path copied to clipboard!");
+                  }).catch(err => {
+                      console.error('Failed to copy URL:', err);
+                      alert("Copy failed");
+                  });
+              }
+          });
+          
+    let passwordList = [];
+    let currentPwIndex = 0;
+
+    // Initialize the password list and copy the first one
+    function setPasswordList(raw) {
+      console.log("Setting password list from:", raw);
+        passwordList = raw.split(',').map(p => p.trim()).filter(p => p);
+        console.log("Password count:", passwordList.length);
+        currentPwIndex = 0;
+        updatePasswordField();
+        updatePwLabelOnce();
+        autoCopyCurrentPassword();
+    }
+    function updatePasswordField() {
+        const pwField = document.getElementById("passwordField");
+        /*if (passwordList.length > 0) {
+            pwField.value = passwordList[currentPwIndex];
+            pwCountLabel.textContent = `PW Count: ${passwordList.length}`;
+
+        } else {
+            pwField.value = '';
+        }*/
+        pwField.value = passwordList[currentPwIndex] || '';
+        //updatePwLabel();
+    }
+
+    function autoCopyCurrentPassword() {
+        const currentPw = passwordList[currentPwIndex] || '';
+        copyToClipboard(currentPw).then(() => {
+            console.log("Password auto-copied:", currentPw);
+        }).catch(err => {
+            console.error("Auto-copy failed:", err);
+        });
+    }
+    function updatePwLabelOnce() {
+        const pwLabel = document.getElementById("pwLabel");
+        pwLabel.textContent = `PW:${passwordList.length}`;
+    }
+
+    // Refresh button cycles password and auto-copies
+    document.getElementById("refreshPwBtn").addEventListener("click", function () {
+        if (passwordList.length > 0) {
+            currentPwIndex = (currentPwIndex + 1) % passwordList.length;
+            updatePasswordField();
+            autoCopyCurrentPassword();
+        }
+    });
+
+    // Copy functions (same as before)
+    function copyToClipboard(text) {
+        return new Promise((resolve, reject) => {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text)
+                    .then(() => resolve(true))
+                    .catch(err => {
+                        console.error('Modern clipboard API failed:', err);
+                        fallbackCopyToClipboard(text, resolve, reject);
+                    });
+            } else {
+                fallbackCopyToClipboard(text, resolve, reject);
+            }
+        });
+    }
+
+    function fallbackCopyToClipboard(text, resolve, reject) {
+        try {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            document.body.appendChild(textarea);
+            textarea.select();
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textarea);
+            successful ? resolve(true) : reject(new Error('Fallback copy failed'));
+        } catch (err) {
+            reject(err);
+        }
+    }
+    navigator.clipboard.readText().then(text => console.log("🧪 Final Clipboard value is:", text));
+    document.getElementById("reportBody").addEventListener("click", function (e) {
+        const row = e.target.closest("tr[data-password]");
+        if (!row) return;
+
+        const rawPw = row.getAttribute("data-password") || "";
+        setPasswordList(rawPw);
+    });
+    function applyFilters() {
+      const filters = collectFilters();
+      if (!filters.group_id && !filters.client_id && !filters.account_id ) {
+        const tbody = document.getElementById("reportBody");
+        tbody.innerHTML = `<tr><td colspan="11" class="text-center text-danger">Please select group, client, or account.</td></tr>`;
+        document.getElementById("entryCount").value = 0;
+        return;
+      }
+
+      // ✅ Directly store .id values (not groupid / clientid / accountid)
+      sessionStorage.setItem("last_group_id", filters.group_id);
+      sessionStorage.setItem("last_client_id", filters.client_id);
+      sessionStorage.setItem("last_account_id", filters.account_id);
+
+      // ✅ Optional: force set FY from query if needed
+      const urlParams = new URLSearchParams(window.location.search);
+      const fy = urlParams.get("fy");
+      if (fy) filters.fy = fy;
+
+      loadTable(filters);
+    }
+
+  </script>
+
+  <script>
+    function attachSearchable(inputId, hiddenId, listId, maxWidth=350){
+        const inp    = document.getElementById(inputId);
+        const hidden = document.getElementById(hiddenId);
+        const list   = document.getElementById(listId);
+
+        /* move list to <body> only once */
+        if(!list.classList.contains('dropdown-portal')){
+            list.classList.add('dropdown-portal');
+            document.body.appendChild(list);
+        }
+
+        /* filter items */
+        inp.addEventListener('input',()=>{ filterList(); show(); });
+        inp.addEventListener('focus',()=>{ filterList(); show(); });
+
+        /* choose item */
+        list.addEventListener('click',e=>{
+            const opt=e.target.closest('.dropdown-option');
+            if(!opt) return;
+            inp.value  = opt.textContent.trim();
+            hidden.value = opt.dataset.id;
+            hide();
+        });
+
+        /* close on outside click */
+        document.addEventListener('click',e=>{
+            if(!e.target.closest('#'+inputId) && !e.target.closest('#'+listId)) hide();
+        });
+
+        /* helpers */
+        function filterList(){
+            const v=inp.value.toLowerCase();
+            [...list.children].forEach(opt=>{
+                opt.style.display = opt.textContent.toLowerCase().includes(v)?'block':'none';
+            });
+        }
+        function show(){ place(); list.style.display='block'; }
+        function hide(){ list.style.display='none'; }
+
+        function place(){
+            const r = inp.getBoundingClientRect();
+            list.style.left   = r.left+'px';
+            list.style.top    = r.bottom+'px';
+            list.style.width  = Math.min(r.width, maxWidth)+'px'; // cap width
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded',()=>{
+        attachSearchable('id_group_input',  'id_group_hidden',  'id_group_options');
+        attachSearchable('id_client_input', 'id_client_hidden', 'id_client_options');
+        attachSearchable('id_account_input','id_account_hidden','id_account_options');
+        attachSearchable('id_emp_input',    'id_emp_hidden',    'id_emp_options');
+    });
+  </script>
+
+  <script>
+    /* -----------------------------------------------------------
+    * 1) helper that returns ALL current filter values
+    * --------------------------------------------------------- */
+    function collectFilters () {
+      const sel = q => document.querySelector(q);
+      return {
+        group_id  : sel("#id_group_hidden").value,
+        client_id : sel("#id_client_hidden").value,
+        account_id: sel("#id_account_hidden").value,
+        emp: sel("#id_emp_hidden").value,  // Add employee filter
+
+        // ✅ CORRECT LINE (MAKE SURE THIS IS HERE)
+        account_groups: Array.from(document.querySelectorAll("input[name='account_groups[]']:checked"))
+                            .map(cb => cb.value.trim()),
+
+        alloted    : sel("input[name='alloted']:checked")?.value || "All",
+        status     : sel("input[name='status']:checked") ?.value || "All",
+        entry_type : sel("input[name='etype']:checked")  ?.value || "All",
+
+        busy_tran  : sel("#busyTranCheckbox").checked,
+        acstkameet : sel("#acstkameetCheckbox").checked,
+        e_stmt     : sel("#estmtCheckbox").checked,
+
+        //fy         : sel("select[name='fy']").value || "",
+
+        from_month : sel("#fromMonth").value === "All" ? "" : sel("#fromMonth").value,
+        to_month   : sel("#toMonth").value   === "All" ? "" : sel("#toMonth").value,
+
+        report_type: sel("#reportSelect").value || "",
+
+        prev_year  : sel("input[placeholder='Prev. Year']").value.trim(),
+        curr_year  : sel("input[placeholder='Curr. Year']").value.trim(),
+        last_date  : sel("input[placeholder='Last Date']").value.trim(),
+      };
+    }
+    /* attach listeners once */
+   /* window.addEventListener("DOMContentLoaded", () => {
+      // first load
+      applyFilters();
+
+      // every change
+      document.querySelectorAll("input, select")
+              .forEach(el => el.addEventListener("change", applyFilters));
+    });*/
+    /* -----------------------------------------------------------
+    * 2) call loadTable() with *filters* – let *it* do the Ajax
+    * --------------------------------------------------------- */
+    function applyFilters(){
+      loadTable( collectFilters() );
+    }
+    /* -----------------------------------------------------------
+    * 3) run once – every control now triggers applyFilters()
+    * --------------------------------------------------------- */
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.querySelector("form.needs-validation");
+
+        if (!form) return;
+
+        form.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                const formElements = Array.from(form.querySelectorAll(
+                    'input, select, textarea, button'
+                )).filter(el =>
+                    el.offsetParent !== null &&  // is visible
+                    !el.disabled &&
+                    !el.readOnly &&
+                    el.type !== "hidden"
+                );
+
+                const index = formElements.indexOf(e.target);
+
+                // Prevent default Enter behavior
+                e.preventDefault();
+
+                if (index > -1 && index < formElements.length - 1) {
+                    formElements[index + 1].focus();
+                } else if (index === formElements.length - 1) {
+                    // Optionally, submit if at the last field
+                    form.submit();
+                }
+            }
+        });
+    });
+  </script>
+{% comment %} apply filter without selecting group,client,account {% endcomment %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  // 🔹 Status radio change → reload table
+  document.querySelectorAll("input[name='status']").forEach(radio => {
+    radio.addEventListener("change", () => {
+      console.log("🔁 Status changed → Reloading table");
+      loadTable(collectFilters());
+    });
+  });
+
+});
+</script>
+
+
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const dropdownInputs = document.querySelectorAll(".custom-dropdown input[type='text']");
+
+      dropdownInputs.forEach(input => {
+        const dropdown = input.closest(".custom-dropdown");
+        const optionsBox = dropdown.querySelector(".dropdown-options");
+        //const getOptions = () => Array.from(optionsBox.querySelectorAll(".dropdown-option"));
+        function getOptions() {
+            //const optionsBox = ...;
+            if (!optionsBox) return [];
+            return optionsBox.querySelectorAll(".dropdown-option");
+          }
+
+        let currentIndex = -1;
+
+        input.addEventListener("keydown", function (e) {
+          const options = getOptions();
+
+          if (optionsBox.style.display === "none") {
+            optionsBox.style.display = "block";
+          }
+
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            currentIndex = (currentIndex + 1) % options.length;
+            highlight(options);
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            currentIndex = (currentIndex - 1 + options.length) % options.length;
+            highlight(options);
+          } else if (e.key === "Enter") {
+            e.preventDefault();
+            if (currentIndex >= 0 && options[currentIndex]) {
+              options[currentIndex].click();
+            }
+          } else {
+            currentIndex = -1;
+          }
+        });
+
+        input.addEventListener("input", () => {
+          currentIndex = -1;
+        });
+
+        function highlight(options) {
+          options.forEach(opt => opt.classList.remove("highlighted"));
+          if (options[currentIndex]) {
+            options[currentIndex].classList.add("highlighted");
+            options[currentIndex].scrollIntoView({ block: "nearest" });
+          }
+        }
+
+        // Close dropdown if clicking outside
+        document.addEventListener("click", function (e) {
+          if (!dropdown.contains(e.target)) {
+            getOptions().forEach(opt => opt.classList.remove("highlighted"));
+            currentIndex = -1;
+            optionsBox.style.display = "none";
+          }
+        });
+      });
+    });
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+
+      /* ---- utility: move focus to next input/select/textarea/button ---- */
+      function focusNext(current){
+        const focusables = Array.from(document.querySelectorAll(
+              'input:not([type="hidden"]), select, textarea, button'))
+            .filter(el =>
+                el.offsetParent !== null &&          // visible
+                !el.disabled && !el.readOnly &&      // usable
+                !el.classList.contains("btn-icon")); // ←  skip ＋ buttons
+
+        const i = focusables.indexOf(current);
+        if(i > -1 && i < focusables.length - 1){
+            focusables[i + 1].focus();
+        }
+      }
+      /* ---- SEARCHABLE DROPDOWN WITH ARROW+ENTER AND AUTO-TAB ---- */
+      function makeSearchable({ input: inpId, hidden: hidId, box: boxId, onSelect }) {
+        const inp = document.getElementById(inpId);
+        const hidden = document.getElementById(hidId);
+        const box = document.getElementById(boxId);
+
+        const state = {
+          opts: [],
+          index: -1
+        };
+
+        function refreshOptions() {
+          state.opts = [...box.querySelectorAll(".dropdown-option")]
+                        .filter(o => o.style.display !== "none");
+          state.index = state.opts.length ? 0 : -1;
+        }
+
+        function highlightOption() {
+          state.opts.forEach(o => o.classList.remove("highlighted"));
+          if (state.index >= 0 && state.opts[state.index]) {
+            state.opts[state.index].classList.add("highlighted");
+            state.opts[state.index].scrollIntoView({ block: "nearest" });
+          }
+        }
+
+        function showDropdown() {
+          box.style.display = "block";
+          refreshOptions();
+          highlightOption();
+        }
+
+        function hideDropdown() {
+          box.style.display = "none";
+          state.index = -1;
+        }
+
+        function filterOptions() {
+          const q = inp.value.toLowerCase();
+          box.querySelectorAll(".dropdown-option").forEach(o => {
+            o.style.display = o.textContent.toLowerCase().includes(q) ? "block" : "none";
+          });
+          refreshOptions();
+          highlightOption();
+        }
+
+        inp.addEventListener("input", () => {
+          filterOptions();
+          box.style.display = "block";
+        });
+
+        inp.addEventListener("focus", () => {
+          showDropdown();
+        });
+
+        inp.addEventListener("keydown", e => {
+          const visible = box.style.display !== "none";
+          if (!visible) return;
+
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            if (state.opts.length === 0) return;
+            state.index = (state.index + 1) % state.opts.length;
+            highlightOption();
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            if (state.opts.length === 0) return;
+            state.index = (state.index - 1 + state.opts.length) % state.opts.length;
+            highlightOption();
+          } else if (e.key === "Enter") {
+            e.preventDefault();
+            if (state.index >= 0 && state.opts[state.index]) {
+              state.opts[state.index].click();
+            } else {
+              focusNext(inp);
+            }
+          }
+        });
+
+        box.addEventListener("click", e => {
+          const opt = e.target.closest(".dropdown-option");
+          if (!opt) return;
+          
+          inp.value = opt.textContent.trim();
+          hidden.value = opt.dataset.id;
+          hidden.dispatchEvent(new Event("change"));
+          hideDropdown();
+          onSelect && onSelect(opt.dataset.id);
+          focusNext(inp);
+        });
+
+        document.addEventListener("click", e => {
+          if (!box.contains(e.target) && e.target !== inp) hideDropdown();
+        });
+
+        return {
+          showDropdown: () => {
+            inp.focus();
+            showDropdown(); // shared state is updated
+          }
+        };
+      }
+
+      /* ---------- (re)initialise your three dropdowns ---------- */
+      const groupDropdown=makeSearchable({
+            input:"id_group_input", hidden:"id_group_hidden", box:"id_group_options",
+            onSelect: gid=>{
+                resetDropdown("id_client_input","id_client_hidden","id_client_options");
+                resetDropdown("id_account_input","id_account_hidden","id_account_options");
+                fetch(`/ajax/clients/?group_id=${gid}`)
+                  .then(r=>r.json())
+                  //.then(d=>rebuildOptions("id_client_options",d,"client_id","client_name"));
+                  .then(data => {
+              rebuildOptions("id_client_options", data, "client_id", "client_name");
+
+              const clientInput = document.getElementById("id_client_input");
+              clientInput.focus();
+              clientDropdown.showDropdown(); // ✅ make sure this variable exists!
+            });
+                //loadTable({group_id:gid});
+                applyFilters(); 
+            }
+        });
+
+        const clientDropdown = makeSearchable({
+            input:"id_client_input", hidden:"id_client_hidden", box:"id_client_options",
+            onSelect: cid=>{
+                resetDropdown("id_account_input","id_account_hidden","id_account_options");
+                fetch(`/ajax/accounts/?client_id=${cid}`)
+                  .then(r=>r.json())
+                  //.then(d=>rebuildOptions("id_account_options",d,"account_id","account"));
+                  .then(data => {
+              rebuildOptions("id_account_options", data, "account_id", "account");
+
+              const accountInput = document.getElementById("id_account_input");
+              accountInput.focus();
+              accountDropdown.showDropdown(); // ✅ same here
+            });
+
+          applyFilters();
+            }
+        });
+
+        const accountDropdown = makeSearchable({
+            input:"id_account_input", hidden:"id_account_hidden", box:"id_account_options"
+        });
+
+        const empDropdown = makeSearchable({
+          input: "id_emp_input",
+          hidden: "id_emp_hidden",
+          box: "id_emp_options",
+          onSelect: (empId) => {
+            document.getElementById("id_emp_hidden").value = empId;
+
+
+              applyFilters();  // Trigger filter when employee is selected
+              // Explicitly clear account field if it gets populated
+            // document.getElementById("id_account_input").value = "";
+            //  document.getElementById("id_account_hidden").value = "";
+        }
+      });
+      /* ---- helpers you already have ---- */
+      function rebuildOptions(boxId,data,idKey,textKey){
+            const box=document.getElementById(boxId);
+            box.innerHTML="";
+            data.forEach(row=>{
+                box.insertAdjacentHTML("beforeend",
+                    `<div class="dropdown-option px-2 py-1" data-id="${row[idKey]}">${row[textKey]}</div>`);
+            });
+      }
+
+
+      function resetDropdown(inp,hid,box){
+          document.getElementById(inp).value="";
+          document.getElementById(hid).value="";
+          document.getElementById(box).innerHTML="";
+      }
+    });
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const table = document.getElementById("reportTable");
+      let startX, startWidth, resizer;
+
+      table.querySelectorAll("th").forEach(th => {
+        const resizerDiv = th.querySelector(".resizer");
+        if (!resizerDiv) return;
+
+        resizerDiv.addEventListener("mousedown", function (e) {
+            console.log("🟢 Resizer mousedown triggered");  // Add this
+
+          startX = e.pageX;
+          resizer = this;
+          const thEl = resizer.parentElement;
+          startWidth = thEl.offsetWidth;
+
+          document.addEventListener("mousemove", resize);
+          document.addEventListener("mouseup", stopResize);
+        });
+      });
+
+      function resize(e) {
+        if (!resizer) return;
+        const th = resizer.parentElement;
+        const newWidth = startWidth + (e.pageX - startX);
+        th.style.width = newWidth + "px";
+      }
+
+      function stopResize() {
+        document.removeEventListener("mousemove", resize);
+        document.removeEventListener("mouseup", stopResize);
+        resizer = null;
+      }
+    });
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const groupInput   = document.getElementById("id_group_input");
+      //document.getElementById("id_group_input").value = selectedGroupName;
+
+      const groupHidden  = document.getElementById("id_group_hidden");
+
+      const clientInput  = document.getElementById("id_client_input");
+      const clientHidden = document.getElementById("id_client_hidden");
+
+      const accountInput  = document.getElementById("id_account_input");
+      const accountHidden = document.getElementById("id_account_hidden");
+
+      function strip(txt) {
+        return txt.toLowerCase().trim();
+      }
+
+      function checkAndClear(inputEl, hiddenEl, resetFn) {
+        if (!strip(inputEl.value) || !hiddenEl.value) {
+          hiddenEl.value = "";
+          resetFn();
+        }
+      }
+
+      // When group is cleared, clear client + account
+      groupInput.addEventListener("input", function () {
+        checkAndClear(groupInput, groupHidden, () => {
+          clientInput.value = "";
+          clientHidden.value = "";
+          accountInput.value = "";
+          accountHidden.value = "";
+        });
+      });
+
+      // When client is cleared, clear account
+      clientInput.addEventListener("input", function () {
+        checkAndClear(clientInput, clientHidden, () => {
+          accountInput.value = "";
+          accountHidden.value = "";
+        });
+      });
+    });
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const inputs = document.querySelectorAll(".custom-dropdown input[type='text']");
+
+      inputs.forEach(input => {
+        // Track if we already selected once (to avoid issues with repeated clicks)
+        let alreadySelected = false;
+
+        // Select all on focus
+        input.addEventListener("focus", function () {
+          alreadySelected = false; // Reset
+          setTimeout(() => {
+            if (!alreadySelected) {
+              input.select();
+              alreadySelected = true;
+            }
+          }, 0);
+        });
+
+        // Also select all on mouseup (but only first time)
+        input.addEventListener("mouseup", function (e) {
+          if (!alreadySelected) {
+            e.preventDefault(); // Prevent placing cursor
+            input.select();
+            alreadySelected = true;
+          }
+        });
+      });
+    });
+  </script>
+
+  <script>
+    // ✅ Paste here:
+    function saveCurrentFilters(groupId, clientId, accountId,empId) {
+      sessionStorage.setItem("last_group_id", groupId);
+      sessionStorage.setItem("last_client_id", clientId);
+      sessionStorage.setItem("last_account_id", accountId);
+      sessionStorage.setItem("last_emp_id", empId);  // Add employee
+
+    }
+    function showEntryDetail(entryId, fy) {
+        fetch(`/entry_detail/?id=${entryId}&fy=${fy}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) return alert(data.error);
+                for (const [key, value] of Object.entries(data)) {
+                    const el = document.getElementById("q" + key);
+                    if (el) el.value = value;
+                }
+            })
+            .catch(err => alert("Error loading entry details"));
+    }
+  </script>
+
+  <script>
+    const entryForm = document.getElementById("entryForm");
+      if (entryForm) {
+        entryForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+
+        const form = e.target;
+        const formData = new FormData(form);
+        const entryId = formData.get("entry_id");
+
+        // ✅ Store selected values in sessionStorage before redirect
+        const groupId = document.getElementById("id_group_hidden").value;
+        const clientId = document.getElementById("id_client_hidden").value;
+        const accountId = document.getElementById("id_account_hidden").value;
+        const empId = document.getElementById("id_emp_hidden").value;
+
+        sessionStorage.setItem("last_group_id", groupId);
+        sessionStorage.setItem("last_client_id", clientId);
+        sessionStorage.setItem("last_account_id", accountId);
+        sessionStorage.setItem("last_emp_id", empId);
+
+        console.log("💾 Stored filters:", { groupId, clientId, accountId, empId });
+
+          fetch('/data_entry/', {
+                method: 'POST',
+                headers: {
+                  'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: formData,
+              })
+              .then(response => response.json())
+              .then(data => {
+                console.log("✅ AJAX response:", data);
+
+                if (data.success) {
+                  const entryId = data.entry_id;
+                // const fy = document.querySelector("select[name='fy']")?.value || "2024_25";
+                  //const fy = document.querySelector("select[name='fy']")?.value || "2024_25";
+                  const fy = data.fiscal_year || "2024_25";  // ✅ backend-confirmed FY
+                  console.log("✅ Got entry ID from server:", entryId);
+
+                  const filters = collectFilters();  // your own function
+
+                  const url = new URL(data.redirect_url, window.location.origin);
+
+                  // Set preserved filters
+                  for (const [key, value] of Object.entries(filters)) {
+                    if (value) {
+                      if (Array.isArray(value)) {
+                        value.forEach(v => url.searchParams.append(`${key}[]`, v));
+                      } else {
+                        url.searchParams.set(key, value);
+                      }
+                    }
+                  }
+
+                  // ✅ Append highlight_id and fy
+                  url.searchParams.set("highlight_id", entryId);
+                  url.searchParams.set("fy", fy.replace("_", "-"));
+
+                  // ✅ Save in sessionStorage for restoreDropdownLabels
+                  sessionStorage.setItem("highlight_id", entryId);
+                  //sessionStorage.setItem("last_fy", fy);
+                  sessionStorage.setItem("last_fy",fy);  // ✅ store in dropdown-compatible form
+
+                  sessionStorage.setItem("last_group_id", filters.group_id);
+                  sessionStorage.setItem("last_client_id", filters.client_id);
+                  sessionStorage.setItem("last_account_id", filters.account_id);
+                  sessionStorage.setItem("last_emp_id", filters.emp_id);
+
+                  console.log("🔁 Redirecting to:", url.toString());
+                  window.location.href = url.toString();
+                } else {
+                  alert("Save failed.");
+                }
+              })
+              .catch(err => {
+                console.error("❌ Error saving data entry:", err);
+              });
+          });
+  
+      }
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const url = new URL(window.location);
+      //const hasQueryParams = url.search.length > 0;
+      if (highlightId) sessionStorage.setItem("highlight_id", highlightId);  // ❌ never runs because highlightId is already gone
+    });
+
+  </script>
+  {% comment %} export to excel {% endcomment %}
+  <script>
+    document.getElementById("exportExcelBtn").addEventListener("click", function () {
+      // ✅ 1. Get Group name dynamically
+      const selectedGroupName = document.querySelector("#id_group_input")?.value?.trim() || "Statement Report";
+
+      const table = document.getElementById("reportTable");
+      if (!table) {
+        alert("❌ No table found to export.");
+        return;
+      }
+
+      let rawRows = [];
+
+      // ✅ 2. Extract only required columns
+      table.querySelectorAll("tbody tr.missing-entry").forEach(tr => {
+        const tds = tr.querySelectorAll("td");
+        if (tds.length > 0) {
+          const clientName  = tds[1]?.innerText.trim();
+          const accountName = tds[2]?.innerText.trim();
+          const fromDate    = tds[7]?.innerText.trim();
+          const toDate      = tds[8]?.innerText.trim();
+
+          if (clientName && accountName && fromDate && toDate) {
+            rawRows.push({
+              client: clientName,
+              account: accountName,
+              statement: `${fromDate} To ${toDate}`
+            });
+          }
+        }
+      });
+
+      if (rawRows.length === 0) {
+        alert("⚠️ No data found to export!");
+        return;
+      }
+
+      // ✅ 3. Group by client
+      const grouped = {};
+      rawRows.forEach(r => {
+        if (!grouped[r.client]) grouped[r.client] = {};
+        if (!grouped[r.client][r.account]) grouped[r.client][r.account] = [];
+        grouped[r.client][r.account].push(r.statement);
+      });
+
+      // ✅ 4. Build merged cell table
+      let exportTable = `
+        <table style="width:100%; border-collapse:collapse;">
+          <tr>
+            <td colspan="3" style="font-weight:bold; font-size:16px; padding:8px; border:none;">
+              ${selectedGroupName}
+            </td>
+          </tr>
+          <tr style="background:#002060; color:#fff; font-weight:bold; text-align:left;">
+            <th style="border:1px solid black; padding:5px;">Client Name</th>
+            <th style="border:1px solid black; padding:5px;">Account Name</th>
+            <th style="border:1px solid black; padding:5px;">Statement Not Received</th>
+          </tr>
+      `;
+      // ✅ Loop clients → accounts → statements
+      Object.keys(grouped).forEach(client => {
+        const accounts = grouped[client];
+        const totalAccountRows = Object.values(accounts).reduce((sum, stmts) => sum + stmts.length, 0);
+
+        let clientRowAdded = false; // To merge client only once
+
+        Object.keys(accounts).forEach(account => {
+          const statements = accounts[account];
+          const rowspanForAccount = statements.length; // merge for account
+
+          statements.forEach((stmt, idx) => {
+            exportTable += `<tr>`;
+
+            // ✅ Merge Client cell only on FIRST account row
+            if (!clientRowAdded) {
+              exportTable += `<td style="border:1px solid black; padding:5px; font-weight:bold;" rowspan="${totalAccountRows}">${client}</td>`;
+              clientRowAdded = true;
+            }
+
+            // ✅ Merge Account cell on FIRST statement row for that account
+            if (idx === 0) {
+              exportTable += `<td style="border:1px solid black; padding:5px;" rowspan="${rowspanForAccount}">${account}</td>`;
+            }
+
+            // ✅ Statement always appears
+            exportTable += `<td style="border:1px solid black; padding:5px;">${stmt}</td>`;
+
+            exportTable += `</tr>`;
+          });
+        });
+      });
+
+      exportTable += `</table>`;
+
+      // ✅ 5. Wrap into Excel-compatible HTML
+      const html = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office"
+              xmlns:x="urn:schemas-microsoft-com:office:excel"
+              xmlns="http://www.w3.org/TR/REC-html40">
+        <head><meta charset="UTF-8"></head>
+        <body>${exportTable}</body>
+        </html>`;
+
+      // ✅ 6. Create & download Excel
+      const blob = new Blob([html], { type: "application/vnd.ms-excel" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      // a.download = `Statement_Report_${groupName.replace(/\s+/g, "_")}.xls`;
+      a.download = `Statement_Report_${selectedGroupName.replace(/\s+/g, "_")}.xls`;
+
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
+  </script>
+
+  {% comment %} export to jpg {% endcomment %}
+  <script>
+    document.getElementById("exportJpgBtn").addEventListener("click", function () {
+      //const groupElement = document.querySelector("#groupTitle");
+      //const groupName = groupElement ? groupElement.textContent.trim() : "Statement Report";
+      const selectedGroupName = document.querySelector("#id_group_input")?.value?.trim() || "Statement Report";
+
+      const table = document.getElementById("reportTable");
+      if (!table) {
+        alert("❌ No table found to export.");
+        return;
+      }
+      const rows = table.querySelectorAll("tbody tr.missing-entry");
+      console.log("🔍 Missing entries found:", rows.length); // 👈 debug line
+      let rawRows = [];
+
+      // ✅ Extract missing rows only
+      table.querySelectorAll("tbody tr.missing-entry").forEach(tr => {
+        const tds = tr.querySelectorAll("td");
+        if (tds.length > 0) {
+          const clientName  = tds[1]?.innerText.trim();
+          const accountName = tds[2]?.innerText.trim();
+          const fromDate    = tds[7]?.innerText.trim();
+          const toDate      = tds[8]?.innerText.trim();
+
+          if (clientName && accountName && fromDate && toDate) {
+            rawRows.push({
+              client: clientName,
+              account: accountName,
+              statement: `${fromDate} To ${toDate}`
+            });
+          }
+        }
+      });
+
+      if (rawRows.length === 0) {
+        alert("⚠️ only missing entry export!");
+        return;
+      }
+
+      // ✅ Group by client
+      const grouped = {};
+      rawRows.forEach(r => {
+        // if (!grouped[r.client]) grouped[r.client] = [];
+        //   grouped[r.client].push({ account: r.account, statement: r.statement });
+          if (!grouped[r.client]) grouped[r.client] = {};
+        if (!grouped[r.client][r.account]) grouped[r.client][r.account] = [];
+        grouped[r.client][r.account].push(r.statement);
+      });
+
+      // ✅ Build HTML table
+      let exportTable = `
+        <div id="exportImageWrapper" style="padding:20px; font-family:Arial; background:white;">
+          <h2 style="text-align:center; margin-bottom:15px;">${selectedGroupName}</h2>
+          <table style="width:100%; border-collapse:collapse; font-size:14px;">
+            <tr style="background:#002060; color:#fff; font-weight:bold; text-align:left;">
+              <th style="border:1px solid #000; padding:6px;">Client Name</th>
+              <th style="border:1px solid #000; padding:6px;">Account Name</th>
+              <th style="border:1px solid #000; padding:6px;">Statement Not Received</th>
+            </tr>
+      `;
+
+      // ✅ Loop clients → accounts → statements
+      Object.keys(grouped).forEach(client => {
+        const accounts = grouped[client];
+        const totalAccountRows = Object.values(accounts).reduce((sum, stmts) => sum + stmts.length, 0);
+
+        let clientRowAdded = false; // To merge client only once
+
+        Object.keys(accounts).forEach(account => {
+          const statements = accounts[account];
+          const rowspanForAccount = statements.length; // merge for account
+
+          statements.forEach((stmt, idx) => {
+            exportTable += `<tr>`;
+
+            // ✅ Merge Client cell only on FIRST account row
+            if (!clientRowAdded) {
+              exportTable += `<td style="border:1px solid black; padding:5px; font-weight:bold;" rowspan="${totalAccountRows}">${client}</td>`;
+              clientRowAdded = true;
+            }
+
+            // ✅ Merge Account cell on FIRST statement row for that account
+            if (idx === 0) {
+              exportTable += `<td style="border:1px solid black; padding:5px;" rowspan="${rowspanForAccount}">${account}</td>`;
+            }
+
+            // ✅ Statement always appears
+            exportTable += `<td style="border:1px solid black; padding:5px;">${stmt}</td>`;
+
+            exportTable += `</tr>`;
+          });
+        });
+      });
+
+      exportTable += `</table></div>`;
+
+      // ✅ Create hidden container for screenshot
+      let container = document.createElement("div");
+      container.style.position = "absolute";
+      container.style.left = "-9999px";
+      container.innerHTML = exportTable;
+      document.body.appendChild(container);
+
+      // ✅ Take screenshot using html2canvas
+      html2canvas(container, { scale: 2 }).then(canvas => {
+        document.body.removeChild(container);
+
+        // ✅ Convert to JPG
+        const jpgData = canvas.toDataURL("image/jpeg", 0.95);
+
+        // ✅ Download JPG
+        const a = document.createElement("a");
+        a.href = jpgData;
+        a.download = `Missing_Statement_${selectedGroupName.replace(/\s+/g, "_")}.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      });
+    });
+  </script>
+
+  <script>
+    function restoreDropdownLabelsAndLoadTable(callback) {
+      const groupId = sessionStorage.getItem("last_group_id");
+      const clientId = sessionStorage.getItem("last_client_id");
+      const accountId = sessionStorage.getItem("last_account_id");
+      const empId = sessionStorage.getItem("last_emp_id");  // Add employee
+      const fyValue = sessionStorage.getItem("last_fy");
+      const fySelect = document.querySelector("select[name='fy']");
+      const highlightId = sessionStorage.getItem("highlight_id") || new URLSearchParams(window.location.search).get("highlight_id");
+
+
+      console.log("🔁 restoreDropdownLabels() →", { groupId, clientId, accountId, fyValue,highlightId  });
+
+      
+      if (highlightId) {
+        sessionStorage.setItem("highlight_id", highlightId);
+        console.log("📍 highlightId in restoreDropdownLabels:", highlightId);
+      }
+      // ✅ FIX: Restore fiscal year dropdown value
+      if (fySelect && fyValue) {
+        fySelect.value = fyValue;  // value already stored as 2024_25 or 2025_26
+        console.log("✅ Restored FY dropdown to:", fyValue);
+      }
+
+      if (groupId) {
+        const groupOpt = document.querySelector(`#id_group_options .dropdown-option[data-id="${groupId}"]`);
+      
+        document.getElementById("id_group_hidden").value = groupId;
+          if (groupOpt) {
+            document.getElementById("id_group_input").value = groupOpt.textContent.trim();
+          }
+
+
+          fetch(`/ajax/clients/?group_id=${groupId}`)
+            .then(r => r.json())
+            .then(clients => {
+                const clientBox = document.getElementById("id_client_options");
+                clientBox.innerHTML = "";
+                clients.forEach(c => {
+                  const div = document.createElement("div");
+                  div.className = "dropdown-option";
+                  div.dataset.id = c.client_id;
+                  div.textContent = c.client_name;
+                  clientBox.appendChild(div);
+                });
+
+              if (clientId) {
+                const clientOpt = clientBox.querySelector(`.dropdown-option[data-id="${clientId}"]`);
+                document.getElementById("id_client_hidden").value = clientId;
+                if (clientOpt) {
+                  document.getElementById("id_client_input").value = clientOpt.textContent.trim();
+                }
+
+                fetch(`/ajax/accounts/?client_id=${clientId}`)
+                  .then(r => r.json())
+                  .then(accounts => {
+                    const accountBox = document.getElementById("id_account_options");
+                    accountBox.innerHTML = "";
+                    accounts.forEach(a => {
+                      const div = document.createElement("div");
+                      div.className = "dropdown-option";
+                      div.dataset.id = a.account_id;
+                      div.textContent = a.account;
+                      accountBox.appendChild(div);
+                    });
+
+                    if (accountId) {
+                      const accountOpt = accountBox.querySelector(`.dropdown-option[data-id="${accountId}"]`);
+                      if (accountOpt) {
+                        document.getElementById("id_account_input").value = accountOpt.textContent.trim();
+                        document.getElementById("id_account_hidden").value = accountId;
+                      }
+                    }
+                    if (empId) {
+                      const empHidden = document.getElementById("id_emp_hidden");
+                      const empInput = document.getElementById("id_emp_input");
+                      const empBox = document.getElementById("id_emp_options");
+                      let empOpt = empBox.querySelector(`.dropdown-option[data-id="${empId}"]`);
+
+                      // If not found, rebuild employee options from context if available
+                      if (!empOpt && typeof employees !== "undefined") {
+                        empBox.innerHTML = "";
+                        employees.forEach(emp => {
+                          const div = document.createElement("div");
+                          div.className = "dropdown-option px-2 py-1";
+                          div.dataset.id = emp.id;
+                          div.textContent = emp.username;
+                          empBox.appendChild(div);
+                        });
+                        empOpt = empBox.querySelector(`.dropdown-option[data-id="${empId}"]`);
+                      }
+
+                      if (empHidden) empHidden.value = empId;
+                      if (empInput && empOpt) empInput.value = empOpt.textContent.trim();
+                    }
+
+                    console.log("📤 Calling loadTable with:", {
+                      fy: fyValue,
+                      group_id: groupId,
+                      client_id: clientId,
+                      account_id: accountId,
+                      highlight_id: highlightId
+                    });
+                    console.log("📍 highlightId in restoreDropdownLabels:", highlightId);
+
+                      // Add employee restore
+                      if (empId) {
+                        const empOpt = document.querySelector(`#id_emp_options .dropdown-option[data-id="${empId}"]`);
+                        document.getElementById("id_emp_hidden").value = empId;
+                        if (empOpt) {
+                          document.getElementById("id_emp_input").value = empOpt.textContent.trim();
+                        }
+                      }
+
+                    // ✅ Final table load with correct filters
+                    loadTable({
+                      fy: fyValue,
+                      group_id: groupId,
+                      client_id: clientId,
+                      account_id: accountId,
+                      emp: empId,  // Add employee filter
+                      highlight_id: highlightId,
+                    //  force_reload: true  // ✅ Required to bypass guard once
+
+                    });
+
+
+                    if (callback) callback();  // ✅ only now attach listeners
+                  });
+              } else {
+                //if (callback) callback();
+                console.log("📤 Calling loadTable with only group:", {
+                    fy: fyValue,
+                    group_id: groupId,
+                    client_id: "",
+                    account_id: "",
+                    highlight_id: highlightId
+                  });
+
+                loadTable({
+                  fy: fyValue,
+                  group_id: groupId,
+                  highlight_id: highlightId
+                });
+
+                if (callback) callback();
+              }
+            });
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const fyFromURL = urlParams.get("fy");
+      const highlightId = urlParams.get("highlight_id");
+      const groupId = urlParams.get("group_id");
+      const clientId = urlParams.get("client_id");
+      const accountId = urlParams.get("account_id");
+      //const empId = urlParams.get("emp_id");
+      const empId = urlParams.get("emp") || urlParams.get("emp_id");
+
+
+      // ✅ Save to sessionStorage BEFORE any cleanup
+      if (groupId) sessionStorage.setItem("last_group_id", groupId);
+      if (clientId) sessionStorage.setItem("last_client_id", clientId);
+      if (accountId) sessionStorage.setItem("last_account_id", accountId);
+      if (empId) sessionStorage.setItem("last_emp_id", empId);
+      // if (fyFromURL) sessionStorage.setItem("last_fy", fyFromURL);
+      if (fyFromURL) {
+        const formattedFY = fyFromURL.replace("-", "_");
+        sessionStorage.setItem("last_fy", formattedFY);
+
+        // wait for dropdown to populate before setting value
+        //waitForFYDropdownAndSet(formattedFY);
+      }
+      if (highlightId) sessionStorage.setItem("highlight_id", highlightId);
+      // Clean query only AFTER saving
+      const url = new URL(window.location);
+      if (url.search.length > 0) {
+        const cleanURL = `${url.origin}${url.pathname}`;
+        window.history.replaceState({}, document.title, cleanURL);
+      }
+      console.log("✅ Saved to sessionStorage →", {
+        highlightId,
+        fyFromURL,
+        groupId,
+        clientId,
+        accountId
+      });
+      // ✅ Delay restore and cleanup
+      setTimeout(() => {
+        restoreDropdownLabelsAndLoadTable(() => {
+          document.querySelectorAll("input, select")
+            .forEach(el => el.addEventListener("change", applyFilters));
+        });
+      }, 100);  // Wait to ensure everything is parsed and stored
+    });
+
+    // ✅ Save all filters including FY on form submit (update mode)
+    document.addEventListener("submit", function (e) {
+      if (e.target && e.target.id === "data-entry-form") {
+        const groupId = document.getElementById("id_group_hidden")?.value || "";
+        const clientId = document.getElementById("id_client_hidden")?.value || "";
+        const accountId = document.getElementById("id_account_hidden")?.value || "";
+        const empId = document.getElementById("id_emp_hidden")?.value || "";  // Add employee
+        const fy = document.querySelector("select[name='fy']")?.value || "";
+
+        sessionStorage.setItem("last_group_id", groupId);
+        sessionStorage.setItem("last_client_id", clientId);
+        sessionStorage.setItem("last_account_id", accountId);
+        sessionStorage.setItem("last_emp_id", empId);  // Add employee
+        sessionStorage.setItem("last_fy", fy);
+
+        console.log("✅ Saved on submit:", { groupId, clientId, accountId, empId ,fy });
+
+        // ✅ Optional: slight delay if redirect happens too fast
+        setTimeout(() => {}, 10);
+      }
+    });
+
+    // Save on row click also
+    document.addEventListener("click", function (e) {
+      const tr = e.target.closest("tr[data-id]");
+      if (tr) {
+        sessionStorage.setItem("last_group_id", document.getElementById("id_group_hidden").value);
+        sessionStorage.setItem("last_client_id", document.getElementById("id_client_hidden").value);
+        sessionStorage.setItem("last_account_id", document.getElementById("id_account_hidden").value);
+        sessionStorage.setItem("last_emp_id", document.getElementById("id_emp_hidden").value);  // Add employee
+        sessionStorage.setItem("last_fy", document.querySelector("select[name='fy']").value);
+      }
+    });
+  </script>
+    {% comment %} mail open {% endcomment %}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const mailInput = document.getElementById("mailInput");
+        const mailBtn = document.getElementById("openMailBtn");
+
+        mailBtn.addEventListener("click", function () {
+            const msgId = mailInput.value.trim();
+            if (!msgId) {
+                alert("Please enter a Message-ID.");
+                return;
+            }
+            // Gmail search URL using Message-ID
+            const searchUrl = `https://mail.google.com/mail/u/acstkameet@gmail.com/#search/rfc822msgid:${encodeURIComponent(msgId)}`;
+            // Open Gmail search in a new tab
+            window.open(searchUrl, '_blank');
+        });
+    });
+    
+  </script>
+
+  <script>
+    function fetchBusyInfo(row) {
+      console.log("🔍 fetchBusyInfo called");
+      const busyCode = row.dataset.busyCode;
+      const busyAccCode = row.dataset.busyAccCode;
+      const fy = document.querySelector("select[name='fy']").value;
+
+      console.log("📦 Raw dataset:", { busyCode, busyAccCode, fy });
+
+      // If either busyCode or busyAccCode is missing, reset the fields and stop further processing
+      if (!busyCode || !busyAccCode) {
+        console.warn("❌ Missing busyCode or busyAccCode — skipping fetch");
+        document.getElementById("prevYearBusy").value = "";
+        document.getElementById("currYearBusy").value = "";
+        document.getElementById("lastDateBusy").value = "";
+        document.getElementById("closingBalanceBusy").value = "";
+        return;
+      }
+
+      // Log the URL being fetched
+      const url = `/ajax/get_busy_status/?busy_code=${busyCode}&busy_acc_code=${parseInt(busyAccCode)}&fy=${fy}`;
+      console.log("🔗 Fetching URL:", url);
+
+      // Fetch data from the server
+      fetch(url)
+        .then(res => {
+          if (!res.ok) {
+            console.error("❌ Fetch failed with status:", res.status);
+            return;
+          }
+          return res.json();
+        })
+        .then(data => {
+          console.log("📦 Busy Status Data →", data);
+
+          // Populate fields with fetched data
+          document.getElementById("prevYearBusy").value = data.prev_year || "";
+          document.getElementById("currYearBusy").value = data.curr_year || "";
+          document.getElementById("lastDateBusy").value = data.last_date || "";
+          document.getElementById("closingBalanceBusy").value = data.closing_balance || "";
+        })
+        .catch(error => {
+          console.error("❌ Error fetching data:", error);
+          // Reset fields on fetch error
+          document.getElementById("prevYearBusy").value = "";
+          document.getElementById("currYearBusy").value = "";
+          document.getElementById("lastDateBusy").value = "";
+          document.getElementById("closingBalanceBusy").value = "";
+        });
+    }
+  </script>
+  {% comment %} change status if group is selected {% endcomment %}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const groupInput = document.getElementById("id_group_input");
+        const statusAll = document.getElementById("statusAll");
+
+        // Listen for selection from dropdown options
+        document.querySelectorAll("#id_group_options .dropdown-option").forEach(option => {
+            option.addEventListener("click", function () {
+                // When a group is selected, update the input and change status to "All"
+                groupInput.value = this.textContent;
+                document.getElementById("id_group_hidden").value = this.dataset.id;
+
+                // ✅ Automatically set status to "All"
+                statusAll.checked = true;
+
+                // Hide dropdown
+                document.getElementById("id_group_options").style.display = "none";
+            });
+        });
+    });
+  </script>
+  {% comment %} if account is select then status change to all and report change to all {% endcomment %}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      document.getElementById("pdf2excel-global").addEventListener("click", function () {
+        const rows = document.querySelectorAll("tbody tr");
+        const pdfEntries = [];
+
+        rows.forEach(row => {
+          const filePath = row.querySelector(".open-file-btn")?.getAttribute("data-filepath");
+          const password = row.querySelector(".open-file-btn")?.getAttribute("data-password") || '';
+          const accountId = row.getAttribute("data-accountid");
+          const fileName = filePath ? decodeURIComponent(filePath).split(/[\\/]/).pop() : "";
+
+          if (filePath) {
+            pdfEntries.push({
+              file_path: decodeURIComponent(filePath),
+              password: decodeURIComponent(password),
+              file_name: fileName,
+              account_id: accountId,
+            });
+          }
+        });
+
+        if (pdfEntries.length === 0) {
+          alert("No attached PDF files found in visible rows.");
+          return;
+        }
+
+        fetch("/extract-pdfs-to-excel/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken"),
+          },
+          body: JSON.stringify({ files: pdfEntries })
+        })
+        .then(res => res.blob())
+        .then(blob => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "Extracted_Report.xlsx";
+          a.click();
+          URL.revokeObjectURL(url);
+        })
+        .catch(err => {
+          console.error("PDF to Excel export failed:", err);
+          alert("An error occurred during PDF extraction.");
+        });
+      });
+
+      function getCookie(name) {
+        const cookies = document.cookie.split(";");
+        for (let cookie of cookies) {
+          if (cookie.trim().startsWith(name + "=")) {
+            return decodeURIComponent(cookie.trim().substring(name.length + 1));
+          }
+        }
+        return "";
+      }
+    });
+  </script>
+
+  <script>
+    document.querySelector(".pdf-to-excel-btn").addEventListener("click", function () {
+        const rows = document.querySelectorAll("table tbody tr");
+
+        function getSelectedAccount() {
+            const el = document.querySelector("#account_id")
+                  || document.querySelector("input[name='account_id']")
+                  || document.querySelector("#account")
+                  || document.querySelector("select[name='account']");
+            return el && el.value ? String(el.value).trim() : "";
+        }
+
+        // ✅ Require account ALWAYS
+        const accountId = getSelectedAccount();
+        if (!accountId) {
+            alert("❌ Please select an Account before exporting.");
+            return;
+        }
+
+        // Collect selected rows (PDFs only)
+        let filePaths = [];
+        let passwords = [];
+
+        const pushIfPdf = (row) => {
+            const path = row.getAttribute("data-fullpath")?.trim();
+            const pw   = row.getAttribute("data-password")?.trim();
+            if (path && path.toLowerCase().endsWith(".pdf")) {
+                filePaths.push(path);
+                if (pw) passwords.push(pw);
+            }
+        };
+
+        rows.forEach(row => {
+            const cb = row.querySelector("input[type='checkbox']");
+            if (cb && cb.checked) pushIfPdf(row);
+        });
+
+        // If none checked → take ALL visible rows (PDFs only)
+        if (!filePaths.length) rows.forEach(pushIfPdf);
+
+        if (!filePaths.length) {
+            alert("❌ No PDFs found in the table to export.");
+            return;
+        }
+
+        // dedupe
+        filePaths = [...new Set(filePaths)];
+        passwords = [...new Set(passwords)];
+
+        const params = new URLSearchParams();
+        filePaths.forEach(p => params.append("file_paths[]", p));
+        passwords.forEach(p => params.append("passwords[]", p));
+        params.append("account_id", accountId);   // ✅ send account to server
+        params.append("mode", "busy");
+
+        fetch("/convert-pdfs/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": getCookie("csrftoken")
+            },
+            body: params
+        })
+        .then(async res => {
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || "Server error");
+            if (!data.download_url) throw new Error("No download URL");
+            window.location.href = data.download_url;
+        })
+        .catch(err => alert("❌ Export failed: " + err.message));
+
+        function getCookie(name) {
+            const cookies = document.cookie.split(";");
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + "=")) {
+                    return decodeURIComponent(cookie.substring(name.length + 1));
+                }
+            }
+            return "";
+        }
+    });
+  </script>
+
+  {% comment %} download gaps {% endcomment %}
+  <script>
+    (function () {
+      const btn = document.getElementById("btnGap30");
+      if (!btn) return;
+
+      // --- helpers ---
+      const pick = id => (document.getElementById(id)?.value || "").trim();
+
+  
+
+      function getFY() {
+          const fySelect = document.getElementById("fiscalYearSelect");
+          if (!fySelect) {
+              alert("FY dropdown not found (fiscalYearSelect)");
+              return "";
+          }
+          return fySelect.value.trim(); // e.g. 2025_26
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+          const fySelect = document.getElementById("fiscalYearSelect");
+          if (!fySelect) return;
+
+          const today = new Date();
+          const year = today.getFullYear();
+          const month = today.getMonth() + 1; // Jan = 1
+
+          
+          let fy;
+          if (month >= 4) {
+              // April → December
+              fy = `${year}_${(year + 1).toString().slice(-2)}`;
+          } else {
+              // January → March
+              fy = `${year - 1}_${year.toString().slice(-2)}`;
+          }
+
+          // Auto-select if exists
+          for (const option of fySelect.options) {
+              if (option.value === fy) {
+                  option.selected = true;
+                  break;
+              }
+          }
+      });
+
+
+      function parseDMY(s){ // "dd-mm-YYYY" -> Date
+        if (!s) return null;
+        const [d,m,y] = s.split("-").map(x=>parseInt(x,10));
+        if (!d||!m||!y) return null;
+        return new Date(y, m-1, d);
+      }
+
+      function toDDMonYYYY(d){
+        const mon = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()];
+        return `${String(d.getDate()).padStart(2,"0")}-${mon}-${d.getFullYear()}`;
+      }
+
+      function excelHTML(rows){
+        let body = `
+          <tr>
+            <th>Group</th><th>Client</th><th>Account</th><th>Account ID</th>
+            <th>Missing From</th><th>Missing To</th><th>Days Missing</th><th>FY</th>
+          </tr>`;
+        if(!rows.length){
+          body += `<tr><td colspan="8">No accounts overdue ≥ 30 days.</td></tr>`;
+        } else {
+          for(const r of rows){
+            body += `<tr>
+              <td>${r.group||""}</td>
+              <td>${r.client||""}</td>
+              <td>${r.account||""}</td>
+              <td>${r.account_id||""}</td>
+              <td style="mso-number-format:'\\@'">${toDDMonYYYY(r.from)}</td>
+              <td style="mso-number-format:'\\@'">${toDDMonYYYY(r.to)}</td>
+              <td>${r.days}</td>
+              <td>${r.fy||""}</td>
+            </tr>`;
+          }
+        }
+        return `<!doctype html><html xmlns:o="urn:schemas-microsoft-com:office:office"
+          xmlns:x="urn:schemas-microsoft-com:office:excel"
+          xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8" />
+          <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>
+          <x:Name>Overdue ≥30d</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
+          </x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>
+          <body><table border="1" cellspacing="0" cellpadding="3">${body}</table></body></html>`;
+      }
+
+      function download(html, filename){
+        const blob = new Blob([html], { type: "application/vnd.ms-excel" });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement("a");
+        a.href = url; a.download = filename.endsWith(".xls") ? filename : filename + ".xls";
+        document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      }
+
+      // --- main ---
+      btn.addEventListener("click", async () => {
+        const fy = getFY();
+        if (!fy) { alert("Please select FY first."); return; }
+
+        const fm = pick("from_month") || "Apr";
+        const tm = pick("to_month")   || "Mar";
+
+        // call the NORMAL endpoint (no gap_report) to get real rows
+        const u = new URL("{% url 'ajax_report_rows' %}", window.location.origin);
+        u.searchParams.set("gap_report", "1");
+        u.searchParams.set("min_gap_days", "30");
+        const set = (k,v)=> v && u.searchParams.set(k,v);
+        set("fy", fy);
+        set("from_month", fm);
+        set("to_month", tm);
+        set("group_id", pick("group_id"));
+        set("client_id", pick("client_id"));
+        set("account_id", pick("account_id"));
+        // include any other filters you want respected:
+        // set("status", pick("status")); set("alloted", pick("alloted")); set("entry_type", pick("entry_type"));
+
+        const old = btn.textContent; btn.disabled = true; btn.textContent = "Preparing…";
+   
+        try {
+          const res  = await fetch(u, { headers: { "X-Requested-With": "XMLHttpRequest" }});
+          const json = await res.json();
+
+          const gaps = json.gaps || [];
+
+          const out = gaps.map(g => ({
+            group: g.group || "",
+            client: g.client || "",
+            account: g.account || "",
+            account_id: g.account_id || "",
+            from: parseDMY(g.from_date),
+            to: parseDMY(g.to_date),
+            days: g.days_missing,
+            fy: g.fy || ""
+          }));
+
+          // sort nicely
+          out.sort((a,b) =>
+            (a.group||"").localeCompare(b.group||"") ||
+            (a.client||"").localeCompare(b.client||"") ||
+            (a.account||"").localeCompare(b.account||"") ||
+            (a.from - b.from)
+          );
+
+          const html = excelHTML(out);
+          const fname = `Overdue_30d_${fy}_${fm}-${tm}.xls`;
+          download(html, fname);
+
+        } catch (e) {
+          console.error(e);
+          alert("Could not generate Excel. Check console/network.");
+        }
+
+      });
+    })();
+  </script>
+  {% comment %} summary view tab {% endcomment %}
+  <script>
+    let currentView = "detail";
+    const tabDetail  = document.getElementById("tabDetail");
+    const tabSummary = document.getElementById("tabSummary");
+
+    tabDetail.addEventListener("click", () => {
+      currentView = "detail";
+      tabDetail.classList.add("active");
+      tabSummary.classList.remove("active");
+      loadTable({ view: "detail" });
+    });
+
+    tabSummary.addEventListener("click", () => {
+      currentView = "summary";
+      tabSummary.classList.add("active");
+      tabDetail.classList.remove("active");
+      loadTable({ view: "summary" });
+    });
+  </script>
+
+
+{% comment %} when client is selected then group is auto selected  {% endcomment %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+
+    const clientInput  = document.getElementById("id_client_input");
+    const clientHidden = document.getElementById("id_client_hidden");
+
+    const groupInput  = document.getElementById("id_group_input");
+    const groupHidden = document.getElementById("id_group_hidden");
+
+    // 🔹 DO NOT interfere with existing handlers
+    document.addEventListener("click", function (e) {
+
+      const option = e.target.closest("#id_client_options .dropdown-option");
+      if (!option) return;
+
+      const groupId   = option.dataset.groupId;
+      const groupName = option.dataset.groupName;
+
+      if (!groupId || !groupName) return;
+
+      // ✅ RUN AFTER ALL EXISTING LOGIC
+      setTimeout(() => {
+        groupInput.value  = groupName;
+        groupHidden.value = groupId;
+
+        // optional safety
+        groupInput.setAttribute("readonly", true);
+
+        console.log("✔ Group auto-set:", groupName);
+      }, 0);
+    });
+
+  });
+</script>
+
+
+{% comment %} pending details {% endcomment %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const state = {
+            groupId: null,
+            clients: [],
+            accounts: [],
+            allAccounts: []
+        };
+
+        const groupSelect = document.getElementById("pdr_group_select");
+
+        const clientBtn   = document.getElementById("pdr_client_dropdown");
+        const clientMenu  = document.getElementById("pdr_client_menu");
+
+        const accountBtn  = document.getElementById("pdr_account_dropdown");
+        const accountMenu = document.getElementById("pdr_account_menu");
+
+        const genBtn      = document.getElementById("pdr_generate_btn");
+
+
+        /* ================= RESET ON MODAL OPEN ================= */
+
+          const pendingModal = document.getElementById("pendingDetailModal");
+
+          pendingModal.addEventListener("shown.bs.modal", () => {
+            state.groupId = null;
+            state.clients = [];
+            state.accounts = [];
+              state.allAccounts = [];
+
+              groupSelect.value = "";
+
+              clientBtn.textContent  = "-- Select client --";
+              accountBtn.textContent = "-- Select bank account --";
+
+              clientMenu.innerHTML =
+                  `<li class="text-muted px-2">Select group first</li>`;
+              accountMenu.innerHTML =
+                  `<li class="text-muted px-2">Select client first</li>`;
+          });
+
+        /* ================= RESET ================= */
+
+        function resetAll() {
+            state.clients = [];
+            state.accounts = [];
+            state.allAccounts = [];
+
+            clientBtn.textContent  = "-- Select client --";
+            accountBtn.textContent = "-- Select bank account --";
+
+            clientMenu.innerHTML  = `<li class="text-muted px-2">Select group first</li>`;
+            accountMenu.innerHTML = `<li class="text-muted px-2">Select client first</li>`;
+        }
+
+        /* ================= LOAD CLIENTS ================= */
+
+        function loadClientsForGroup(groupId) {
+        resetAll();
+        if (!groupId) return;
+
+        fetch(`/ajax/group_clients/?group_id=${groupId}`)
+          .then(r => r.json())
+          .then(data => {
+              if (!data.ok) return;
+
+              clientMenu.innerHTML = "";
+
+              // ✅ SELECT ALL
+              const selectAllLi = document.createElement("li");
+              selectAllLi.className = "border-bottom mb-1 pb-1";
+              selectAllLi.innerHTML = `
+                <label class="dropdown-item fw-semibold">
+                  <input type="checkbox"
+                        class="form-check-input me-2"
+                        id="pdr_client_select_all">
+                  Select All Clients
+                </label>
+              `;
+              clientMenu.appendChild(selectAllLi);
+
+              // ✅ CLIENT OPTIONS
+              data.clients.forEach(c => {
+                  const li = document.createElement("li");
+                  li.innerHTML = `
+                    <label class="dropdown-item">
+                      <input type="checkbox"
+                            class="form-check-input me-2 pdr-client-cb"
+                            value="${c.client_id}"
+                            data-label="${c.client_name}">
+                      ${c.client_name} (${c.client_id})
+                    </label>`;
+                  clientMenu.appendChild(li);
+              });
+          });
+    }
+
+
+    clientMenu.addEventListener("change", function (e) {
+
+        // SELECT ALL
+        if (e.target.id === "pdr_client_select_all") {
+            const checked = e.target.checked;
+            document.querySelectorAll(".pdr-client-cb").forEach(cb => {
+                cb.checked = checked;
+            });
+        }
+
+        // UPDATE STATE
+        state.clients = Array.from(
+            document.querySelectorAll(".pdr-client-cb:checked")
+        ).map(cb => ({
+            id: cb.value,
+            label: cb.dataset.label
+        }));
+
+        // AUTO TOGGLE SELECT ALL
+        const all = document.querySelectorAll(".pdr-client-cb").length;
+        const checked = document.querySelectorAll(".pdr-client-cb:checked").length;
+
+        const selectAllCb = document.getElementById("pdr_client_select_all");
+        if (selectAllCb) {
+            selectAllCb.checked = (all > 0 && all === checked);
+        }
+
+        clientBtn.textContent =
+            state.clients.length
+                ? `${state.clients.length} client(s) selected`
+                : "-- Select client --";
+
+        loadAccountsForSelectedClients();
+    });
+
+
+    /* ================= LOAD ACCOUNTS ================= */
+
+    /* ================= LOAD ACCOUNTS ================= */
+
+    function loadAccountsForSelectedClients() {
+        const ids = state.clients.map(c => c.id);
+        state.accounts = [];
+
+        accountBtn.textContent = "-- Select bank account --";
+        accountMenu.innerHTML = "";
+
+        if (!ids.length) {
+            accountMenu.innerHTML =
+                `<li class="text-muted px-2">Select client first</li>`;
+            return;
+        }
+
+        fetch(`/ajax/client_accounts_multi/?client_ids=${ids.join(",")}`)
+          .then(r => r.json())
+          .then(data => {
+              if (!data.ok) return;
+
+              // ✅ SELECT ALL ACCOUNTS
+              const selectAllLi = document.createElement("li");
+              selectAllLi.className = "border-bottom mb-1 pb-1";
+              selectAllLi.innerHTML = `
+                <label class="dropdown-item fw-semibold">
+                  <input type="checkbox"
+                        class="form-check-input me-2"
+                        id="pdr_account_select_all">
+                  Select All Accounts
+                </label>
+              `;
+              accountMenu.appendChild(selectAllLi);
+
+              // ✅ ACCOUNT OPTIONS
+              (data.accounts || []).forEach(a => {
+                  const li = document.createElement("li");
+                  li.innerHTML = `
+                    <label class="dropdown-item">
+                      <input type="checkbox"
+                            class="form-check-input me-2 pdr-account-cb"
+                            value="${a.id}"
+                            data-client="${a.client_id}"
+                            data-label="${a.client_name} - ${a.account}">
+                      ${a.client_name} - ${a.account} (${a.account_id})
+                    </label>`;
+                  accountMenu.appendChild(li);
+              });
+          });
+    }
+
+    /* ================= ACCOUNT CHANGE HANDLER ================= */
+
+    accountMenu.addEventListener("click", function (e) {
+
+        // 🔒 Keep dropdown open
+        e.stopPropagation();
+
+        // Only react to checkbox clicks
+        if (e.target.tagName !== "INPUT") return;
+
+        // ✅ SELECT ALL
+        if (e.target.id === "pdr_account_select_all") {
+            const checked = e.target.checked;
+            document.querySelectorAll(".pdr-account-cb").forEach(cb => {
+                cb.checked = checked;
+            });
+        }
+
+        // ✅ UPDATE STATE
+        state.accounts = Array.from(
+            document.querySelectorAll(".pdr-account-cb:checked")
+        ).map(cb => ({
+            id: cb.value,
+            label: cb.dataset.label,
+            client_id: cb.dataset.client
+        }));
+
+        // ✅ AUTO TOGGLE SELECT ALL
+        const all = document.querySelectorAll(".pdr-account-cb").length;
+        const checkedCount = document.querySelectorAll(".pdr-account-cb:checked").length;
+
+        const selectAllCb = document.getElementById("pdr_account_select_all");
+        if (selectAllCb) {
+            selectAllCb.checked = (all > 0 && all === checkedCount);
+        }
+
+        // ✅ BUTTON TEXT
+        accountBtn.textContent =
+            state.accounts.length
+                ? `${state.accounts.length} account(s) selected`
+                : "-- Select bank account --";
+    });
+
+        /* ================= EVENTS ================= */
+
+        groupSelect.addEventListener("change", function () {
+            state.groupId = this.value || null;
+            loadClientsForGroup(state.groupId);
+        });
+
+    
+
+
+        /* ================= GENERATE (UNCHANGED) ================= */
+
+        genBtn.addEventListener("click", function (e) {
+          console.log("Generate clicked");
+
+            e.preventDefault();
+            e.stopImmediatePropagation();   //  THIS IS THE KEY FIX
+
+
+             /* ================= DATE vs FY VALIDATION ================= */
+
+             /* ================= DATE vs FY VALIDATION ================= */
+
+              const modalEl = document.getElementById("pendingDetailModal");
+
+              const fy = modalEl.querySelector("#pdr_fy_select")?.value;
+              const selectedDateStr = modalEl.querySelector("#pdr_single_date")?.value;
+
+              if (selectedDateStr && fy) {
+
+                  // FY format: 2024_25
+                  let [fyStartYear, fyEndYearShort] = fy.split("_").map(Number);
+
+                  // Convert 25 → 2025
+                  const fyEndYear = fyEndYearShort < 100
+                      ? Math.floor(fyStartYear / 100) * 100 + fyEndYearShort
+                      : fyEndYearShort;
+
+                  // FY boundaries (LOCAL dates)
+                  const fyStartDate = new Date(fyStartYear, 3, 1);   // 01-Apr-YYYY
+                  const fyEndDate   = new Date(fyEndYear, 2, 31);    // 31-Mar-YYYY
+
+                  // Normalize selected date (avoid timezone bug)
+                  const [yyyy, mm, dd] = selectedDateStr.split("-").map(Number);
+                  const selectedDate = new Date(yyyy, mm - 1, dd);
+
+                  console.log("FY RANGE:", fyStartDate, fyEndDate);
+                  console.log("SELECTED:", selectedDate);
+
+                  if (selectedDate < fyStartDate || selectedDate > fyEndDate) {
+                      alert(
+                          `❌ Invalid Date Selection\n\n` +
+                          `You must select a date within the Financial Year (${fy}).\n\n` +
+                          `Allowed range:\n` +
+                          `01-Apr-${fyStartYear} to 31-Mar-${fyEndYear}`
+                      );
+                      return;
+                  }
+              }
+
+
+            const client_ids  = state.clients.map(c => c.id);
+            const account_ids = state.accounts.map(a => a.id);
+
+            if (!state.groupId) {
+                alert("Please select a group.");
+                return;
+            }
+            if (!client_ids.length) {
+                alert("Please select at least one client.");
+                return;
+            }
+
+            
+            // ✅ ADD THIS BLOCK
+            if (!account_ids.length) {
+                alert("Please select at least one bank account.");
+                return;
+            }
+
+
+           
+          
+
+            const columnSelect =
+                document.querySelector('input[name="pdr_column"]:checked').value;
+            const reportType =
+                document.querySelector('input[name="pdr_type"]:checked').value;
+            const fyValue =
+                document.getElementById("pdr_fy_select")?.value || "";
+
+
+
+            const singleDate =
+                document.getElementById("pdr_single_date")?.value || "";
+
+
+            const groupText =
+                groupSelect.options[groupSelect.selectedIndex].text || "Statement Report";
+
+            const modal = bootstrap.Modal.getInstance(
+                document.getElementById("pendingDetailModal")
+            );
+            if (modal) modal.hide();
+
+            if (reportType === "excel") {
+                const url = new URL("/reports/pending_detail_excel/", location.origin);
+                url.searchParams.set("group_id", state.groupId);
+                url.searchParams.set("client_ids", client_ids.join(","));
+                url.searchParams.set("account_ids", account_ids.join(","));
+                url.searchParams.set("column_select", columnSelect);
+                url.searchParams.set("group_name", groupText);
+                if (fyValue) url.searchParams.set("fy", fyValue);
+                url.searchParams.set("single_date", singleDate);
+
+                window.location.href = url;
+            } else {
+                const url = new URL("/ajax/pending_detail_summary/", location.origin);
+                url.searchParams.set("group_id", state.groupId);
+                url.searchParams.set("client_ids", client_ids.join(","));
+                url.searchParams.set("account_ids", account_ids.join(","));
+                url.searchParams.set("column_select", columnSelect);
+                if (fyValue) url.searchParams.set("fy", fyValue);
+                url.searchParams.set("single_date", singleDate);
+
+                //fetch(url); // your existing image logic stays
+                fetch(url)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.ok || !data.rows.length) {
+                        alert("No data found for image.");
+                        return;
+                    }
+
+                    // ===== SAME LOGIC AS YOUR COMMENTED CODE =====
+                    const wrapper = document.createElement("div");
+                    wrapper.style.position = "absolute";
+                    wrapper.style.left = "-9999px";
+                    wrapper.style.top = "0";
+                    wrapper.style.background = "white";
+                    wrapper.style.padding = "20px";
+                    wrapper.style.fontFamily = "Arial";
+                    wrapper.style.width = "1200px";
+
+                    let html = `
+                      <h2 style="text-align:center; margin-bottom:15px;">
+                        ${groupText} - ${columnSelect.toUpperCase()} Summary (${fyValue})
+                      </h2>
+                      ${columnSelect === "all" ? `
+                        <div style="margin-bottom:10px; font-size:13px; text-align:right;">
+                          <span style="color:#198754; font-weight:bold;">● Received</span>
+                          &nbsp;&nbsp;
+                          <span style="color:#dc3545; font-weight:bold;">● Missing</span>
+                        </div>
+                      ` : ""}
+
+                      <table style="width:100%; border-collapse:collapse; font-size:14px;">
+                        <tr style="background:#002060; color:#fff; font-weight:bold;">
+                          <th style="border:1px solid #000; padding:6px;">Client Name</th>
+                          <th style="border:1px solid #000; padding:6px;">Account Name</th>
+                          <th style="border:1px solid #000; padding:6px;">Period</th>
+                           ${columnSelect === "all" ? `
+                            <th style="border:1px solid #000; padding:6px;">Status</th>
+                          ` : ""}
+                        </tr>
+                    `;
+
+                    data.rows.forEach(r => {
+                      const statusText  = r.kind === "received" ? "RECEIVED" : "MISSING";
+                      const statusColor = r.kind === "received" ? "#198754" : "#dc3545";
+                        html += `
+                          <tr>
+                            <td style="border:1px solid #000; padding:6px;">${r.client}</td>
+                            <td style="border:1px solid #000; padding:6px;">${r.account}</td>
+                            <td style="border:1px solid #000; padding:6px;">
+                              ${r.from_date} To ${r.to_date}
+                            </td>
+                            ${
+                              columnSelect === "all"
+                                ? `<td style="border:1px solid #000; padding:6px; font-weight:bold; color:${statusColor};">
+                                    ${statusText}
+                                  </td>`
+                                : ""
+                            }
+                          </tr>
+                        `;
+                    });
+
+                    html += `</table>`;
+                    wrapper.innerHTML = html;
+                    document.body.appendChild(wrapper);
+
+                    html2canvas(wrapper, { scale: 2 }).then(canvas => {
+                        document.body.removeChild(wrapper);
+
+                        const img = canvas.toDataURL("image/jpeg", 0.95);
+                        const a = document.createElement("a");
+                        a.href = img;
+                        a.download = `Pending_Detail_${fyValue}_${columnSelect}.jpg`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    });
+                })
+                .catch(err => {
+                    console.error("Image generation failed:", err);
+                    alert("Failed to generate image.");
+                });
+
+              }
+        });
+
+    });
+</script>
+
+<!-- Pending Detail Report Modal -->
+<div class="modal fade" id="pendingDetailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h5 class="modal-title">&lt;Group&gt; Pending Detail Report</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+
+
+      <div class="modal-body">
+          <!-- FY -->
+          <div class="mb-3">
+            <label class="form-label mb-1">Select Fiscal Year</label>
+            <select id="pdr_fy_select" class="form-select form-select-sm">
+              {% for fy in fiscal_years %}
+                <option value="{{ fy }}" {% if fy == current_fy %}selected{% endif %}>
+                  {{ fy }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+        <!-- ==== GROUP ==== -->
+        <div class="mb-3">
+          <label class="form-label mb-1">Select Group</label>
+          <select id="pdr_group_select" class="form-select form-select-sm">
+            <option value="">-- Select group --</option>
+            {% for g in groups %}
+              <option value="{{ g.id }}">{{ g.group_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- ==== DATE SELECT ==== -->
+        <div class="mb-3">
+          <label class="form-label mb-1">Select Date</label>
+          <input type="date"
+                id="pdr_single_date"
+                class="form-control form-control-sm">
+          <small class="text-muted">
+            Report will be generated only for this date (within selected FY)
+          </small>
+        </div>
+
+
+        <!-- ==== CLIENTS ==== -->
+      <div class="mb-3">
+          <label class="form-label mb-1">Select Client</label>
+
+          <div class="dropdown w-100">
+            <button class="form-select form-select-sm text-start"
+                    type="button"
+                    id="pdr_client_dropdown"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false">
+              -- Select client --
+            </button>
+
+            <ul class="dropdown-menu w-100 p-2"
+                id="pdr_client_menu"
+                style="max-height:220px; overflow:auto;">
+              <li class="text-muted px-2">Select group first</li>
+            </ul>
+          </div>
+        </div>
+
+
+     
+        <div class="mb-3">
+          <label class="form-label mb-1">Select Bank Account</label>
+
+          <div class="dropdown w-100">
+            <button class="form-select form-select-sm text-start"
+                    type="button"
+                    id="pdr_account_dropdown"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false">
+              -- Select bank account --
+            </button>
+
+            <ul class="dropdown-menu w-100 p-2"
+                id="pdr_account_menu"
+                style="max-height:220px; overflow:auto;">
+              <li class="text-muted px-2">Select client first</li>
+            </ul>
+          </div>
+        </div>
+
+
+
+        <!-- ==== COLUMN SELECT ==== -->
+        <div class="mb-2">
+          <label class="form-label mb-1">Column Select</label><br>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="pdr_column" id="pdr_received"
+                   value="received" checked>
+            <label class="form-check-label" for="pdr_received">Received</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="pdr_column" id="pdr_missing"
+                   value="missing">
+            <label class="form-check-label" for="pdr_missing">Missing</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="pdr_column" id="pdr_all"
+                   value="all">
+            <label class="form-check-label" for="pdr_all">All</label>
+          </div>
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label mb-1">Report Type</label><br>
+
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="pdr_type" id="pdr_type_html"
+                  value="html" checked>
+            <label class="form-check-label" for="pdr_type_html">On Screen (Image)</label>
+          </div>
+
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="pdr_type" id="pdr_type_excel"
+                  value="excel">
+            <label class="form-check-label" for="pdr_type_excel">Excel</label>
+          </div>
+
+        </div>
+
+
+
+
+      </div>
+
+      <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-sm btn-primary" id="pdr_generate_btn">
+          Generate
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

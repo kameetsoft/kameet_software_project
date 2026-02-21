@@ -1,0 +1,363 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pending Busy Mapping</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f5f7fa;
+            font-size: 14px;
+        }
+
+        /* Card polish */
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+            border: none;
+        }
+
+        /* Sticky header */
+        .card-header {
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            background: linear-gradient(90deg, #212529, #343a40);
+            color: #fff;
+        }
+
+        /* Scrollable table */
+        .table-wrapper {
+            max-height: 70vh;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        /* Sticky table header */
+        thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+            background-color: #212529;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        /* Table row hover */
+        tbody tr:hover {
+            background-color: #f1f5ff;
+        }
+
+        /* Pending highlight */
+        .pending-acc {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        /* Column alignment */
+        td, th {
+            vertical-align: middle;
+        }
+
+        .badge-pending {
+            font-size: 0.85rem;
+        }
+        .close-btn {
+            background: red;
+            border: none;
+            color: #fff;
+            font-size: 28px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 2px 6px;
+        }
+
+        .close-btn:hover {
+            color: #ffd6d6;
+        }
+
+        .filter-row input {
+            min-width: 120px;
+            font-size: 12px;
+        }
+
+        .filter-row th {
+            background-color: #2b3035;
+        }
+
+        {% comment %} select row {% endcomment %}
+        /* Selected row highlight */
+        /* FULL row selection – force all cells */
+        tr.selected-row > td {
+            background-color: #cfe2ff !important;
+        }
+
+        /* Optional left indicator */
+        tr.selected-row > td:first-child {
+            border-left: 4px solid #0d6efd;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="container-fluid mt-4">
+
+    <div class="card">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Header -->
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <a href="javascript:void(0)"
+            class="btn btn-success btn-sm ms-2"
+            onclick="exportTableToExcel('pendingBusyTable', 'Pending_BUSY_Bank_Mapping')">
+                📥 Export to Excel
+            </a>
+
+            <div>
+                <h5 class="mb-0">
+                    Pending BUSY Bank Mapping
+                    <span class="badge bg-danger badge-pending ms-2">
+                        {{ total_pending }}
+                    </span>
+                </h5>
+                <small class="text-light opacity-75">
+                    Accounts not mapped between BUSY & KAMEET
+                </small>
+
+                <a href="?rebuild=1" class="btn btn-danger btn-sm">
+                    🔄 Rebuild BUSY Mapping
+                </a>
+
+            </div>
+            <div class="text-end">
+                    <button class="close-btn " title="Close"
+                       onclick="window.location.href='{% url "home" %}';">
+                        &times;
+                    </button>
+                {% comment %} <span class="badge bg-warning text-dark">
+                    FY {{ fy }}
+                </span> {% endcomment %}
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="card-body p-0">
+            <div class="table-wrapper">
+                <table id="pendingBusyTable" class="table table-bordered table-hover table-sm mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width:50px">#</th>
+                            <th>Client</th>
+                            <th>Group</th>
+                            <th>BUSY Company</th>
+                            <th>Bank</th>
+                            <th>Account No</th>
+                            {% comment %} <th>IFSC</th>
+                            <th>Swift</th>
+                            <th>FY</th> {% endcomment %}
+                            <th>BusyAccCode</th>
+                            <th>BUSY Updated</th>
+                            {% comment %} <th>Account Group</th> {% endcomment %}
+
+                        </tr>
+                          <!-- FILTER ROW -->
+                        <tr class="filter-row">
+                            <th></th>
+                            <th><input class="form-control form-control-sm filter-input" placeholder="Filter Client"></th>
+                            <th><input class="form-control form-control-sm filter-input" placeholder="Filter Group"></th>
+                            <th><input class="form-control form-control-sm filter-input" placeholder="Filter Company"></th>
+                            <th><input class="form-control form-control-sm filter-input" placeholder="Filter Bank"></th>
+                            <th><input class="form-control form-control-sm filter-input" placeholder="Filter Acc No"></th>
+                            {% comment %} <th><input class="form-control form-control-sm filter-input" placeholder="IFSC"></th>
+                            <th><input class="form-control form-control-sm filter-input" placeholder="Swift"></th>
+                            <th><input class="form-control form-control-sm filter-input" placeholder="FY"></th> {% endcomment %}
+                            <th><input class="form-control form-control-sm filter-input" placeholder="Busy Code"></th>
+                            <th><input class="form-control form-control-sm filter-input" placeholder="Updated"></th>
+                            {% comment %} <th><input class="form-control form-control-sm filter-input" placeholder="Acc Group"></th> {% endcomment %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in rows %}
+                        <tr>
+                            <td class="text-center">{{ forloop.counter }}</td>
+                            {% comment %} <td>{{ r.client_name }}</td> {% endcomment %}
+                            <td>{{ r.client.client_name  }}</td>
+                            {% comment %} <td>{{ r.group_name }}</td> {% endcomment %}
+                            <td>{{ r.group.group_name  }}</td>
+                            <td>{{ r.busy_company_code }}</td>
+
+                            {% comment %} <td>{{ r.busy_company }}</td> {% endcomment %}
+                            <td>{{ r.bank_name }}</td>
+                            <td class="pending-acc">
+                                {{ r.account_no }}
+                            </td>
+                            {% comment %} <td>{{ r.ifsc|default:"—" }}</td>
+                            <td>{{ r.swift|default:"—" }}</td>
+                            <td>
+                                <span class="badge bg-info text-dark">
+                                    {{ r.fy }}
+                                </span>
+                            </td> {% endcomment %}
+                            <td class="text-primary fw-semibold">
+                                {{ r.busy_account_code|default:"—" }}
+                            </td>
+
+
+                            <td class="text-muted small">
+                               {{ r.busy_updated_at|date:"d-m-Y H:i" }}
+
+                                {% comment %} {{ r.busy_modified }} {% endcomment %}
+                            </td>
+                            {% comment %} <td>
+                                <span class="badge bg-secondary">
+                                    {{ r.account_group_display }}
+                                </span>
+                            </td> {% endcomment %}
+
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="10" class="text-center py-4 text-success fw-bold">
+                                🎉 All BUSY bank accounts are mapped
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="card-footer text-muted small text-end">
+            Showing unmapped BUSY bank accounts only
+        </div>
+
+    </div>
+
+</div>
+
+{% comment %} filter {% endcomment %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const table = document.querySelector("table");
+    const filters = table.querySelectorAll("thead .filter-input");
+    const rows = table.querySelectorAll("tbody tr");
+
+    function applyFilters() {
+        rows.forEach(row => {
+            let visible = true;
+
+            filters.forEach((input, i) => {
+                const filterValue = input.value.trim().toLowerCase();
+                if (!filterValue) return; // skip empty filters
+
+                // +1 because first column (#) has no filter
+                const cell = row.children[i + 1];
+                if (!cell) return;
+
+                const cellText = cell.textContent.trim().toLowerCase();
+
+                if (!cellText.includes(filterValue)) {
+                    visible = false;
+                }
+            });
+
+            row.style.display = visible ? "" : "none";
+        });
+    }
+
+    filters.forEach(input => {
+        input.addEventListener("input", applyFilters);
+    });
+
+});
+</script>
+
+<script>
+function exportTableToExcel(tableId, filename = '') {
+    const table = document.getElementById(tableId);
+    if (!table) {
+        alert("Table not found!");
+        return;
+    }
+
+    let csv = [];
+    const rows = table.querySelectorAll("tr");
+
+    rows.forEach(row => {
+        // skip hidden rows (filtered out)
+        if (row.style.display === "none") return;
+
+        let rowData = [];
+        const cols = row.querySelectorAll("th, td");
+
+        cols.forEach(col => {
+            let text = col.innerText.replace(/\n/g, " ").replace(/\s+/g, " ").trim();
+            // FORCE TEXT for Excel
+            rowData.push(`"\t${text.replace(/"/g, '""')}"`);
+        });
+
+        csv.push(rowData.join(","));
+    });
+
+    const csvContent = csv.join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute("href", url);
+    link.setAttribute(
+        "download",
+        filename + "_" + new Date().toISOString().slice(0,10) + ".csv"
+    );
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+
+
+{% comment %} select row {% endcomment %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const table = document.getElementById("pendingBusyTable");
+    let selectedRow = null;
+
+    table.addEventListener("click", function (e) {
+        const row = e.target.closest("tbody tr");
+        if (!row) return;
+
+        // Remove old selection
+        if (selectedRow) {
+            selectedRow.classList.remove("selected-row");
+        }
+
+        // Select new row
+        row.classList.add("selected-row");
+        selectedRow = row;
+    });
+
+});
+</script>
+
+
+</body>
+</html>

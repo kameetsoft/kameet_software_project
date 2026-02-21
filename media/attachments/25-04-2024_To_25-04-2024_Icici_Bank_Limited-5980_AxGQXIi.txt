@@ -1,0 +1,20 @@
+ICICI Bank account Statement from 25-04-2024 to 25-04-2024. 
+
+
+Account Number|Tran Date |  Tran Particular    | Inst Num      |   Dr Tran Amt   |    Cr Tran Amt |      Bal Amt      | Deposit Branch
+-------------- ---------    ---------------      ---------       ---------------   ---------------        --------    | ------- ------
+624605065980|   11-APR-2024|  B/F                                                                                                 |                 |                |                |        82252.21|                            
+624605065980|   15-Apr-2024|  NEFT*000146839093/SBIN0000281/GARG ENTERPRISE                                                       |             1287|        80540.00|            0.00|         1712.21|               AHMEDABAD RPC
+624605065980|   16-Apr-2024|  624613031574* Closure Proceeds                                                                      |                 |            0.00|        24123.00|        25835.21|               AHMEDABAD RPC
+624605065980|   16-Apr-2024|  624613031576* Closure Proceeds                                                                      |                 |            0.00|        37190.00|        63025.21|               AHMEDABAD RPC
+624605065980|   20-Apr-2024|  BIL/INFT/DDO4366663/Bill Payment/  NIKUNJ RAMESHBH                                                  |                 |            0.00|      1500000.00|      1563025.21|                       SURAT
+624605065980|   22-Apr-2024|  BIL/INFT/DDP4466396/NA/  NIKUNJ RAMESHBH                                                            |                 |            0.00|      1398000.00|      2961025.21|                       SURAT
+624605065980|   22-Apr-2024|  CLG/SMIT STEEL TRADERS/BOI                                                                          |             1286|       254314.00|            0.00|      2706711.21|                RPC - BARODA
+624605065980|   22-Apr-2024|  NEFT*000147088580/UCBA0000617/JAY JALARAM INFRASTR UCTURE                                           |             1293|       112500.00|            0.00|      2594211.21|               AHMEDABAD RPC
+624605065980|   22-Apr-2024|  RTGS*ICICR52024042200645374/SGBA0000218/AMRUT TRAD ERS NAGNESH                                      |             1289|      1000000.00|            0.00|      1594211.21|               AHMEDABAD RPC
+624605065980|   22-Apr-2024|  TRF/PATEL HARDWARE AND SANATERY/ICI                                                                 |             1290|       500000.00|            0.00|      1094211.21|                       BOTAD
+624605065980|   22-Apr-2024|  NEFT*000147087760/UTIB0CCH274/ULTRATECH CEMENT                                                      |             1292|       144000.00|            0.00|       950211.21|               AHMEDABAD RPC
+624605065980|   23-Apr-2024|  TRF/R M ENTERPRISES /ICI                                                                            |             1294|       266700.00|            0.00|       683511.21|                       KOSAD
+624605065980|   25-Apr-2024|  NEFT*000147204915/UTIB0CCH274/ULTRATECH CEMENT                                                      |             1295|       144000.00|            0.00|       539511.21|               AHMEDABAD RPC
+
+ Closing Balance as on 26-04-2024 09:01:06 is INR.539511.21 includes Uncleared Funds of INR.0.00

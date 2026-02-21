@@ -1,0 +1,954 @@
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+        <!-- jQuery (required for Select2) -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <!-- Select2 CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+        <!-- Select2 JS -->
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #f8f9fc;
+            --accent-color: #2e59d9;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 10px;
+        }
+        
+        .account-form-container {
+            max-width: 1200px;
+            margin: 2px auto;
+        }
+        
+        .form-card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            overflow: hidden;
+        }
+        
+        .form-card .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-bottom: none;
+            padding: 0.50rem 1rem;
+        }
+        
+        .form-card .card-header h3 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .form-card .card-body {
+            padding: 1rem;
+            background-color: white;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #5a5c69;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 0.3rem;
+            
+            border: 1px solid #d1d3e2;
+            font-size: 0.9rem;
+          
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+        
+        .form-check-input {
+            width: 1.1em;
+            height: 1.1em;
+            margin-top: 0.1em;
+        }
+        
+        .form-check-label {
+            margin-left: 0.3rem;
+            font-size: 0.9rem;
+        }
+        
+        .btn {
+            border-radius: 0.3rem;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .btn-success {
+            background-color: #1cc88a;
+            border-color: #1cc88a;
+        }
+        
+        .btn-success:hover {
+            background-color: #17a673;
+            border-color: #169b6b;
+        }
+        
+        .btn-outline-secondary {
+            color: #6e707e;
+            border-color: #d1d3e2;
+        }
+        
+        .btn-outline-secondary:hover {
+            background-color: #dddfeb;
+            border-color: #d1d3e2;
+        }
+        
+        .btn-outline-danger {
+            color: #e74a3b;
+            border-color: #e74a3b;
+        }
+        
+        .btn-outline-danger:hover {
+            background-color: #e74a3b;
+            color: white;
+        }
+        
+        .invalid-feedback {
+            font-size: 0.8rem;
+            color: #e74a3b;
+            margin-top: 0.2rem;
+        }
+        
+        .was-validated .form-control:invalid,
+        .was-validated .form-control:invalid {
+            border-color: #e74a3b;
+        }
+        
+        .was-validated .form-control:invalid:focus,
+        .was-validated .form-control:invalid:focus {
+            box-shadow: 0 0 0 0.2rem rgba(231, 74, 59, 0.25);
+        }
+        
+        .section-divider {
+            border-top: 1px solid #e3e6f0;
+            margin: 0.2rem 0;
+        }
+        
+        .form-section-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            {% comment %} margin-bottom: 0.75rem; {% endcomment %}
+            font-size: 1rem;
+        }
+        
+        /* Client select dropdown styling */
+        .account-select-container {
+            position: relative;
+        }
+        .account-select-container .search-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .account-form-container {
+                margin: 5px auto;
+            }
+            
+            .form-card .card-body {
+                padding: 0.75rem;
+            }
+            
+            .row {
+                margin-left: -5px;
+                margin-right: -5px;
+            }
+            
+            [class*="col-"] {
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+        }
+        
+        /* Toggle switch styles */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #1cc88a;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        
+ .page-close-btn {
+        position: fixed;
+        top: 12px;
+        right: 16px;
+        z-index: 1050; /* above cards & forms, below modals */
+
+        width: 34px;
+        height: 34px;
+        border: none;
+        border-radius: 6px;
+
+        background: #dc3545;
+        color: #fff;
+        font-size: 20px;
+        font-weight: bold;
+        line-height: 1;
+        cursor: pointer;
+      }
+
+      .page-close-btn:hover {
+        background: #bb2d3b;
+      }
+    </style>
+</head>
+<body>
+
+    <button type="button"
+            class="page-close-btn"
+            title="Go to Home"
+            onclick="window.location.href='{% url 'home' %}'">
+      &times;
+    </button>
+    <div class="account-form-container">
+        <div class="form-card card shadow">
+            <div class="card-header">
+                <h3 class="mb-0">{{ title }}</h3>
+            </div>
+            <div class="card-body">
+
+                <form method="post" class="needs-validation" novalidate id="main-account-form">
+                    {% csrf_token %}
+                     <!-- 🔹 carries ?client_id=... from URL for JS -->
+                    <input type="hidden" id="preset_client_id" value="{{ request.GET.client_id }}">
+                    {% if is_modify_mode %}
+                        <input type="hidden" name="mode" value="modify">
+                        {% comment %} {% if selected_account_id %} {% endcomment %}
+                            {% comment %} <input type="hidden" name="account_id" value="{{ selected_account_id }}" id="hidden-account-id"> {% endcomment %}
+                            <input type="hidden" name="pk" value="{{ selected_account_id }}" id="hidden-account-pk">
+
+                        {% comment %} {% endif %} {% endcomment %}
+                    {% endif %}
+
+                    <!-- Client Information Section -->
+                    <h5 class="form-section-title">Client Information</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="id_client" class="form-label">Client *</label>
+                            {% comment %} <select class="form-select searchable-select" id="id_client" name="client" required>
+                                <option value="">-- Select Client --</option>
+                                {% for client in clients %}
+                                     <option value="{{ client.client_id }}"
+                                        {% if form.instance.client and form.instance.client.client_id == client.client_id %}selected{% endif %}>
+                                        {{ client.client_name }} (ID: {{ client.client_id }}) 
+
+
+                                    </option>
+                                {% endfor %}
+                            </select> {% endcomment %}
+                            <select class="form-select searchable-select" id="id_client" name="client" required>
+                                <option value="">-- Select Client --</option>
+                                {% for client in clients %}
+                                    <option value="{{ client.client_id }}">
+                                        {{ client.client_name }} (ID: {{ client.client_id }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+
+                            <div class="invalid-feedback">Please select a client.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="client_id_display" class="form-label">Client ID</label>
+                            <input type="text" class="form-control" id="client_id_display"
+                                value="{% if form.instance.client %}{{ form.instance.client.client_id }}{% endif %}"
+                                readonly>
+                        </div>
+                    </div>
+
+                    <!-- In modify mode: Select which account to modify -->
+                    {% if is_modify_mode %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="id_account_select" class="form-label">Select Account to Modify *</label>
+                            <select class="form-select searchable-select" id="id_account_select" required>
+                                <option value="">-- Select Account --</option>
+                                {% if accounts %}
+                                    {% for account in accounts %}
+                                        <option value="{{ account.id }}"
+                                            {% if account.id|stringformat:'s' == selected_account_id|stringformat:'s' %}selected{% endif %}>
+                                            {{ account.account }} ({{ account.account_id }})
+                                        </option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                            <div class="invalid-feedback">Please select an account.</div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="section-divider"></div>
+
+                    <!-- Account Information Section -->
+                    <h5 class="form-section-title">Account Information</h5>
+                    <div class="row mb-1">
+                        <div class="col-md-3">
+                            <label for="id_account_name" class="form-label">Account Name *</label>
+                            <!-- We render the form field, but give it a known id for JS: -->
+                            {% comment %} {{ form.account|as_widget(attrs={'id':'id_account_name'}) }} {% endcomment %}
+                                 {{ form.account }}
+                            <div class="invalid-feedback">Please provide an account name.</div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="id_account_id" class="form-label">Account ID *</label>
+                            {% comment %} {{ form.account_id|as_widget(attrs={'id':'id_account_id'}) }} {% endcomment %}
+                                {% comment %} {{ form.account_id }} {% endcomment %}
+                                {% comment %} <input type="text"
+                                    class="form-control"
+                                    value="{{ next_account_id }}"
+                                    disabled > {% endcomment %}
+                                <input type="text" class="form-control" value="{{ next_account_id }}" readonly>
+                                {% comment %} <input type="hidden" name="account_id" value="{{ next_account_id }}"> {% endcomment %}
+                                {% if is_modify_mode %}
+                                    <input type="hidden" name="account_id" value="{{ form.instance.account_id }}">
+                                {% else %}
+                                    <input type="hidden" name="account_id" value="{{ next_account_id }}">
+                                {% endif %}
+
+                                {% comment %} <div class="invalid-feedback">Please provide an account ID.</div> {% endcomment %}
+                        </div>
+                        <div class="col-md-3">
+                            <label for="id_account_group" class="form-label">Account Group</label>
+                            {% comment %} {{ form.account_group|as_widget(attrs={'id':'id_account_group'}) }} {% endcomment %}
+                            {{ form.account_group }}
+                        </div>
+                           <div class="col-md-3">
+                            <label for="id_acc_mail_id" class="form-label">Account Email</label>
+                            {% comment %} {{ form.acc_mail_id|as_widget(attrs={'id':'id_acc_mail_id'}) }} {% endcomment %}
+                            {{ form.acc_mail_id }}
+                        </div>
+                        <!-- If you have other hidden/original ID field, keep it as hidden-account-id above -->
+                    </div>
+
+                 
+
+                    <div class="section-divider"></div>
+
+                    <!-- Account Group / Email -->
+                    {% comment %} <div class="row mb-1">
+                        
+                     
+                    </div> {% endcomment %}
+
+         
+
+                    <!-- Bank Information Section -->
+                    <h5 class="form-section-title">Bank Information</h5>
+                    <div class="row mb-1">
+                        <div class="col-md-3 mb-1">
+                            <label for="id_bank_name" class="form-label">Bank Name </label>
+                            {% comment %} {{ form.bank_name|as_widget(attrs={'id':'id_bank_name'}) }} {% endcomment %}
+                                {{ form.bank_name }}
+                            {% comment %} <div class="invalid-feedback">Please provide a bank name.</div> {% endcomment %}
+                        </div>
+                        <div class="col-md-3 mb-1">
+                            <label for="id_branch" class="form-label">Branch </label>
+                            {% comment %} {{ form.branch|as_widget(attrs={'id':'id_branch'}) }} {% endcomment %}
+                                {{ form.branch }}
+                            {% comment %} <div class="invalid-feedback">Please provide a branch name.</div> {% endcomment %}
+                        </div>
+                        <div class="col-md-3 mb-1">
+                            <label for="id_account_no" class="form-label">Account Number </label>
+                            {% comment %} {{ form.account_no|as_widget(attrs={'id':'id_account_no'}) }} {% endcomment %}
+                                {{ form.account_no }}
+                            {% comment %} <div class="invalid-feedback">Please provide an account number.</div> {% endcomment %}
+                        </div>
+
+                        <div class="col-md-3 mb-1">
+                            <label for="id_busyacccode" class="form-label">
+                                Busy Account Code
+                            </label>
+                            {{ form.busyacccode }}
+                        </div>
+
+                    </div>
+
+                    <div class="row mb-1">
+                        <div class="col-md-3 mb-1">
+                            <label for="id_ifsc_code" class="form-label">IFSC Code </label>
+                            {% comment %} {{ form.ifsc_code|as_widget(attrs={'id':'id_ifsc_code'}) }} {% endcomment %}
+                                  {{ form.ifsc_code }}
+                            {% comment %} <div class="invalid-feedback">Please provide an IFSC code.</div> {% endcomment %}
+                        </div>
+                        <div class="col-md-3">
+                            <label for="{{ form.cif_number.id_for_label }}" class="form-label">CIF Number</label>
+                            {{ form.cif_number }}
+                        </div>
+                        <div class="col-md-3 mb-1">
+                            <label for="id_acc_type" class="form-label">Account Type</label>
+                                  {{ form.acc_type }}
+                            {% comment %} {{ form.acc_type|as_widget(attrs={'id':'id_acc_type'}) }} {% endcomment %}
+                        </div>
+                        <div class="col-md-2 mb-1">
+                            <label for="id_pw" class="form-label"> Password</label>
+                            {% comment %} {{ form.pw|as_widget(attrs={'id':'id_pw'}) }} {% endcomment %}
+                            {% comment %} {{ form.pw}} {% endcomment %}
+                            <input type="password" value="{{ form.pw.value }}" disabled>
+
+                        </div>
+                         <div class="col-md-2 mb-1">
+                            <label for="stms_pw" class="form-label">Statement Password</label>
+                            {% comment %} {{ form.pw|as_widget(attrs={'id':'id_pw'}) }} {% endcomment %}
+                            {{ form.stms_pws}}
+                        </div>
+
+                        <div class="col-md-2 mb-1">
+                            <label for="id_data_entry" class="form-label">Data Entry</label>
+                              {{ form.data_entry }}
+                            {% comment %} {{ form.data_entry|as_widget(attrs={'id':'id_data_entry'}) }} {% endcomment %}
+                        </div>
+                        <div class="col-md-2">
+                            <label for="{{ form.closing_date.id_for_label }}" class="form-label">Closing Date</label>
+                            {{ form.closing_date }}
+                        </div>
+                          <div class="col-md-4">
+                            <label for="{{ form.bank_mail_id.id_for_label }}" class="form-label">Bank Mail ID</label>
+                            {{ form.bank_mail_id }}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.branch_mail_id.id_for_label }}" class="form-label">Branch Mail ID</label>
+                            {{ form.branch_mail_id }}
+                        </div>
+
+                        
+                        {% comment %} <div class="col-md-4">
+                            <label for="{{ form.reminder_date.id_for_label }}" class="form-label">Reminder Date</label>
+                            {{ form.reminder_date }}
+                        </div> {% endcomment %}
+                    </div>
+                    <div class="row mb-1">
+                        
+                      
+                        <div class="col-md-2">
+                            <label for="{{ form.branch_mobile_no.id_for_label }}" class="form-label">Branch Mobile No</label>
+                            {{ form.branch_mobile_no }}
+                        </div>
+
+                        <div class="col-md-2">
+                            <label for="{{ form.statement_frequency.id_for_label }}" class="form-label">Statement Frequency</label>
+                            {{ form.statement_frequency }}
+                        </div>
+
+                      
+                        <div class="col-md-2 ">
+                            <label class="form-label d-block">Full Match</label>
+                            <label class="toggle-switch">
+                                {% comment %} {{ form.full_match|as_widget(attrs={'id':'id_full_match'}) }} {% endcomment %}
+                                    {{ form.full_match }}
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-2 ">
+                            <label class="form-label d-block">E-Statement</label>
+                            <label class="toggle-switch">
+                                {% comment %} {{ form.e_statement|as_widget(attrs={'id':'id_e_statement'}) }} {% endcomment %}
+                                {{ form.e_statement }}
+                                
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-2 ">
+                            <label for="id_two_match" class="form-label">2 Match</label>
+                            {{ form.two_match }}
+                            {% comment %} {{ form.two_match|as_widget(attrs={'id':'id_two_match'}) }} {% endcomment %}
+                        </div>
+                        <div class="col-md-2 ">
+                            <label for="id_contact_no" class="form-label">Contact Number</label>
+                            {{ form.contact_no}}
+                            {% comment %} {{ form.contact_no|as_widget(attrs={'id':'id_contact_no'}) }} {% endcomment %}
+                        </div>
+                       
+                    </div>
+                    </div>
+
+                    
+
+                    <div class="section-divider"></div>
+
+                    <!-- Form Actions -->
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle me-1"></i>
+                            {% if is_modify_mode %}Update{% else %}Submit{% endif %}
+                        </button>
+                        <button type="reset" class="btn btn-outline-secondary">
+                            <i class="bi bi-eraser me-1"></i>Clear
+                        </button>
+                        {% comment %} <a href="{% url 'home' %}" class="btn btn-outline-danger">
+                            <i class="bi bi-x-circle me-1"></i>Cancel
+                        </a> {% endcomment %}
+                        <a href="{{ cancel_url }}" class="btn btn-outline-danger" id="cancelBtn">
+                            <i class="bi bi-x-circle me-1"></i>Cancel
+                        </a>
+
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+{% if is_modify_mode %}
+<!-- 🔐 Modify Password Modal -->
+<div class="modal fade" id="modifyPasswordModal" tabindex="-1" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h5 class="modal-title">Enter Modify Password</h5>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2">
+          <input type="password" id="modifyPasswordInput"
+                 class="form-control form-control-sm"
+                 placeholder="Modify password">
+          <div id="modifyPwdError"
+               class="text-danger small mt-1"
+               style="display:none;">
+            Wrong password. Try again.
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer py-2">
+        <button type="button" class="btn btn-sm btn-secondary" id="modifyPwdCancel">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-sm btn-primary" id="modifyPwdOk">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+    {% if messages %} 
+    {% for message in messages %}
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                {{ message }}
+            </div>
+        </div>
+    </div>
+    {% endfor %} 
+    {% endif %}
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+{% comment %} <script>
+    $(document).ready(function () {
+    $('#id_client').trigger('change.select2');
+});
+
+</script> {% endcomment %}
+
+
+{% comment %} <script>
+$(document).ready(function () {
+    // Apply Select2
+    $('#id_client').select2({ placeholder: "-- Select Client --", allowClear: true, width: '100%' });
+    $('#id_account_select').select2({ placeholder: "-- Select Account --", allowClear: true, width: '100%' });
+
+    // Helper: load accounts for a client
+    function loadClientAccounts(clientId, selectedAccountId = null) {
+        $('#id_account_select').empty().append('<option value="">-- Select Account --</option>');
+
+        if (!clientId) return;
+
+        $.ajax({
+            url: '/get_client_accounts/',
+            data: { client_id: clientId },
+            success: function (data) {
+                data.accounts.forEach(function (account) {
+                    const option = new Option(`${account.account} (${account.account_id})`, account.id, false, account.id == selectedAccountId);
+                    $('#id_account_select').append(option);
+                });
+                $('#id_account_select').trigger('change.select2');
+            },
+            error: function () {
+                alert('Failed to load accounts for client.');
+            }
+        });
+    }
+
+    // Helper: load account details into form
+    function loadAccountDetails(accountId) {
+        if (!accountId) return;
+
+        $.ajax({
+            url: '/get_account_data/',
+            data: { account_id: accountId },
+            success: function (data) {
+                console.log("Account Data Received:", data); // <- ADD THIS
+                $('#id_account_name').val(data.account);
+                $('#id_account_id').val(data.account_id);
+                $('#id_account_group').val(data.account_group);
+                $('#id_acc_mail_id').val(data.acc_mail_id);
+                $('#id_bank_name').val(data.bank_name);
+                $('#id_branch').val(data.branch);
+                $('#id_account_no').val(data.account_no);
+                $('#id_ifsc_code').val(data.ifsc_code);
+                $('#id_acc_type').val(data.acc_type);
+                $('#id_data_entry').val(data.data_entry);
+                $('#id_full_match').prop('checked', data.full_match);
+                $('#id_e_statement').prop('checked', data.e_statement);
+                $('#id_two_match').val(data.two_match);
+                $('#id_contact_no').val(data.contact_no);
+                $('#id_pw').val(data.pw);
+                $('#hidden-account-id').val(accountId);
+                // ✅ Add these lines:
+                $('#id_cif_number').val(data.cif_number);
+                $('#id_closing_date').val(data.closing_date);
+                $('#id_bank_mail_id').val(data.bank_mail_id);
+                $('#id_branch_mail_id').val(data.branch_mail_id);
+                $('#id_branch_mobile_no').val(data.branch_mobile_no);
+                $('#id_statement_frequency').val(data.statement_frequency);
+                $('#id_reminder_date').val(data.reminder_date);
+            },
+            error: function () {
+                alert('Failed to fetch account details.');
+            }
+        });
+    }
+
+    // On client change → reload accounts
+    $('#id_client').on('change', function () {
+        const clientId = $(this).val();
+        console.log("Client ID selected:", clientId); // ADD THIS
+        $('#client_id_display').val(clientId);
+        loadClientAccounts(clientId);
+    });
+
+    // On account change → load form fields
+    $('#id_account_select').on('change', function () {
+        const selectedPk = $(this).val(); 
+        //const accountId = $(this).val();
+        console.log("✅ Selected Account for Modify:", selectedPk);
+        $('#hidden-account-pk').val(selectedPk);
+        loadAccountDetails(selectedPk);
+    });
+
+    // Modify Mode: Load selected account on page load
+    {% if is_modify_mode and form.instance.client %}
+        const preClientId = "{{ form.instance.client.client_id }}";
+        const preAccountId = "{{ selected_account_id }}";
+
+        $('#id_client').val(preClientId).trigger('change.select2');
+        $('#client_id_display').val(preClientId);
+        loadClientAccounts(preClientId, preAccountId);
+
+        // Wait a bit then load details
+        setTimeout(() => {
+            loadAccountDetails(preAccountId);
+        }, 500);
+    {% endif %}
+});
+      document.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    const inputs = Array.from(
+                        document.querySelectorAll('input:not([readonly]), button')
+                    );
+                    const index = inputs.indexOf(document.activeElement);
+                    if (index !== -1 && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                        event.preventDefault();
+                    }
+                }
+            });
+$('#main-account-form').on('submit', function (e) {
+    const formData = $(this).serializeArray();
+    console.log("🚀 FORM SUBMIT DEBUG:");
+    formData.forEach(f => console.log(f.name + " = " + f.value));
+});
+</script> {% endcomment %}
+
+<script>
+$(document).ready(function () {
+    // Apply Select2
+    $('#id_client').select2({ placeholder: "-- Select Client --", allowClear: true, width: '100%' });
+    $('#id_account_select').select2({ placeholder: "-- Select Account --", allowClear: true, width: '100%' });
+
+    // 🔹 NEW: preselect client when opened from reports page
+    const presetClientId = $('#preset_client_id').val();
+    if (presetClientId) {
+        console.log("✅ Preselecting client from URL:", presetClientId);
+        $('#id_client').val(presetClientId).trigger('change.select2');
+        $('#client_id_display').val(presetClientId);
+    }
+
+    // Helper: load accounts for a client
+    function loadClientAccounts(clientId, selectedAccountId = null) {
+        $('#id_account_select').empty().append('<option value="">-- Select Account --</option>');
+
+        if (!clientId) return;
+
+        $.ajax({
+            url: '/get_client_accounts/',
+            data: { client_id: clientId },
+            success: function (data) {
+                data.accounts.forEach(function (account) {
+                    const option = new Option(
+                        `${account.account} (${account.account_id})`,
+                        account.id,
+                        false,
+                        account.id == selectedAccountId
+                    );
+                    $('#id_account_select').append(option);
+                });
+                $('#id_account_select').trigger('change.select2');
+            },
+            error: function () {
+                alert('Failed to load accounts for client.');
+            }
+        });
+    }
+
+    // Helper: load account details into form
+    function loadAccountDetails(accountId) {
+        if (!accountId) return;
+
+        $.ajax({
+            url: '/get_account_data/',
+            data: { account_id: accountId },
+            success: function (data) {
+                console.log("Account Data Received:", data);
+                $('#id_account_name').val(data.account);
+                $('#id_account_id').val(data.account_id);
+                $('#id_account_group').val(data.account_group);
+                $('#id_acc_mail_id').val(data.acc_mail_id);
+                $('#id_bank_name').val(data.bank_name);
+                $('#id_branch').val(data.branch);
+                $('#id_account_no').val(data.account_no);
+                $('#id_busyacccode').val(data.busyacccode);
+                $('#id_ifsc_code').val(data.ifsc_code);
+                $('#id_acc_type').val(data.acc_type);
+                $('#id_data_entry').val(data.data_entry);
+                $('#id_full_match').prop('checked', data.full_match);
+                $('#id_e_statement').prop('checked', data.e_statement);
+                $('#id_two_match').val(data.two_match);
+                $('#id_contact_no').val(data.contact_no);
+                $('#id_pw').val(data.pw);
+                $('#hidden-account-id').val(accountId);
+
+                $('#id_cif_number').val(data.cif_number);
+                $('#id_closing_date').val(data.closing_date);
+                $('#id_bank_mail_id').val(data.bank_mail_id);
+                $('#id_branch_mail_id').val(data.branch_mail_id);
+                $('#id_branch_mobile_no').val(data.branch_mobile_no);
+                $('#id_statement_frequency').val(data.statement_frequency);
+                $('#id_reminder_date').val(data.reminder_date);
+            },
+            error: function () {
+                alert('Failed to fetch account details.');
+            }
+        });
+    }
+
+    // On client change → reload accounts
+    $('#id_client').on('change', function () {
+        const clientId = $(this).val();
+        console.log("Client ID selected:", clientId);
+        $('#client_id_display').val(clientId);
+        loadClientAccounts(clientId);
+    });
+
+    // On account change → load form fields
+    $('#id_account_select').on('change', function () {
+        const selectedPk = $(this).val();
+        console.log("✅ Selected Account for Modify:", selectedPk);
+       // $('#hidden-account-pk').val(selectedPk);
+       $('#hidden-account-id').val(data.account_id);
+
+        loadAccountDetails(selectedPk);
+    });
+
+    // Modify Mode: Load selected account on page load
+    {% if is_modify_mode and form.instance.client %}
+        const preClientId = "{{ form.instance.client.client_id }}";
+        const preAccountId = "{{ selected_account_id }}";
+
+        $('#id_client').val(preClientId).trigger('change.select2');
+        $('#client_id_display').val(preClientId);
+        loadClientAccounts(preClientId, preAccountId);
+
+        setTimeout(() => {
+            loadAccountDetails(preAccountId);
+        }, 500);
+    {% endif %}
+});
+</script>
+
+
+
+
+{% comment %} modify password {% endcomment %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    {% if is_modify_mode %}
+    // 🔐 Hard-coded modify password
+    const MODIFY_PASSWORD = "Kameet@a1";   // <-- change here if needed
+
+    const modalEl    = document.getElementById('modifyPasswordModal');
+    const pwdInput   = document.getElementById('modifyPasswordInput');
+    const errorLabel = document.getElementById('modifyPwdError');
+    const btnOk      = document.getElementById('modifyPwdOk');
+    const btnCancel  = document.getElementById('modifyPwdCancel');
+
+    if (modalEl && pwdInput && btnOk && btnCancel) {
+        // Show modal immediately when page loads (modify mode)
+        const modal = new bootstrap.Modal(modalEl, {
+            backdrop: 'static',
+            keyboard: false
+        });
+        modal.show();
+        pwdInput.focus();
+
+        btnOk.addEventListener('click', function () {
+            const val = pwdInput.value.trim();
+            if (val === MODIFY_PASSWORD) {
+                errorLabel.style.display = 'none';
+                modal.hide();  // allow user to use the form
+            } else {
+                errorLabel.style.display = 'block';
+                pwdInput.focus();
+                pwdInput.select();
+            }
+        });
+
+        // Press Enter inside password field = click OK
+        pwdInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                btnOk.click();
+            }
+        });
+
+        // Cancel → go back to home (or wherever you want)
+        btnCancel.addEventListener('click', function () {
+            window.location.href = "{{ cancel_url }}";
+        });
+    }
+    {% endif %}
+});
+</script>
+
+{% comment %} press Enter  go to Next field{% endcomment %}
+<script>
+document.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter") return;
+
+    const form = document.getElementById("main-account-form");
+    if (!form) return;
+
+    const active = document.activeElement;
+
+    // ❌ allow Enter inside textarea
+    if (active.tagName === "TEXTAREA") return;
+
+    // 🚫 stop default submit
+    e.preventDefault();
+
+    // ✅ all focusable fields in order
+    const focusable = Array.from(
+        form.querySelectorAll(`
+            input:not([type=hidden]):not([disabled]):not([readonly]),
+            select:not([disabled]),
+            textarea:not([disabled]),
+            button:not([disabled])
+        `)
+    ).filter(el => el.offsetParent !== null); // visible only
+
+    const index = focusable.indexOf(active);
+
+    if (index > -1 && index < focusable.length - 1) {
+        let next = focusable[index + 1];
+
+        // 🎯 handle Select2 focus properly
+        if (next.classList.contains("select2-hidden-accessible")) {
+            $(next).select2("open");
+        } else {
+            next.focus();
+        }
+    }
+});
+</script>
+
+
+</body>
+</html>

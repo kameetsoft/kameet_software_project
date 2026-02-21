@@ -1,0 +1,48 @@
+<!-- dashboard.hta -->
+<html>
+<head>
+  <title>🚀 KAMEET Software Launcher</title>
+
+  <!-- Tell Windows this is an HTA application -->
+  <HTA:APPLICATION
+      ID="KameetLauncher"
+      APPLICATIONNAME="KAMEET_Launcher"
+      SINGLEINSTANCE="yes"
+      BORDER="thin"
+      CAPTION="yes"
+      SHOWINTASKBAR="yes"
+      WINDOWSTATE="normal"
+  >
+
+  <style>
+    body           { font-family: Arial, sans-serif; background:#f6f8fa; text-align:center; padding:40px; }
+    h2             { margin-bottom:30px; }
+    .button        { width:170px; margin:12px; padding:15px; font-size:15px;
+                     color:#fff; background:#007bff; border:none; border-radius:8px;
+                     cursor:pointer; transition:.2s; }
+    .button:hover  { background:#0056b3; }
+  </style>
+</head>
+
+<body>
+  <h2>🚀 KAMEET Software Launcher</h2>
+
+<button class="button" onclick="run('C:\\BusyWin\\Busy21.exe')">Busy</button><br>
+<button class="button" onclick="run('D:\\STCL\\SPEQTA GST\\SPEQTAGST.exe')">Speqta</button><br>
+<button class="button" onclick="run('D:\\SAG Infotech\\Genius\\Genius.exe')">Genius</button><br>
+
+
+
+ <script>
+  function run(path) {
+    try {
+      var shell = new ActiveXObject("WScript.Shell");
+      shell.Run('cmd.exe /c start "" "' + path + '"');
+    } catch(e) {
+      alert("⚠️ Could not launch:\n" + path + "\n\n" + e.message);
+    }
+  }
+</script>
+
+</body>
+</html>

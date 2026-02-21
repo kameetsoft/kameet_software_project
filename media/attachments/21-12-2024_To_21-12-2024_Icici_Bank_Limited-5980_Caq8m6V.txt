@@ -1,0 +1,22 @@
+ICICI Bank account Statement from 21-12-2024 to 21-12-2024. 
+
+
+Account Number|Tran Date |  Tran Particular    | Inst Num      |   Dr Tran Amt   |    Cr Tran Amt |      Bal Amt      | Deposit Branch
+-------------- ---------    ---------------      ---------       ---------------   ---------------        --------    | ------- ------
+624605065980|   07-DEC-2024|  B/F                                                                                                 |                 |                |                |      3448346.53|                            
+624605065980|   12-Dec-2024|  TRFR TO* ANKIT ENTERPRISE                                                                           |             1475|       150000.00|            0.00|      3298346.53|               AHMEDABAD RPC
+624605065980|   12-Dec-2024|  NEFT*000154978681/SBIN0060019/SATNAM TRADERS                                                        |             1477|        50000.00|            0.00|      3248346.53|               AHMEDABAD RPC
+624605065980|   12-Dec-2024|  NEFT*000154978655/IDFB0042268/GOTI SANJAY MAKODBHA I                                                |             1480|        75000.00|            0.00|      3173346.53|               AHMEDABAD RPC
+624605065980|   12-Dec-2024|  RTGS*ICICR52024121200263212/HDFC0000251/SAHAJANAND  SER PVT LTD NASVADI AIRT                        |             1482|      1000000.00|            0.00|      2173346.53|               AHMEDABAD RPC
+624605065980|   12-Dec-2024|  NEFT*000154979048/UTIB0CCH274/ULTRATECH CEMENT                                                      |             1479|       175000.00|            0.00|      1998346.53|               AHMEDABAD RPC
+624605065980|   12-Dec-2024|  RTGS*ICICR52024121200263503/HDFC0000948/YOGI STEEL                                                  |             1478|       200000.00|            0.00|      1798346.53|               AHMEDABAD RPC
+624605065980|   12-Dec-2024|  RTGS*ICICR52024121200263582/UTIB0000047/NJ ECO BUI LD PVT LTD                                       |             1476|       250000.00|            0.00|      1548346.53|               AHMEDABAD RPC
+624605065980|   12-Dec-2024|  RTGS*ICICR52024121200263843/AUBL0002132/RADADIYA M ILAN RAJESHBHAI                                  |             1481|      1500000.00|            0.00|        48346.53|               AHMEDABAD RPC
+624605065980|   17-Dec-2024|  NEFT-IDFBH24352584082-MR GOTI SANJAY MAKODBHAI-/AT TN/-00000010079866009-IDFB0010201                |                 |            0.00|       100000.00|       148346.53|                  RPC MUMBAI
+624605065980|   17-Dec-2024|  NEFT-IDFBH24352623921-MR GOTI SANJAY MAKODBHAI-/AT TN/-00000010079866009-IDFB0010201                |                 |            0.00|       100000.00|       248346.53|                  RPC MUMBAI
+624605065980|   18-Dec-2024|  NEFT*000155173284/UTIB0000047/SHREE CHAMUNDA TRADI NG                                               |             1485|       150000.00|            0.00|        98346.53|               AHMEDABAD RPC
+624605065980|   18-Dec-2024|  BIL/INFT/DLM9391273/Bill Payment/  NIKUNJ RAMESHBH                                                  |                 |            0.00|       158000.00|       256346.53|                       SURAT
+624605065980|   18-Dec-2024|  NEFT*000155202251/UTIB0CCH274/ULTRATECH CEMENT                                                      |             1487|       170000.00|            0.00|        86346.53|               AHMEDABAD RPC
+624605065980|   20-Dec-2024|  RTGS-HDFCR52024122072675743-GPC INFASTRUCTURE-0335 2000005125-HDFC0000240                           |                 |            0.00|       700000.00|       786346.53|                   RPC-NASIK
+
+ Closing Balance as on 22-12-2024 07:31:11 is INR.786346.53 includes Uncleared Funds of INR.0.00
